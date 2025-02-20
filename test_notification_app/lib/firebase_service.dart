@@ -23,7 +23,7 @@ class FirebaseService {
   }
 
   static void sendTokenToBackend(String token) async {
-    var backendURL = "http://10.0.2.2:8000/register-token/";
+    var backendURL = "http://192.168.178.33:8000/register-token/";
     var response = await http.post(
       Uri.parse(backendURL),
       headers: {"Content-Type": "application/json"},
