@@ -11,8 +11,8 @@ import paho.mqtt.client as mqtt
 DEVICE_TOKENS = set()
 
 # MQTT Broker
-MQTT_BROKER = "mqtt://broker.emqx.io"
-MQTT_TOPIC = "test/notifications"
+MQTT_BROKER = "mqtt.eclipseprojects.io"
+MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
 
 def send_mqtt_message(message_id, topic, message):
     """Publish message via MQTT."""
@@ -21,6 +21,7 @@ def send_mqtt_message(message_id, topic, message):
     
     payload = json.dumps({"message_id": message_id, "message": message})
     client.publish(topic, payload)
+    print(f"✅ MQTT notification sent: {payload}")
     client.disconnect()
 
 def send_firebase_notification(token, title, body):
@@ -69,11 +70,11 @@ def send_notifications_view(request):
         #     print(f"title, body, token: {title}, {body}, {token}")
 
         if title and body:
+            send_mqtt_message(message_id=1, topic=MQTT_TOPIC, message=body)
             for token in DEVICE_TOKENS:
                 print(f"title, body, token: {title}, {body}, {token}")
                 send_firebase_notification(token, title, body)
                 # send_firebase_data_message(token, data_payload)
-                send_mqtt_message(message_id=1, topic=MQTT_TOPIC, message=body)
             
             return JsonResponse({"message": "Notifications sent successfully"})
     

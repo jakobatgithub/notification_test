@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'firebase_service.dart'; // Import Firebase service
-import 'mqtt_service.dart'; // Import MQTT service
+// import 'mqtt_service.dart'; // Import MQTT service
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http; // Import http package
+
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+
+import 'dart:convert';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
@@ -30,24 +35,73 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _mqttMessage = "No MQTT messages yet";
   String _firebaseMessage = "No Firebase messages yet";
-  late MQTTService _mqttService;
+  late MqttServerClient client;
+  // late MQTTService _mqttService;
 
   @override
   void initState() {
     super.initState();
     FirebaseService.initializeFirebase(); // Initialize Firebase
-    _mqttService = MQTTService(onMessageReceived: (message) {
-      setState(() {
-        _mqttMessage = message;
-      });
-    });
-    _mqttService.initializeMQTT(); // Initialize MQTT
+    // _mqttService = MQTTService(onMessageReceived: (message) {
+    //   print(message);
+    //   setState(() {
+    //     _mqttMessage = message;
+    //   });
+    // });
+    // _mqttService.initializeMQTT(); // Initialize MQTT
+    connectToMqtt();
     _setupFirebaseMessagingListeners(); // Setup Firebase listeners
   }
 
+  Future<void> connectToMqtt() async {
+    final clientId = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
+    client = MqttServerClient('mqtt.eclipseprojects.io', clientId);
+    client.port = 1883;
+    client.keepAlivePeriod = 60;
+    client.logging(on: false);
+    client.onConnected = () => debugPrint('Connected to MQTT broker');
+    client.onDisconnected = () => debugPrint('Disconnected from MQTT broker');
+    client.autoReconnect = true;  // Automatically reconnect on disconnection
+
+    final connMessage = MqttConnectMessage()
+        .withClientIdentifier(clientId)
+        .startClean()
+        .withWillQos(MqttQos.atLeastOnce);
+    client.connectionMessage = connMessage;
+
+    try {
+      await client.connect();
+    } catch (e) {
+      debugPrint('Connection failed: $e');
+      return;
+    }
+
+    client.subscribe("test/PROSUMIO_NOTIFICATIONS", MqttQos.atLeastOnce);
+
+    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMessage = c![0].payload as MqttPublishMessage;
+
+      final payloadBytes = recMessage.payload.message;
+
+      debugPrint('Received MQTT message: $payloadBytes');
+
+      try {
+        final payload = utf8.decode(payloadBytes);
+        debugPrint('Decoded MQTT message: $payload');
+
+        setState(() {
+          _mqttMessage = payload;
+        });
+      } catch (e) {
+        debugPrint('Error decoding payload: $e');
+      }
+    });
+    }
+
   @override
   void dispose() {
-    _mqttService.disconnect();
+    // _mqttService.disconnect();
+    client.disconnect();
     super.dispose();
   }
 
