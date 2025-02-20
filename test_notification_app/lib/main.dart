@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'firebase_service.dart'; // Import Firebase service
 import 'mqtt_service.dart'; // Import MQTT service
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http; // Import http package
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
@@ -41,12 +42,43 @@ class _MyAppState extends State<MyApp> {
       });
     });
     _mqttService.initializeMQTT(); // Initialize MQTT
+    _setupFirebaseMessagingListeners(); // Setup Firebase listeners
   }
 
   @override
   void dispose() {
     _mqttService.disconnect();
     super.dispose();
+  }
+
+  Future<void> _sendPostRequest() async {
+    final response = await http.post(
+      Uri.parse("http://192.168.178.33:8000/send-notifications/"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: '{"title": "My Ass!", "body": "My body."}',
+    );
+
+    if (response.statusCode == 200) {
+      print('Post request successful');
+    } else {
+      print('Failed to send post request');
+    }
+  }
+
+  void _setupFirebaseMessagingListeners() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      setState(() {
+        _firebaseMessage = message.notification?.body ?? "No message body";
+      });
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      setState(() {
+        _firebaseMessage = message.notification?.body ?? "No message body";
+      });
+    });
   }
 
   @override
@@ -74,6 +106,11 @@ class _MyAppState extends State<MyApp> {
               Text(
                 _mqttMessage,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _sendPostRequest,
+                child: const Text('Send notifications'),
               ),
             ],
           ),

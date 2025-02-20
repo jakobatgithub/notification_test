@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 
-from notifications.views import send_notification_view, register_token_view
+from notifications.views import register_token_view, send_notifications_view
 
 urlpatterns = [
-    path("send-notification/", send_notification_view, name="send_notification"),
     path("register-token/", register_token_view, name="register_token"),
+    path("send-notifications/", send_notifications_view, name="send_notifications"),
 ]

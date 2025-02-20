@@ -125,3 +125,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
+firebase_admin.initialize_app(cred)
