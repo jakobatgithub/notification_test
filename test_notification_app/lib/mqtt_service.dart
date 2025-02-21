@@ -1,68 +1,58 @@
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 
 class MQTTService {
-  late MqttServerClient _client;
-  Function(String)? onMessageReceived; // Callback function for UI updates
+  late MqttServerClient client;
+  final Function(String) onMessageReceived;
 
-  MQTTService({this.onMessageReceived});
+  MQTTService({required this.onMessageReceived});
 
   Future<void> initializeMQTT() async {
-    _client = MqttServerClient('broker.emqx.io', 'flutter_client');
-    _client.port = 1883;
-    _client.logging(on: true);
-    _client.keepAlivePeriod = 20;
-    _client.onConnected = _onConnected;
-    _client.onDisconnected = _onDisconnected;
-    _client.onSubscribed = _onSubscribed;
+    final clientId = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
+    client = MqttServerClient('mqtt.eclipseprojects.io', clientId);
+    client.port = 1883;
+    client.keepAlivePeriod = 60;
+    client.logging(on: false);
+    client.onConnected = () => debugPrint('Connected to MQTT broker');
+    client.onDisconnected = () => debugPrint('Disconnected from MQTT broker');
+    client.autoReconnect = true;  // Automatically reconnect on disconnection
+
+    final connMessage = MqttConnectMessage()
+        .withClientIdentifier(clientId)
+        .startClean()
+        .withWillQos(MqttQos.atLeastOnce);
+    client.connectionMessage = connMessage;
 
     try {
-      await _client.connect();
-      _client.subscribe("test/notifications", MqttQos.atMostOnce);
-
-      // Listen for incoming messages
-      _client.updates?.listen((List<MqttReceivedMessage<MqttMessage?>>? messages) {
-        if (messages != null && messages.isNotEmpty) {
-          final MqttPublishMessage message = messages[0].payload as MqttPublishMessage;
-          final String payload = MqttPublishPayload.bytesToStringAsString(message.payload.message);
-          print("📩 MQTT Message Received: $payload");
-
-          // Call UI update callback if defined
-          if (onMessageReceived != null) {
-            onMessageReceived!(payload);
-          }
-        }
-      });
+      await client.connect();
     } catch (e) {
-      print("❌ MQTT Connection Failed: $e");
+      debugPrint('Connection failed: $e');
+      return;
     }
-  }
 
-  void _onConnected() {
-    print("✅ Connected to MQTT broker!");
-  }
+    client.subscribe("test/PROSUMIO_NOTIFICATIONS", MqttQos.atLeastOnce);
 
-  void _onDisconnected() {
-    print("⚠ Disconnected from MQTT broker.");
-  }
+    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMessage = c![0].payload as MqttPublishMessage;
 
-  void _onSubscribed(String topic) {
-    print("🔔 Subscribed to topic: $topic");
-  }
+      final payloadBytes = recMessage.payload.message;
 
-  void publishMessage(String topic, String message) {
-    if (_client.connectionStatus?.state == MqttConnectionState.connected) {
-      final builder = MqttClientPayloadBuilder();
-      builder.addString(message);
-      _client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
-      print("📤 Published: $message to $topic");
-    } else {
-      print("⚠ Cannot publish, MQTT is not connected.");
-    }
+      debugPrint('Received MQTT message: $payloadBytes');
+
+      try {
+        final payload = utf8.decode(payloadBytes);
+        debugPrint('Decoded MQTT message: $payload');
+
+        onMessageReceived(payload);
+      } catch (e) {
+        debugPrint('Error decoding payload: $e');
+      }
+    });
   }
 
   void disconnect() {
-    _client.disconnect();
+    client.disconnect();
   }
 }
