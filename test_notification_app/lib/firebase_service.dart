@@ -54,11 +54,17 @@ class FirebaseService {
 
   void setupFirebaseMessagingListeners() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      onMessageReceived(message.notification?.body ?? "No message body");
+      String message_id = message.data['message_id'] ?? 0;
+      String title = message.notification?.title ?? "No message title";
+      String body = message.notification?.body ?? "No message body";
+      onMessageReceived("message_id: $message_id, title: $title, body: $body");
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      onMessageReceived(message.notification?.body ?? "No message body");
+      String message_id = message.data['message_id'] ?? 0;
+      String title = message.notification?.title ?? "No message title";
+      String body = message.notification?.body ?? "No message body";
+      onMessageReceived("message_id: $message_id, title: $title, body: $body");
     });
   }
 }

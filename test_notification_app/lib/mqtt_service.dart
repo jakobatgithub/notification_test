@@ -43,10 +43,12 @@ class MQTTService {
       debugPrint('Received MQTT message: $payloadBytes');
 
       try {
-        final payload = utf8.decode(payloadBytes);
-        debugPrint('Decoded MQTT message: $payload');
-
-        onMessageReceived(payload);
+        final payloadString = utf8.decode(payloadBytes);
+        final payload = jsonDecode(payloadString) as Map<String, dynamic>;
+        String message_id = payload['message_id'].toString();
+        String title = payload['title'] ?? "No message body";
+        String body = payload['body'] ?? "No message body";
+        onMessageReceived("message_id: $message_id, title: $title, body: $body");
       } catch (e) {
         debugPrint('Error decoding payload: $e');
       }
