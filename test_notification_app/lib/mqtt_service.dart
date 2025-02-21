@@ -2,6 +2,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'constants.dart';
 
 class MQTTService {
   late MqttServerClient client;
@@ -11,7 +12,7 @@ class MQTTService {
 
   Future<void> initializeMQTT() async {
     final clientId = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
-    client = MqttServerClient('mqtt.eclipseprojects.io', clientId);
+    client = MqttServerClient(MQTT_BROKER, clientId);
     client.port = 1883;
     client.keepAlivePeriod = 60;
     client.logging(on: false);
@@ -32,7 +33,7 @@ class MQTTService {
       return;
     }
 
-    client.subscribe("test/PROSUMIO_NOTIFICATIONS", MqttQos.atLeastOnce);
+    client.subscribe(MQTT_TOPIC, MqttQos.atLeastOnce);
 
     client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMessage = c![0].payload as MqttPublishMessage;

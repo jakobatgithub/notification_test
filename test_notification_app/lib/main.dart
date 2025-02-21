@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:http/http.dart' as http;
 import 'firebase_service.dart';
 import 'mqtt_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http;
+import 'constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseService.initializeFirebase(); // Initialize Firebase
-
   runApp(const MyApp());
 }
 
@@ -24,17 +20,25 @@ class _MyAppState extends State<MyApp> {
   String _mqttMessage = "No MQTT messages yet";
   String _firebaseMessage = "No Firebase messages yet";
   late MQTTService _mqttService;
+  late FirebaseService _firebaseService;
 
   @override
   void initState() {
     super.initState();
+
     _mqttService = MQTTService(onMessageReceived: (message) {
       setState(() {
         _mqttMessage = message;
       });
     });
     _mqttService.initializeMQTT(); // Initialize MQTT
-    _setupFirebaseMessagingListeners(); // Setup Firebase listeners
+
+    _firebaseService = FirebaseService(onMessageReceived: (message) {
+      setState(() {
+        _firebaseMessage = message;
+      });
+    });
+    _firebaseService.initializeFirebase(); // Initialize Firebase
   }
 
   @override
@@ -44,8 +48,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _sendPostRequest() async {
+    String backendURL = "$BASE_URL/send-notifications/";
     final response = await http.post(
-      Uri.parse("http://192.168.178.33:8000/send-notifications/"),
+      Uri.parse(backendURL),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -57,20 +62,6 @@ class _MyAppState extends State<MyApp> {
     } else {
       print('Failed to send post request');
     }
-  }
-
-  void _setupFirebaseMessagingListeners() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      setState(() {
-        _firebaseMessage = message.notification?.body ?? "No message body";
-      });
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      setState(() {
-        _firebaseMessage = message.notification?.body ?? "No message body";
-      });
-    });
   }
 
   @override

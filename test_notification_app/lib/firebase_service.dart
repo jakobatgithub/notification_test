@@ -2,11 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
+import 'constants.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final Function(String) onMessageReceived;
 
-  static Future<void> initializeFirebase() async {
+  FirebaseService({required this.onMessageReceived});
+
+  Future<void> initializeFirebase() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -30,10 +34,12 @@ class FirebaseService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("📩 Received Firebase Message: ${message.notification?.title}");
     });
+
+    setupFirebaseMessagingListeners();
   }
 
   static void sendTokenToBackend(String token) async {
-    var backendURL = "http://192.168.178.33:8000/register-token/";
+    var backendURL = "$BASE_URL/register-token/";
     var response = await http.post(
       Uri.parse(backendURL),
       headers: {"Content-Type": "application/json"},
@@ -44,5 +50,15 @@ class FirebaseService {
 
   static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print("Handling a background message: ${message.messageId}");
+  }
+
+  void setupFirebaseMessagingListeners() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      onMessageReceived(message.notification?.body ?? "No message body");
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      onMessageReceived(message.notification?.body ?? "No message body");
+    });
   }
 }
