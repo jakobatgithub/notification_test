@@ -10,6 +10,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
+Future<void> getAPNSToken() async {
+  String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+  print("APNS Token: $apnsToken");
+  
+  if (apnsToken == null) {
+    print("APNs token is null. Make sure your app is registered with Apple.");
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

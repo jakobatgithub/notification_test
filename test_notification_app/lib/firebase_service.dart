@@ -8,6 +8,9 @@ class FirebaseService {
     NotificationSettings settings = await _messaging.requestPermission();
     print("🔐 Permission status: ${settings.authorizationStatus}");
 
+    String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    print("APNs Token: $apnsToken");
+
     String? token = await _messaging.getToken();
     print("📲 Initial FCM Token: $token");
     if (token != null) sendTokenToBackend(token);
