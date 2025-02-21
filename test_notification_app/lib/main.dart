@@ -2,20 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'firebase_service.dart';
-import 'mqtt_service.dart'; // Import MQTT service
+import 'mqtt_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await FirebaseService.initializeFirebase(); // Initialize Firebase
 
   runApp(const MyApp());
 }
@@ -35,7 +28,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    FirebaseService.initializeFirebase(); // Initialize Firebase
     _mqttService = MQTTService(onMessageReceived: (message) {
       setState(() {
         _mqttMessage = message;

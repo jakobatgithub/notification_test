@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 
@@ -5,6 +7,11 @@ class FirebaseService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   static Future<void> initializeFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
     NotificationSettings settings = await _messaging.requestPermission();
     print("🔐 Permission status: ${settings.authorizationStatus}");
 
@@ -33,5 +40,9 @@ class FirebaseService {
       body: '{"token": "$token"}',
     );
     print("✅ Token Sent to Backend: ${response.body}");
+  }
+
+  static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print("Handling a background message: ${message.messageId}");
   }
 }
