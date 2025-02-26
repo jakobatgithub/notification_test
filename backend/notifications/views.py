@@ -24,16 +24,33 @@ def send_mqtt_message(message_id, title, body):
     print(f"✅ MQTT notification sent: {payload}")
     client.disconnect()
 
-def send_firebase_message(token, message_id, title, body):
+def send_firebase_notification(token, title, body):
     message = messaging.Message(
+        token=token,
         notification=messaging.Notification(
             title=title,
             body=body,
-        ),
+        )
+    )
+    response = (message)
+    print(f"✅ Firebase notification sent: {response}")
+    return response
+
+def send_firebase_data_message(token, message_id, title, body):
+    message = messaging.Message(
         token=token,
         data={
             "message_id": str(message_id),
-        }
+            "title": title,
+            "body": body,
+        },
+        android=messaging.AndroidConfig(priority="high"),
+        apns=messaging.APNSConfig(
+            headers={"apns-priority": "10"},
+            payload=messaging.APNSPayload(
+                aps=messaging.Aps(content_available=True)
+            ),
+        ),        
     )
     response = messaging.send(message)
     print(f"✅ Firebase notification sent: {response}")
@@ -69,7 +86,8 @@ def send_notifications_view(request):
             send_mqtt_message(message_id=message_id, title=title, body=body)
             for token in DEVICE_TOKENS:
                 print(f"title, body, token: {title}, {body}, {token}")
-                send_firebase_message(token=token, message_id=message_id, title=title, body=body)
+                send_firebase_notification(token=token, title=title, body=body)
+                send_firebase_data_message(token=token, message_id=message_id, title=title, body=body)
             
             return JsonResponse({"message": "Notifications sent successfully"})
     
