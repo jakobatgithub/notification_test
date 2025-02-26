@@ -26,10 +26,12 @@ class FirebaseService {
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("📩 Received Firebase Message: ${message.notification?.title}");
+      handleMessage(message);
     });
 
-    setupFirebaseMessagingListeners();
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      handleMessage(message);
+    });
   }
 
   static void sendTokenToBackend(String token) async {
@@ -42,19 +44,15 @@ class FirebaseService {
     print("✅ Token Sent to Backend: ${response.body}");
   }
 
-  void setupFirebaseMessagingListeners() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  void handleMessage(RemoteMessage message) {
+    if (message.data.isNotEmpty) {
+      print("Received a Firebase message with data.");
       String messageId = (message.data['message_id'] ?? 0).toString();
-      String title = message.notification?.title ?? "No message title";
-      String body = message.notification?.body ?? "No message body";
+      String title = message.data['title'] ?? "No message title";
+      String body = message.data['body'] ?? "No message body";
       onMessageReceived("message_id: $messageId, title: $title, body: $body");
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      String messageId = (message.data['message_id'] ?? 0).toString();
-      String title = message.notification?.title ?? "No message title";
-      String body = message.notification?.body ?? "No message body";
-      onMessageReceived("message_id: $messageId, title: $title, body: $body");
-    });
+    } else {
+      print("Received a Firebase notification message without data.");
+    }
   }
 }
