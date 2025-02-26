@@ -17,12 +17,13 @@ void main() async {
   runApp(const MyApp());
 }
 
-// This must be a top-level function!
+// This handles messages when the app is in the background or terminated
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  print("Handling background message: ${message.messageId}");
+  print("Received a Firebase message onBackgroundMessage");
 }
 
 class MyApp extends StatefulWidget {

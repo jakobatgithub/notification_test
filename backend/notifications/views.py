@@ -80,6 +80,7 @@ def send_notifications_view(request):
             # Generate a unique msg_id by counting requests
             if not hasattr(send_notifications_view, "message_counter"):
                 send_notifications_view.message_counter = 0
+            
             send_notifications_view.message_counter += 1
             msg_id = send_notifications_view.message_counter
 
