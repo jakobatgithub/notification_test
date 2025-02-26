@@ -14,12 +14,12 @@ DEVICE_TOKENS = set()
 MQTT_BROKER = "mqtt.eclipseprojects.io"
 MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
 
-def send_mqtt_message(message_id, title, body):
+def send_mqtt_message(msg_id, title, body):
     """Publish message via MQTT."""
     client = mqtt.Client()
     client.connect(MQTT_BROKER, 1883, 60)
     
-    payload = json.dumps({"message_id": message_id, "title": title, "body": body})
+    payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
     client.publish(MQTT_TOPIC, payload)
     print(f"✅ MQTT notification sent: {payload}")
     client.disconnect()
@@ -36,11 +36,11 @@ def send_firebase_notification(token, title, body):
     print(f"✅ Firebase notification sent: {response}")
     return response
 
-def send_firebase_data_message(token, message_id, title, body):
+def send_firebase_data_message(token, msg_id, title, body):
     message = messaging.Message(
         token=token,
         data={
-            "message_id": str(message_id),
+            "msg_id": str(msg_id),
             "title": title,
             "body": body,
         },
@@ -77,17 +77,17 @@ def send_notifications_view(request):
         body = data.get("body")
 
         if title and body:
-            # Generate a unique message_id by counting requests
+            # Generate a unique msg_id by counting requests
             if not hasattr(send_notifications_view, "message_counter"):
                 send_notifications_view.message_counter = 0
             send_notifications_view.message_counter += 1
-            message_id = send_notifications_view.message_counter
+            msg_id = send_notifications_view.message_counter
 
-            send_mqtt_message(message_id=message_id, title=title, body=body)
+            send_mqtt_message(msg_id=msg_id, title=title, body=body)
             for token in DEVICE_TOKENS:
                 print(f"title, body, token: {title}, {body}, {token}")
                 send_firebase_notification(token=token, title=title, body=body)
-                send_firebase_data_message(token=token, message_id=message_id, title=title, body=body)
+                send_firebase_data_message(token=token, msg_id=msg_id, title=title, body=body)
             
             return JsonResponse({"message": "Notifications sent successfully"})
     

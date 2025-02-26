@@ -45,12 +45,13 @@ class FirebaseService {
   }
 
   void handleMessage(RemoteMessage message) {
-    if (message.data.isNotEmpty) {
+    if (message.data.isNotEmpty && message.notification == null) {
       print("Received a Firebase message with data.");
-      String messageId = (message.data['message_id'] ?? 0).toString();
+      String messageId = message.data['msg_id'] ?? "No message ID";
       String title = message.data['title'] ?? "No message title";
       String body = message.data['body'] ?? "No message body";
-      onMessageReceived("message_id: $messageId, title: $title, body: $body");
+      print("msg_id: $messageId, title: $title, body: $body");
+      onMessageReceived("msg_id: $messageId, title: $title, body: $body");
     } else {
       print("Received a Firebase notification message without data.");
     }
