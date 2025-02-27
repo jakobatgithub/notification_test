@@ -20,7 +20,7 @@ def send_mqtt_message(msg_id, title, body):
     client.connect(MQTT_BROKER, 1883, 60)
     
     payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    client.publish(MQTT_TOPIC, payload)
+    client.publish(MQTT_TOPIC, payload, qos=1)
     print(f"✅ MQTT notification sent: {payload}")
     client.disconnect()
 
