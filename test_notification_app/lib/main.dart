@@ -3,7 +3,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:http/http.dart' as http;
-import 'firebase_service.dart';
 import 'mqtt_service.dart';
 import 'constants.dart';
 
@@ -42,20 +41,27 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    _initializeServices();
+  }
 
-    _mqttService = MQTTService(onMessageReceived: (message) {
-      setState(() {
-        _mqttMessage = message;
-      });
-    });
-    _mqttService.initializeMQTT(); // Initialize MQTT
+  void _initializeServices() {
+    _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
+    _mqttService.initializeMQTT();
 
-    _firebaseService = FirebaseService(onMessageReceived: (message) {
-      setState(() {
-        _firebaseMessage = message;
-      });
+    _firebaseService = FirebaseService(onMessageReceived: _onFirebaseMessageReceived);
+    _firebaseService.initializeFirebase();
+  }
+
+  void _onMqttMessageReceived(String message) {
+    setState(() {
+      _mqttMessage = message;
     });
-    _firebaseService.initializeFirebase(); // Initialize Firebase
+  }
+
+  void _onFirebaseMessageReceived(String message) {
+    setState(() {
+      _firebaseMessage = message;
+    });
   }
 
   @override
@@ -117,5 +123,52 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+}
+
+class FirebaseService {
+  static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final Function(String) onMessageReceived;
+
+  FirebaseService({required this.onMessageReceived});
+
+  Future<void> initializeFirebase() async {
+    NotificationSettings settings = await _messaging.requestPermission();
+    print("🔐 Permission status: ${settings.authorizationStatus}");
+
+    String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    print("APNs Token: $apnsToken");
+
+    String? token = await _messaging.getToken();
+    print("📲 Initial FCM Token: $token");
+    if (token != null) sendTokenToBackend(token);
+
+    _messaging.onTokenRefresh.listen(sendTokenToBackend);
+
+    FirebaseMessaging.onMessage.listen(handleMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+  }
+
+  static void sendTokenToBackend(String token) async {
+    var backendURL = "$BASE_URL/register-token/";
+    var response = await http.post(
+      Uri.parse(backendURL),
+      headers: {"Content-Type": "application/json"},
+      body: '{"token": "$token"}',
+    );
+    print("✅ Token Sent to Backend: ${response.body}");
+  }
+
+  void handleMessage(RemoteMessage message) {
+    if (message.data.isNotEmpty && message.notification == null) {
+      print("Received a Firebase message with data.");
+      String messageId = message.data['msg_id'] ?? "No message ID";
+      String title = message.data['title'] ?? "No message title";
+      String body = message.data['body'] ?? "No message body";
+      print("msg_id: $messageId, title: $title, body: $body");
+      onMessageReceived("msg_id: $messageId, title: $title, body: $body");
+    } else {
+      print("Received a Firebase notification message without data.");
+    }
   }
 }
