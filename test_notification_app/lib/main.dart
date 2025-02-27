@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'mqtt_service.dart';
 import 'constants.dart';
 
@@ -22,7 +23,25 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final prefs = await SharedPreferences.getInstance();
+
   print("Received a Firebase message onBackgroundMessage");
+
+  if (message.data.isNotEmpty && message.notification == null) {
+    print("Received a Firebase message with data.");
+    String messageId = message.data['msg_id'] ?? "No message ID";
+    String title = message.data['title'] ?? "No message title";
+    String body = message.data['body'] ?? "No message body";
+    String fullMessage = "msg_id: $messageId, title: $title, body: $body";
+    print("messageId of latest message is $messageId");
+
+    bool success = await prefs.setString('latestMessage', fullMessage);
+    print("✅ SharedPreferences updated: $success");
+    print("Latest message updated: $fullMessage");
+
+    } else {
+    print("Received a Firebase notification message with data.");
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -32,7 +51,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _mqttMessage = "No MQTT messages yet";
   String _firebaseMessage = "No Firebase messages yet";
   late MQTTService _mqttService;
@@ -42,6 +61,35 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initializeServices();
+    WidgetsBinding.instance.addObserver(this);
+    _loadLatestMessage();
+  }
+
+  @override
+  void dispose() {
+    _mqttService.disconnect();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print("App state changed: $state");
+    if (state == AppLifecycleState.resumed) {
+      print("App state resumed, loading latest message...");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.reload();  // Force reload
+
+      String? latestMessage = prefs.getString('latestMessage');
+      print("Load latest message: $latestMessage");
+      if (latestMessage != null) {
+        setState(() {
+          _firebaseMessage = latestMessage;
+        });
+      } else {
+        print("No latest message found");
+      }
+    }
   }
 
   void _initializeServices() {
@@ -64,10 +112,17 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  @override
-  void dispose() {
-    _mqttService.disconnect();
-    super.dispose();
+  Future<void> _loadLatestMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // Force reload before reading
+
+    String? latestMessage = prefs.getString('latestMessage');
+    print("Load latest message: $latestMessage");
+    if (latestMessage != null) {
+      setState(() {
+        _firebaseMessage = latestMessage;
+      });
+    }
   }
 
   Future<void> _sendPostRequest() async {
@@ -159,14 +214,23 @@ class FirebaseService {
     print("✅ Token Sent to Backend: ${response.body}");
   }
 
-  void handleMessage(RemoteMessage message) {
+  void handleMessage(RemoteMessage message) async {
     if (message.data.isNotEmpty && message.notification == null) {
       print("Received a Firebase message with data.");
-      String messageId = message.data['msg_id'] ?? "No message ID";
+      
+      String messageId = message.data['msg_id'] ?? "0";
       String title = message.data['title'] ?? "No message title";
       String body = message.data['body'] ?? "No message body";
-      print("msg_id: $messageId, title: $title, body: $body");
-      onMessageReceived("msg_id: $messageId, title: $title, body: $body");
+      String fullMessage = "msg_id: $messageId, title: $title, body: $body";
+      
+      onMessageReceived(fullMessage);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool success = await prefs.setString('latestMessage', fullMessage);
+      
+      print("✅ SharedPreferences updated: $success");
+      print("Latest message updated: $fullMessage");
+
     } else {
       print("Received a Firebase notification message without data.");
     }
