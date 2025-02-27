@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'mqtt_service.dart';
 import 'constants.dart';
 
 Set<String> _receivedMessages = {}; // Define globally
@@ -58,9 +57,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  String _mqttMessage = "No MQTT messages yet";
   String _firebaseMessage = "No Firebase messages yet";
-  late MQTTService _mqttService;
   late FirebaseService _firebaseService;
 
   @override
@@ -74,7 +71,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _mqttService.disconnect();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -107,17 +103,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initializeServices() {
-    _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
-    _mqttService.initializeMQTT();
-
     _firebaseService = FirebaseService(onMessageReceived: _onFirebaseMessageReceived);
     _firebaseService.initializeFirebase();
-  }
-
-  void _onMqttMessageReceived(String message) {
-    setState(() {
-      _mqttMessage = message;
-    });
   }
 
   void _onFirebaseMessageReceived(String message) {
@@ -186,12 +173,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               const Text("Latest Firebase Message:"),
               Text(
                 _firebaseMessage,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              const Text("Latest MQTT Message:"),
-              Text(
-                _mqttMessage,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),

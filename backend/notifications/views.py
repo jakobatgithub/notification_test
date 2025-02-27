@@ -5,24 +5,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from firebase_admin import messaging
 
-import paho.mqtt.client as mqtt
-
 # Store device tokens
 DEVICE_TOKENS = set()
 
 # MQTT Broker
 MQTT_BROKER = "mqtt.eclipseprojects.io"
 MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
-
-def send_mqtt_message(msg_id, title, body):
-    """Publish message via MQTT."""
-    client = mqtt.Client()
-    client.connect(MQTT_BROKER, 1883, 60)
-    
-    payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    client.publish(MQTT_TOPIC, payload)
-    print(f"✅ MQTT notification sent: {payload}")
-    client.disconnect()
 
 def send_firebase_notification(token, title, body):
     message = messaging.Message(
@@ -84,7 +72,6 @@ def send_notifications_view(request):
             send_notifications_view.message_counter += 1
             msg_id = send_notifications_view.message_counter
 
-            send_mqtt_message(msg_id=msg_id, title=title, body=body)
             for token in DEVICE_TOKENS:
                 print(f"title, body, token: {title}, {body}, {token}")
                 send_firebase_notification(token=token, title=title, body=body)
