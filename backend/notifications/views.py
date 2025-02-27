@@ -8,11 +8,7 @@ from firebase_admin import messaging
 import paho.mqtt.client as mqtt
 
 # Store device tokens
-# DEVICE_TOKENS = set()
-DEVICE_TOKENS = {'fqN21JW5Tm-ZicdnIorc_M:APA91bGUewRk6MVSkMZA-HfDSrCcisb80XFHvJx54MWIUnb_IXi99pm_Su0yQWX4rVMvwsVbFMfOQJokgYj6bzm7b_p3PLNTIsBYEDJ16VlyTCYcbUKb_aQ',
-                 'e13O2mO8SnudusG3acjxMF:APA91bHyn7pqn4PSuBGqMPj8IU556Uv0Yw3HCKJMBI4o9dH_0fSZgDALLkM6vBvsdRpaz1cqTTxmThK4cB8m9m2xMEEtEdwYJQ0B2bx6hdlZF9IiqGcXKYA',
-                 'do2nDgY3oEuehdYXx82sLo:APA91bG12626TFb2zxCl0n8fV1RhCxL7fzEJymd4ab-iZLEGCa40zzhbRBMoQFlSCYzYOwpQ_MVR-CAJ3hK1QnL8gWYDAPScWsaLadQyzD2QklMs4HQcMRU',
-                 'e1QO-LSgTTuUj-Yh5-sXUm:APA91bE0EzXq1oqBAhe9ZvprKztZKBN79N4l8Ukr3OBX2cl1oJDtTWPM0WOCL5CGnVz2t-1zTqD0uXfEh7gxsL8OXi5M7-7RH2bWrPpwb7xEr16gW0-LBIo'}
+DEVICE_TOKENS = set()
 
 # MQTT Broker
 MQTT_BROKER = "mqtt.eclipseprojects.io"
