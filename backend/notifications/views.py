@@ -8,10 +8,6 @@ from firebase_admin import messaging
 # Store device tokens
 DEVICE_TOKENS = set()
 
-# MQTT Broker
-MQTT_BROKER = "mqtt.eclipseprojects.io"
-MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
-
 def send_firebase_notification(token, title, body):
     message = messaging.Message(
         token=token,

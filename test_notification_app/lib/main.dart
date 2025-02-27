@@ -158,13 +158,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Notifications & MQTT',
+      title: 'Flutter Notifications',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Firebase & MQTT Demo"),
+          title: const Text("Firebase Demo"),
         ),
         body: Center(
           child: Column(
