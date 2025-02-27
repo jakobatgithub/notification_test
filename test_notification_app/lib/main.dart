@@ -1,7 +1,7 @@
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-// import 'firebase_options.dart';
+import 'firebase_options.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mqtt_service.dart';
@@ -12,20 +12,20 @@ Set<String> _receivedMQTTMessages = {}; // Define globally
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
 }
 
 // This handles messages when the app is in the background or terminated
-// @pragma('vm:entry-point')
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp(
-//     options: DefaultFirebaseOptions.currentPlatform,
-//   );
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 //   final prefs = await SharedPreferences.getInstance();
 //   await prefs.reload(); // Force reload before reading
 
@@ -49,7 +49,7 @@ void main() async {
 //   } else {
 //     print("Received a Firebase notification message without data.");
 //   }
-// }
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _mqttMessage = "No MQTT messages yet";
   // String _firebaseMessage = "No Firebase messages yet";
   late MQTTService _mqttService;
-  // late FirebaseService _firebaseService;
+  late FirebaseService _firebaseService;
 
   @override
   void initState() {
@@ -111,8 +111,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
     _mqttService.initializeMQTT();
     _loadReceivedMQTTMessages();
-    // _firebaseService = FirebaseService(onMessageReceived: _onFirebaseMessageReceived);
-    // _firebaseService.initializeFirebase();
+    _firebaseService = FirebaseService();
+    _firebaseService.initializeFirebase();
   }
 
   void _onMqttMessageReceived(String message) async {
@@ -236,38 +236,38 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 }
 
-// class FirebaseService {
-//   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+class FirebaseService {
+  static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 //   final Function(String) onMessageReceived;
 
 //   FirebaseService({required this.onMessageReceived});
 
-//   Future<void> initializeFirebase() async {
-//     NotificationSettings settings = await _messaging.requestPermission();
-//     print("🔐 Permission status: ${settings.authorizationStatus}");
+  Future<void> initializeFirebase() async {
+    NotificationSettings settings = await _messaging.requestPermission();
+    print("🔐 Permission status: ${settings.authorizationStatus}");
 
-//     String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-//     print("APNs Token: $apnsToken");
+    String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    print("APNs Token: $apnsToken");
 
-//     String? token = await _messaging.getToken();
-//     print("📲 Initial FCM Token: $token");
-//     if (token != null) sendTokenToBackend(token);
+    String? token = await _messaging.getToken();
+    print("📲 Initial FCM Token: $token");
+    if (token != null) sendTokenToBackend(token);
 
-//     _messaging.onTokenRefresh.listen(sendTokenToBackend);
+    _messaging.onTokenRefresh.listen(sendTokenToBackend);
 
-//     FirebaseMessaging.onMessage.listen(handleMessage);
-//     FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
-//   }
+    // FirebaseMessaging.onMessage.listen(handleMessage);
+    // FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+  }
 
-//   static void sendTokenToBackend(String token) async {
-//     var backendURL = "$BASE_URL/register-token/";
-//     var response = await http.post(
-//       Uri.parse(backendURL),
-//       headers: {"Content-Type": "application/json"},
-//       body: '{"token": "$token"}',
-//     );
-//     print("✅ Token Sent to Backend: ${response.body}");
-//   }
+  static void sendTokenToBackend(String token) async {
+    var backendURL = "$BASE_URL/register-token/";
+    var response = await http.post(
+      Uri.parse(backendURL),
+      headers: {"Content-Type": "application/json"},
+      body: '{"token": "$token"}',
+    );
+    print("✅ Token Sent to Backend: ${response.body}");
+  }
 
 //   void handleMessage(RemoteMessage message) async {
 //     if (message.data.isNotEmpty && message.notification == null) {
@@ -296,4 +296,4 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 //       print("Received a Firebase notification message without data.");
 //     }
 //   }
-// }
+}

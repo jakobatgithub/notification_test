@@ -88,7 +88,7 @@ def send_notifications_view(request):
             for token in DEVICE_TOKENS:
                 print(f"title, body, token: {title}, {body}, {token}")
                 send_firebase_notification(token=token, title=title, body=body)
-                send_firebase_data_message(token=token, msg_id=msg_id, title=title, body=body)
+                # send_firebase_data_message(token=token, msg_id=msg_id, title=title, body=body)
             
             return JsonResponse({"message": "Notifications sent successfully"})
     
