@@ -36,7 +36,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _mqttMessage = "No MQTT messages yet";
-  // String _firebaseMessage = "No Firebase messages yet";
   late MQTTService _mqttService;
   late FirebaseService _firebaseService;
 
@@ -66,7 +65,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _receivedMQTTMessages = (prefs.getStringList('receivedMQTTMessages') ?? []).toSet();
     _receivedMQTTMessages.add(message);
     
-    bool success2 = await prefs.setStringList('receivedMQTTMessages', _receivedMQTTMessages.toList());
+    await prefs.setStringList('receivedMQTTMessages', _receivedMQTTMessages.toList());
 
     setState(() {
       _mqttMessage = message;
