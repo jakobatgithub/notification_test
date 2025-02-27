@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'mqtt_service.dart';
 import 'constants.dart';
 
+Set<String> _receivedMessages = {}; // Define globally
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -24,6 +26,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final prefs = await SharedPreferences.getInstance();
+  await prefs.reload(); // Force reload before reading
 
   print("Received a Firebase message onBackgroundMessage");
 
@@ -35,12 +38,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     String fullMessage = "msg_id: $messageId, title: $title, body: $body";
     print("messageId of latest message is $messageId");
 
-    bool success = await prefs.setString('latestMessage', fullMessage);
-    print("✅ SharedPreferences updated: $success");
+    _receivedMessages = (prefs.getStringList('receivedMessages') ?? []).toSet();
+    _receivedMessages.add(fullMessage);
+    bool success1 = await prefs.setString('latestMessage', fullMessage);
+    bool success2 = await prefs.setStringList('receivedMessages', _receivedMessages.toList());
+    print("✅ SharedPreferences updated: $success1 and $success2");
     print("Latest message updated: $fullMessage");
 
-    } else {
-    print("Received a Firebase notification message with data.");
+  } else {
+    print("Received a Firebase notification message without data.");
   }
 }
 
@@ -63,6 +69,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _initializeServices();
     WidgetsBinding.instance.addObserver(this);
     _loadLatestMessage();
+    _loadReceivedMessages();
   }
 
   @override
@@ -88,6 +95,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         });
       } else {
         print("No latest message found");
+      }
+
+      List<String>? messages = prefs.getStringList('receivedMessages');
+      if (messages != null) {
+        setState(() {
+          _receivedMessages = messages.toSet()..toList().sort();
+        });
       }
     }
   }
@@ -121,6 +135,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (latestMessage != null) {
       setState(() {
         _firebaseMessage = latestMessage;
+      });
+    }
+  }
+
+  Future<void> _loadReceivedMessages() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // Force reload before reading
+    
+    List<String>? messages = prefs.getStringList('receivedMessages');
+    if (messages != null) {
+      setState(() {
+        _receivedMessages = messages.toSet()..toList().sort();
       });
     }
   }
@@ -173,6 +199,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 onPressed: _sendPostRequest,
                 child: const Text('Send notifications'),
               ),
+              const SizedBox(height: 20),
+              const Text("Recent Messages:"),
+              ..._receivedMessages.toList().reversed.take(10).map((message) => Text(
+                message,
+                style: const TextStyle(fontSize: 14),
+              )).toList(),
             ],
           ),
         ),
@@ -226,9 +258,15 @@ class FirebaseService {
       onMessageReceived(fullMessage);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool success = await prefs.setString('latestMessage', fullMessage);
+      await prefs.reload(); // Force reload before reading
       
-      print("✅ SharedPreferences updated: $success");
+      _receivedMessages = (prefs.getStringList('receivedMessages') ?? []).toSet();
+      _receivedMessages.add(fullMessage);
+      
+      bool success1 = await prefs.setString('latestMessage', fullMessage);
+      bool success2 = await prefs.setStringList('receivedMessages', _receivedMessages.toList());
+      
+      print("✅ SharedPreferences updated: $success1 and $success2");
       print("Latest message updated: $fullMessage");
 
     } else {
