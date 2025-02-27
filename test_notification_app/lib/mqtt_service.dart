@@ -24,12 +24,10 @@ class MQTTService {
     client.logging(on: false);
     client.onConnected = () => debugPrint('Connected to MQTT broker');
     client.onDisconnected = () => debugPrint('Disconnected from MQTT broker');
-    client.autoReconnect = true;  // Automatically reconnect on disconnection
-    // client.setProtocolV311();  // Ensures MQTT 3.1.1 support
+    client.autoReconnect = true;
 
     final connMessage = MqttConnectMessage()
         .withClientIdentifier(clientId)
-        // .startClean()
         .withWillQos(MqttQos.atLeastOnce);
     client.connectionMessage = connMessage;
 
@@ -46,10 +44,10 @@ class MQTTService {
       final recMessage = c![0].payload as MqttPublishMessage;
       final payloadBytes = recMessage.payload.message;
 
-      debugPrint('Received MQTT message: $payloadBytes');
-
       try {
         final payloadString = utf8.decode(payloadBytes);
+        debugPrint('Received MQTT message: $payloadString');
+
         final payload = jsonDecode(payloadString) as Map<String, dynamic>;
         String msg_id = payload['msg_id'].toString();
         String title = payload['title'] ?? "No message body";
