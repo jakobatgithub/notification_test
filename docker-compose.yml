@@ -6,3 +6,15 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
+    depends_on:
+      - emqx
+
+  emqx:
+    image: emqx/emqx:latest
+    container_name: emqx_broker
+    restart: always
+    ports:
+      - "1883:1883"  # MQTT Port
+      - "8083:8083"  # WebSocket Port
+      - "8084:8084"  # Secure WebSocket Port
+      - "18083:18083" # Dashboard Port
