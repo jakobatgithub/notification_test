@@ -11,7 +11,8 @@ import paho.mqtt.client as mqtt
 DEVICE_TOKENS = set()
 
 # MQTT Broker
-MQTT_BROKER = "mqtt.eclipseprojects.io"
+# MQTT_BROKER = "mqtt.eclipseprojects.io"
+MQTT_BROKER = "emqx_broker"
 MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
 
 def send_mqtt_message(msg_id, title, body):

@@ -12,30 +12,42 @@ class MQTTService {
   MQTTService({required this.onMessageReceived});
 
   Future<void> initializeMQTT() async {
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? clientId = prefs.getString('mqtt_client_id');
-    if (clientId == null) {
-      clientId = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
-      await prefs.setString('mqtt_client_id', clientId);
+    String? CLIENT_ID = prefs.getString('mqtt_client_id');
+    if (CLIENT_ID == null) {
+      CLIENT_ID = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
+      await prefs.setString('mqtt_client_id', CLIENT_ID);
     }
-    client = MqttServerClient(MQTT_BROKER, clientId);
-    client.port = 1883;
-    client.keepAlivePeriod = 60;
-    client.logging(on: false);
-    client.onConnected = () => debugPrint('Connected to MQTT broker');
-    client.onDisconnected = () => debugPrint('Disconnected from MQTT broker');
-    client.autoReconnect = true;
 
-    final connMessage = MqttConnectMessage()
-        .withClientIdentifier(clientId)
-        .withWillQos(MqttQos.atLeastOnce);
-    client.connectionMessage = connMessage;
+    final client = MqttServerClient.withPort(MQTT_BROKER, CLIENT_ID, MQTT_PORT);
 
+    // Enable logging to see connection issues
+    client.logging(on: true);
+    
+    // Set keep-alive period
+    client.keepAlivePeriod = 20;
+    
+    // Define connection callbacks
+    client.onConnected = () => print("✅ Connected to MQTT Broker!");
+    client.onDisconnected = () => print("❌ Disconnected from MQTT Broker!");
+    client.onSubscribed = (String topic) => print("✅ Subscribed to $topic");
+
+    // Set connection protocol
+    client.setProtocolV311();  // Use MQTT v3.1.1 (compatible with most brokers)
+
+    // Try connecting
     try {
+      final connMessage = MqttConnectMessage()
+          .withClientIdentifier(CLIENT_ID);
+          // .startClean();  // Ensures a fresh connection
+
+      client.connectionMessage = connMessage;
+
       await client.connect();
     } catch (e) {
-      debugPrint('Connection failed: $e');
-      return;
+      print("❌ Connection failed: $e");
+      client.disconnect();
     }
 
     client.subscribe(MQTT_TOPIC, MqttQos.atLeastOnce);
