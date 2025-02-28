@@ -40,7 +40,6 @@ class MQTTService {
     try {
       final connMessage = MqttConnectMessage()
           .withClientIdentifier(CLIENT_ID);
-          // .startClean();  // Ensures a fresh connection
 
       client.connectionMessage = connMessage;
 
