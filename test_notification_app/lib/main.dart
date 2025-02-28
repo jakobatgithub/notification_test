@@ -115,28 +115,35 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         appBar: AppBar(
           title: const Text("Firebase & MQTT Demo"),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Latest MQTT Message:"),
-              Text(
-                _mqttMessage,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 50), // Add some space at the top
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Latest MQTT Message:"),
+                  Text(
+                    _mqttMessage,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _sendPostRequest,
+                    child: const Text('Send notifications'),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text("Recent Messages:"),
+                  ..._receivedMQTTMessages.toList().reversed.take(10).map((message) => Text(
+                    message,
+                    style: const TextStyle(fontSize: 14),
+                  )).toList(),
+                ],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _sendPostRequest,
-                child: const Text('Send notifications'),
-              ),
-              const SizedBox(height: 20),
-              const Text("Recent Messages:"),
-              ..._receivedMQTTMessages.toList().reversed.take(10).map((message) => Text(
-                message,
-                style: const TextStyle(fontSize: 14),
-              )).toList(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
