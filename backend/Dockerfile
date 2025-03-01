@@ -16,6 +16,12 @@ COPY . /app
 # Expose port 8000
 EXPOSE 8000
 
+# Create a directory for static files
+RUN mkdir -p staticfiles
+
+# Collect static files.
+RUN python manage.py collectstatic --noinput --clear
+
 # Command to run the application
 CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
