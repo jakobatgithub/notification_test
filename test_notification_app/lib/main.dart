@@ -166,24 +166,12 @@ class FirebaseService {
     String? token = await _messaging.getToken();
     print("📲 Initial FCM Token: $token");
     if (token != null) {
-      sendTokenToBackend(token);
       registerDevice(token);
     }
 
     _messaging.onTokenRefresh.listen((token) {
-      sendTokenToBackend(token);
       registerDevice(token);
     });
-  }
-
-  void sendTokenToBackend(String token) async {
-    var backendURL = "$BASE_URL/api/register-token/";
-    var response = await http.post(
-      Uri.parse(backendURL),
-      headers: {"Content-Type": "application/json"},
-      body: '{"token": "$token"}',
-    );
-    print("✅ Token Sent to Backend: ${response.body}");
   }
 
   Future<void> registerDevice(String token) async {

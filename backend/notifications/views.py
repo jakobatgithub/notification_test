@@ -4,12 +4,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from firebase_admin import messaging
+from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
 import paho.mqtt.client as mqtt
-
-# Store device tokens
-DEVICE_TOKENS = set()
 
 # MQTT Broker
 # MQTT_BROKER = "mqtt.eclipseprojects.io"
@@ -27,9 +25,9 @@ def send_mqtt_message(msg_id, title, body):
     client.disconnect()
 
 def send_firebase_notification(token, title, body):
-    message = messaging.Message(
+    message = Message(
         token=token,
-        notification=messaging.Notification(
+        notification=Notification(
             title=title,
             body=body,
         )
@@ -39,7 +37,7 @@ def send_firebase_notification(token, title, body):
     return response
 
 def send_firebase_data_message(token, msg_id, title, body):
-    message = messaging.Message(
+    message = Message(
         token=token,
         data={
             "msg_id": str(msg_id),
@@ -57,19 +55,6 @@ def send_firebase_data_message(token, msg_id, title, body):
     response = messaging.send(message)
     print(f"✅ Firebase data message sent: {response}")
     return response
-
-@csrf_exempt
-def register_token_view(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        token = data.get("token")
-
-        if token:
-            DEVICE_TOKENS.add(token)  # Store token in a database instead of a set in production
-            print(f"DEVICE_TOKENS: {DEVICE_TOKENS}")
-            return JsonResponse({"message": "Token registered successfully", "token": token})
-    
-    return JsonResponse({"error": "Invalid request"}, status=400)
 
 @csrf_exempt
 def send_notifications_view(request):
@@ -91,13 +76,8 @@ def send_notifications_view(request):
 
             # Send a notification to all registered Firebase devices
             devices = FCMDevice.objects.all()
-            devices.send_message(title=title, body=body)
+            devices.send_message(Message(notification=Notification(title=title, body=body)))
 
-            # for token in DEVICE_TOKENS:
-            #     print(f"title, body, token: {title}, {body}, {token}")
-            #     send_firebase_notification(token=token, title=title, body=body)
-                # send_firebase_data_message(token=token, msg_id=msg_id, title=title, body=body)
-            
             return JsonResponse({"message": "Notifications sent successfully"})
     
     return JsonResponse({"error": "Invalid request"}, status=400)

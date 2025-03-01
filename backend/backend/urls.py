@@ -18,13 +18,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import register_token_view, send_notifications_view
+from notifications.views import send_notifications_view
 
 router = DefaultRouter()
 router.register(r'devices', FCMDeviceViewSet)  # This auto-generates all device-related endpoints
 
 urlpatterns = [
     path('api/', include(router.urls)),  # Include the router
-    path('api/register-token/', register_token_view, name="register_token"),
     path('api/send-notifications/', send_notifications_view, name="send_notifications"),    
 ]
