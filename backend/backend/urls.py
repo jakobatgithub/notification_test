@@ -14,11 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from fcm_django.api.rest_framework import FCMDeviceViewSet
 
 from notifications.views import register_token_view, send_notifications_view
 
+router = DefaultRouter()
+router.register(r'devices', FCMDeviceViewSet)  # This auto-generates all device-related endpoints
+
 urlpatterns = [
-    path("register-token/", register_token_view, name="register_token"),
-    path("send-notifications/", send_notifications_view, name="send_notifications"),
+    path('api/', include(router.urls)),  # Include the router
+    path('api/register-token/', register_token_view, name="register_token"),
+    path('api/send-notifications/', send_notifications_view, name="send_notifications"),    
 ]
