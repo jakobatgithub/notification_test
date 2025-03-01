@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import firebase_admin
 from pathlib import Path
+from firebase_admin import credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,8 +132,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-import firebase_admin
-from firebase_admin import credentials
-
 cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
 firebase_admin.initialize_app(cred)
+
+FCM_DJANGO_SETTINGS = {
+    "DEFAULT_FIREBASE_APP": None,
+    "APP_VERBOSE_NAME": "notification_test",
+    "ONE_DEVICE_PER_USER": True,
+    "DELETE_INACTIVE_DEVICES": True,
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
+}
