@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mqtt_service.dart';
 import 'constants.dart';
+import 'dart:convert';
+import 'dart:io';
+
 
 Set<String> _receivedMQTTMessages = {}; // Define globally
 
@@ -14,6 +17,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseMessaging.instance.requestPermission();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
@@ -161,12 +165,18 @@ class FirebaseService {
 
     String? token = await _messaging.getToken();
     print("📲 Initial FCM Token: $token");
-    if (token != null) sendTokenToBackend(token);
+    if (token != null) {
+      sendTokenToBackend(token);
+      registerDevice(token);
+    }
 
-    _messaging.onTokenRefresh.listen(sendTokenToBackend);
+    _messaging.onTokenRefresh.listen((token) {
+      sendTokenToBackend(token);
+      registerDevice(token);
+    });
   }
 
-  static void sendTokenToBackend(String token) async {
+  void sendTokenToBackend(String token) async {
     var backendURL = "$BASE_URL/api/register-token/";
     var response = await http.post(
       Uri.parse(backendURL),
@@ -175,4 +185,23 @@ class FirebaseService {
     );
     print("✅ Token Sent to Backend: ${response.body}");
   }
+
+  Future<void> registerDevice(String token) async {
+    final response = await http.post(
+      Uri.parse("$BASE_URL/api/devices/"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "registration_id": token,
+        "type": Platform.isIOS ? "ios" : "android",
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      print("Device registered successfully");
+    } else {
+      print("Failed to register device: ${response.body}");
+    }
+  }  
 }
