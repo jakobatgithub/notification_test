@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from firebase_admin import messaging
+from fcm_django.models import FCMDevice
 
 import paho.mqtt.client as mqtt
 
@@ -85,10 +86,16 @@ def send_notifications_view(request):
             send_notifications_view.message_counter += 1
             msg_id = send_notifications_view.message_counter
 
+            # Send a notification via MQTT
             send_mqtt_message(msg_id=msg_id, title=title, body=body)
-            for token in DEVICE_TOKENS:
-                print(f"title, body, token: {title}, {body}, {token}")
-                send_firebase_notification(token=token, title=title, body=body)
+
+            # Send a notification to all registered Firebase devices
+            devices = FCMDevice.objects.all()
+            devices.send_message(title=title, body=body)
+
+            # for token in DEVICE_TOKENS:
+            #     print(f"title, body, token: {title}, {body}, {token}")
+            #     send_firebase_notification(token=token, title=title, body=body)
                 # send_firebase_data_message(token=token, msg_id=msg_id, title=title, body=body)
             
             return JsonResponse({"message": "Notifications sent successfully"})
