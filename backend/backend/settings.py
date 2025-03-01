@@ -142,3 +142,31 @@ FCM_DJANGO_SETTINGS = {
     "DELETE_INACTIVE_DEVICES": True,
     "UPDATE_ON_DUPLICATE_REG_ID": True,
 }
+
+# EMQX settings
+
+# URL of EMQX broker
+
+EMQX_BROKER_URL = "http://192.168.178.33:18083"
+
+# Path to the default_api_key.conf file
+API_KEY_CONF_PATH = "backend/default_api_key.conf"
+
+# Function to read the API key and secret from the configuration file
+def get_emqx_api_credentials(file_path):
+    api_key = ''
+    api_secret = ''
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                api_key, api_secret = line.split(':')
+    except FileNotFoundError:
+        print(f"Configuration file {file_path} not found.")
+    
+    return api_key, api_secret
+
+# Get the EMQX API credentials
+EMQX_credentials = get_emqx_api_credentials(API_KEY_CONF_PATH)
+
+EMQX_API_KEY = EMQX_credentials[0]
+EMQX_API_SECRET = EMQX_credentials[1]
