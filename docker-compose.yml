@@ -4,6 +4,7 @@ services:
     container_name: django_backend
     volumes:
       - ./backend:/app
+      - ./emqx/etc/default_api_key.conf:/app/backend/default_api_key.conf
     ports:
       - "8000:8000"
     depends_on:
@@ -18,3 +19,7 @@ services:
       - "8083:8083"  # WebSocket Port
       - "8084:8084"  # Secure WebSocket Port
       - "18083:18083" # Dashboard Port
+    volumes:
+      - ./emqx/data:/opt/emqx/data
+      - ./emqx/emqx.conf:/opt/emqx/etc/emqx.conf
+      - ./emqx/etc/default_api_key.conf:/opt/emqx/etc/default_api_key.conf
