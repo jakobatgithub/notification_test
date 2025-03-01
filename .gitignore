@@ -1,6 +1,10 @@
 /backend/backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json
+/backend/backend/default_api_key.conf
 /test_notification_app/ios/Runner/GoogleService-Info.plist
 /test_notification_app/ios/AuthKey_BQ49478UUZ.p8
+/emqx/etc/default_api_key.conf
+/emqx/data
+
 # General system files
 .DS_Store
 Thumbs.db
