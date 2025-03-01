@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<void> _sendPostRequest() async {
-    String backendURL = "$BASE_URL/send-notifications/";
+    String backendURL = "$BASE_URL/api/send-notifications/";
     final response = await http.post(
       Uri.parse(backendURL),
       headers: <String, String>{
@@ -167,7 +167,7 @@ class FirebaseService {
   }
 
   static void sendTokenToBackend(String token) async {
-    var backendURL = "$BASE_URL/register-token/";
+    var backendURL = "$BASE_URL/api/register-token/";
     var response = await http.post(
       Uri.parse(backendURL),
       headers: {"Content-Type": "application/json"},
