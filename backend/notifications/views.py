@@ -1,13 +1,19 @@
 import json
 
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework.decorators import action
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import now
 
 from firebase_admin import messaging
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
 import paho.mqtt.client as mqtt
+
 
 # MQTT Broker
 # MQTT_BROKER = "mqtt.eclipseprojects.io"
@@ -81,3 +87,49 @@ def send_notifications_view(request):
             return JsonResponse({"message": "Notifications sent successfully"})
     
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# In-memory storage (use a database in production)
+active_devices = {}
+
+class EMQXWebhookViewSet(ViewSet):
+    """
+    ViewSet to handle webhook events from EMQX
+    """
+
+    @action(detail=False, methods=["POST"], url_path="webhook")
+    def webhook(self, request):
+        try:
+            data = json.loads(request.body)
+            event = data.get("event")
+            client_id = data.get("clientid")
+            username = data.get("username")
+
+            if not client_id or not username:
+                return Response({"error": "Invalid data"}, status=400)
+
+            if event == "client_connected":
+                self.handle_client_connected(username, client_id)
+            elif event == "client_disconnected":
+                self.handle_client_disconnected(username, client_id)
+            else:
+                return Response({"error": "Unknown event"}, status=400)
+
+            return Response({"status": "success"})
+        except json.JSONDecodeError:
+            return Response({"error": "Invalid JSON"}, status=400)
+
+    def handle_client_connected(self, user_id, device_id):
+        """Handles a device connection event"""
+        if user_id not in active_devices:
+            active_devices[user_id] = []
+        if device_id not in active_devices[user_id]:
+            active_devices[user_id].append(device_id)
+        print(f"User {user_id} connected on device {device_id}")
+
+    def handle_client_disconnected(self, user_id, device_id):
+        """Handles a device disconnection event"""
+        if user_id in active_devices and device_id in active_devices[user_id]:
+            active_devices[user_id].remove(device_id)
+            print(f"User {user_id} disconnected from device {device_id}")
+
