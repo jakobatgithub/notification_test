@@ -18,12 +18,13 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import send_notifications_view, EMQXWebhookViewSet
+from notifications.views import send_notifications_view, EMQXWebhookViewSet,EMQXACLViewSet
 
 
 router = DefaultRouter()
 router.register(r'devices', FCMDeviceViewSet)
-router.register(r"emqx", EMQXWebhookViewSet, basename="emqx")
+router.register(r'emqx', EMQXWebhookViewSet, basename="emqx")
+router.register(r'emqx', EMQXACLViewSet, basename="emqx_acl")
 
 urlpatterns = [
     path('api/', include(router.urls)),  # Include the router
