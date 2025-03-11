@@ -59,7 +59,6 @@ connectors {
       enable = true
       enable_pipelining = 100
       headers {
-        X-Signature = "${hmac_sha256(${?EMQX_HOOK_SECRET} ?: 'default-secret', ${clientid}${username}${timestamp})}"
         clientid = "${clientid}"
         content-type = "application/json"
         event = client_connected
@@ -94,7 +93,6 @@ connectors {
       enable = true
       enable_pipelining = 100
       headers {
-        X-Signature = "${hmac_sha256(${?EMQX_HOOK_SECRET} ?: 'default-secret', ${clientid}${username}${timestamp})}"
         clientid = "${clientid}"
         content-type = "application/json"
         event = client_disconnected
