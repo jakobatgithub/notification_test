@@ -9,14 +9,11 @@ import 'constants.dart';
 import 'dart:convert';
 import 'dart:io';
 
-
 Set<String> _receivedMQTTMessages = {}; // Define globally
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseMessaging.instance.requestPermission();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -26,9 +23,7 @@ void main() async {
 // This handles messages when the app is in the background or terminated
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
 class MyApp extends StatefulWidget {
@@ -56,20 +51,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initializeServices() {
+    print("Initializing messaging services 1 ...");
     _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
+    print("Initializing messaging services 2 ...");
     _mqttService.initializeMQTT();
+    print("Initializing messaging services 3 ...");
     _loadReceivedMQTTMessages();
+    print("Initializing messaging services 4 ...");
     _firebaseService = FirebaseService();
     _firebaseService.initializeFirebase();
   }
 
   void _onMqttMessageReceived(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.reload();  // Force reload
-    _receivedMQTTMessages = (prefs.getStringList('receivedMQTTMessages') ?? []).toSet();
+    await prefs.reload(); // Force reload
+    _receivedMQTTMessages =
+        (prefs.getStringList('receivedMQTTMessages') ?? []).toSet();
     _receivedMQTTMessages.add(message);
-    
-    await prefs.setStringList('receivedMQTTMessages', _receivedMQTTMessages.toList());
+
+    await prefs.setStringList(
+      'receivedMQTTMessages',
+      _receivedMQTTMessages.toList(),
+    );
 
     setState(() {
       _mqttMessage = message;
@@ -79,7 +82,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> _loadReceivedMQTTMessages() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.reload(); // Force reload before reading
-    
+
     List<String>? messages = prefs.getStringList('receivedMQTTMessages');
     if (messages != null) {
       setState(() {
@@ -116,9 +119,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Firebase & MQTT Demo"),
-        ),
+        appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -131,7 +132,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   const Text("Latest MQTT Message:"),
                   Text(
                     _mqttMessage,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -140,10 +144,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   ),
                   const SizedBox(height: 20),
                   const Text("Recent Messages:"),
-                  ..._receivedMQTTMessages.toList().reversed.take(10).map((message) => Text(
-                    message,
-                    style: const TextStyle(fontSize: 14),
-                  )).toList(),
+                  ..._receivedMQTTMessages
+                      .toList()
+                      .reversed
+                      .take(10)
+                      .map(
+                        (message) =>
+                            Text(message, style: const TextStyle(fontSize: 14)),
+                      )
+                      .toList(),
                 ],
               ),
             ),
@@ -177,9 +186,7 @@ class FirebaseService {
   Future<void> registerDevice(String token) async {
     final response = await http.post(
       Uri.parse("$BASE_URL/api/devices/"),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "registration_id": token,
         "type": Platform.isIOS ? "ios" : "android",
@@ -191,5 +198,5 @@ class FirebaseService {
     } else {
       print("Failed to register device: ${response.body}");
     }
-  }  
+  }
 }

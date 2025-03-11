@@ -12,7 +12,6 @@ class MQTTService {
   MQTTService({required this.onMessageReceived});
 
   Future<void> initializeMQTT() async {
-
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? CLIENT_ID = prefs.getString('mqtt_client_id');
     if (CLIENT_ID == null) {
@@ -24,22 +23,21 @@ class MQTTService {
 
     // Enable logging to see connection issues
     client.logging(on: true);
-    
+
     // Set keep-alive period
     client.keepAlivePeriod = 20;
-    
+
     // Define connection callbacks
     client.onConnected = () => print("✅ Connected to MQTT Broker!");
     client.onDisconnected = () => print("❌ Disconnected from MQTT Broker!");
     client.onSubscribed = (String topic) => print("✅ Subscribed to $topic");
 
     // Set connection protocol
-    client.setProtocolV311();  // Use MQTT v3.1.1 (compatible with most brokers)
+    client.setProtocolV311(); // Use MQTT v3.1.1 (compatible with most brokers)
 
     // Try connecting
     try {
-      final connMessage = MqttConnectMessage()
-          .withClientIdentifier(CLIENT_ID);
+      final connMessage = MqttConnectMessage().withClientIdentifier(CLIENT_ID);
 
       client.connectionMessage = connMessage;
 
@@ -49,32 +47,39 @@ class MQTTService {
       client.disconnect();
     }
 
-    client.subscribe(MQTT_TOPIC, MqttQos.atLeastOnce);
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      client.subscribe(MQTT_TOPIC, MqttQos.atLeastOnce);
 
-    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) async {
-      final recMessage = c![0].payload as MqttPublishMessage;
-      final payloadBytes = recMessage.payload.message;
+      client.updates!.listen((
+        List<MqttReceivedMessage<MqttMessage?>>? c,
+      ) async {
+        final recMessage = c![0].payload as MqttPublishMessage;
+        final payloadBytes = recMessage.payload.message;
 
-      try {
-        final payloadString = utf8.decode(payloadBytes);
-        debugPrint('Received MQTT message: $payloadString');
+        try {
+          final payloadString = utf8.decode(payloadBytes);
+          debugPrint('Received MQTT message: $payloadString');
 
-        final payload = jsonDecode(payloadString) as Map<String, dynamic>;
-        String msg_id = payload['msg_id'].toString();
-        String title = payload['title'] ?? "No message body";
-        String body = payload['body'] ?? "No message body";
-        String message = "msg_id: $msg_id, title: $title, body: $body";
+          final payload = jsonDecode(payloadString) as Map<String, dynamic>;
+          String msg_id = payload['msg_id'].toString();
+          String title = payload['title'] ?? "No message body";
+          String body = payload['body'] ?? "No message body";
+          String message = "msg_id: $msg_id, title: $title, body: $body";
 
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        List<String> messages = prefs.getStringList('receivedMQTTMessages') ?? [];
-        messages.add(message);
-        await prefs.setStringList('receivedMQTTMessages', messages);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          List<String> messages =
+              prefs.getStringList('receivedMQTTMessages') ?? [];
+          messages.add(message);
+          await prefs.setStringList('receivedMQTTMessages', messages);
 
-        onMessageReceived(message);
-      } catch (e) {
-        debugPrint('Error decoding payload: $e');
-      }
-    });
+          onMessageReceived(message);
+        } catch (e) {
+          debugPrint('Error decoding payload: $e');
+        }
+      });
+    } else {
+      print('❌ Connection failed: ${client.connectionStatus}');
+    }
   }
 
   void disconnect() {
