@@ -100,7 +100,9 @@ class EMQXWebhookViewSet(ViewSet):
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
         try:
-            data = json.loads(request.body)
+            body = request.body
+            decoded_str = body.decode("utf-8")
+            data = json.loads(decoded_str)
             event = data.get("event")
             client_id = data.get("clientid")
             username = data.get("username")
@@ -108,9 +110,9 @@ class EMQXWebhookViewSet(ViewSet):
             if not client_id or not username:
                 return Response({"error": "Invalid data"}, status=400)
 
-            if event == "client_connected":
+            if event == "client.connected":
                 self.handle_client_connected(username, client_id)
-            elif event == "client_disconnected":
+            elif event == "client.disconnected":
                 self.handle_client_disconnected(username, client_id)
             else:
                 return Response({"error": "Unknown event"}, status=400)
