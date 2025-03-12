@@ -74,13 +74,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initializeServices() {
-    print("Initializing messaging services 1 ...");
     _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
-    print("Initializing messaging services 2 ...");
     _mqttService.initializeMQTT();
-    print("Initializing messaging services 3 ...");
     _loadReceivedMQTTMessages();
-    print("Initializing messaging services 4 ...");
     _firebaseService = FirebaseService();
     _firebaseService.initializeFirebase();
   }
