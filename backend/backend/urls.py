@@ -27,6 +27,7 @@ router.register(r'emqx', EMQXWebhookViewSet, basename="emqx")
 router.register(r'emqx', EMQXACLViewSet, basename="emqx_acl")
 
 urlpatterns = [
+    path('accounts/', include('allauth.urls')),
     path('api/', include(router.urls)),  # Include the router
-    path('api/send-notifications/', send_notifications_view, name="send_notifications"),    
+    path('api/send-notifications/', send_notifications_view, name="send_notifications"),
 ]
