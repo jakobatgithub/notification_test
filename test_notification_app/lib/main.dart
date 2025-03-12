@@ -62,12 +62,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (response.statusCode == 200) {
       print('Login successful: ${response.body}');
       print('Login successful: ${response.headers}');
-      var responseData = jsonDecode(response.body);
-      var sessionToken = responseData['meta']['session_token'];
-      var accessToken = responseData['meta']['access_token'];
-
-      print('Session Token: $sessionToken');
-      print('Access Token: $accessToken');
     } else {
       print('Failed to login: ${response.body}');
     }
