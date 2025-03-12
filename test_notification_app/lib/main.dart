@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    _login('jakob1', 'learn&fun');
     _initializeServices();
   }
 
@@ -48,6 +49,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
     _mqttService.disconnect();
     super.dispose();
+  }
+
+  // Add the following code to the _MyAppState class
+  Future<void> _login(String username, String password) async {
+    String loginURL = "$BASE_URL/_allauth/browser/v1/auth/login";
+    final response = await http.post(
+      Uri.parse(loginURL),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+    if (response.statusCode == 200) {
+      print('Login successful: ${response.body}');
+      print('Login successful: ${response.headers}');
+      var responseData = jsonDecode(response.body);
+      var sessionToken = responseData['meta']['session_token'];
+      var accessToken = responseData['meta']['access_token'];
+
+      print('Session Token: $sessionToken');
+      print('Access Token: $accessToken');
+    } else {
+      print('Failed to login: ${response.body}');
+    }
   }
 
   void _initializeServices() {

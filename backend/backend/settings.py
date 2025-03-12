@@ -33,17 +33,19 @@ ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '192.168.178.33']
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
     'corsheaders',
     'notifications',    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
-    'fcm_django',
     'django.contrib.sites',
+    'fcm_django',
+    'rest_framework',
+    'rest_framework.authtoken',
     'allauth',
     'allauth.account',
+    'allauth.headless',
 ]
 
 MIDDLEWARE = [
@@ -51,11 +53,16 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
 
 CORS_ALLOW_ALL_ORIGINS = True
 
