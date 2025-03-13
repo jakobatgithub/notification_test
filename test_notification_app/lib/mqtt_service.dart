@@ -19,6 +19,9 @@ class MQTTService {
       await prefs.setString('mqtt_client_id', CLIENT_ID);
     }
 
+    String? mqttToken = prefs.getString('mqttToken');
+    print("MQTT Token: $mqttToken");
+
     final client = MqttServerClient.withPort(MQTT_BROKER, CLIENT_ID, MQTT_PORT);
 
     // Enable logging to see connection issues
@@ -37,7 +40,9 @@ class MQTTService {
 
     // Try connecting
     try {
-      final connMessage = MqttConnectMessage().withClientIdentifier(CLIENT_ID);
+      final connMessage = MqttConnectMessage()
+          .withClientIdentifier(CLIENT_ID)
+          .authenticateAs('', mqttToken);
 
       client.connectionMessage = connMessage;
 

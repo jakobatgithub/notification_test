@@ -42,8 +42,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     _login('jakob1', 'learn&fun');
-    _retrieveTokens('jakob1', 'learn&fun');
-    _initializeServices();
+    _retrieveTokens('jakob1', 'learn&fun').then((_) {
+      _initializeServices();
+    });
   }
 
   @override
@@ -84,7 +85,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('accessToken', accessToken);
       await prefs.setString('refreshToken', refreshToken);
-      _retrieveMQTTToken();
     } else {
       print('Failed to retrieve tokens: ${response.body}');
     }
@@ -121,6 +121,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initializeServices() {
+    _retrieveMQTTToken();
     _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
     _mqttService.initializeMQTT();
     _loadReceivedMQTTMessages();
