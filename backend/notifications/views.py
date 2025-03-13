@@ -158,8 +158,6 @@ class EMQXWebhookViewSet(ViewSet):
             client_id = data.get("clientid")
             username = data.get("username")
     
-            print(f"Received WebHook data: {data}")
-
             if not client_id or not username:
                 return Response({"error": "Invalid data"}, status=400)
             
