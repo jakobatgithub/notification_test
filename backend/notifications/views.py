@@ -1,8 +1,5 @@
 import json
 import time
-import pytz
-
-from datetime import datetime, timedelta
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -13,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 
 from firebase_admin import messaging
 from firebase_admin.messaging import Message, Notification
@@ -66,7 +63,6 @@ class MQTTClient:
 
     def publish(self, topic, payload, qos=1):
         self.client.publish(topic, payload, qos)
-        print(f"✅ MQTT notification sent: {payload}")
 
     def disconnect(self):
         self.client.loop_stop()
@@ -77,7 +73,12 @@ mqtt_client = MQTTClient(MQTT_BROKER)
 def send_mqtt_message(msg_id, title, body):
     """Publish message via MQTT."""
     payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    mqtt_client.publish(MQTT_TOPIC, payload)
+    users = get_user_model().objects.all()
+    for user in users:
+        user_topic = f"user/{user.id}/"
+        mqtt_client.publish(user_topic, payload)
+    
+    print(f"✅ MQTT notification sent: {payload}")
 
 def send_firebase_notification(token, title, body):
     message = Message(
@@ -213,4 +214,4 @@ def mqtt_token(request):
             "topic": "#"
         }
     ]
-    return Response({"mqtt_token": str(token)})
+    return Response({"mqtt_token": str(token), "user_id": str(user.id)})

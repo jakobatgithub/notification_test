@@ -111,10 +111,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (response.statusCode == 200) {
       final Map<String, dynamic> tokens = jsonDecode(response.body);
       String mqttToken = tokens['mqtt_token'];
-      print('MQTT Token: $mqttToken');
+      String user_id = tokens['user_id'];
+      print('MQTT Token: $mqttToken, User ID: $user_id');
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('mqttToken', mqttToken);
+      await prefs.setString('user_id', user_id);
     } else {
       print('Failed to retrieve MQTT token: ${response.body}');
     }

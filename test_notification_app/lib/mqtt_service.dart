@@ -20,7 +20,8 @@ class MQTTService {
     }
 
     String? mqttToken = prefs.getString('mqttToken');
-    print("MQTT Token: $mqttToken");
+    String? user_id = prefs.getString('user_id');
+    print("MQTT Token: $mqttToken, User ID: $user_id");
 
     final client = MqttServerClient.withPort(MQTT_BROKER, CLIENT_ID, MQTT_PORT);
 
@@ -53,7 +54,7 @@ class MQTTService {
     }
 
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
-      client.subscribe(MQTT_TOPIC, MqttQos.atLeastOnce);
+      client.subscribe("user/$user_id/", MqttQos.atLeastOnce);
 
       client.updates!.listen((
         List<MqttReceivedMessage<MqttMessage?>>? c,
