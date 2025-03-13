@@ -28,7 +28,7 @@ RETRY_DELAY = 3   # Wait time in seconds before retrying
 
 def generate_backend_mqtt_token():
     token = AccessToken()
-    token["username"] = "backend"  # Identifies this token as backend
+    token["username"] = "backend"
     token["acl"] = [
         {
             "permission": "allow",
