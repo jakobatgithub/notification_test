@@ -42,8 +42,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    AuthService.login('jakob1', 'learn&fun');
-    AuthService.retrieveTokens('jakob1', 'learn&fun').then((_) {
+    AuthService.loginOrSignup().then((_) {
       _initializeServices();
     });
   }
@@ -99,7 +98,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     String? accessToken = prefs.getString('accessToken');
 
     if (accessToken == null) {
-      print('No access token found');
+      print('❌ No access token found');
       return;
     }
 
@@ -114,9 +113,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
 
     if (response.statusCode == 200) {
-      print('Post request successful');
+      print('✅ Post request successful');
     } else {
-      print('Failed to send post request: ${response.body}');
+      print('❌ Failed to send post request: ${response.body}');
     }
   }
 
@@ -179,10 +178,10 @@ class FirebaseService {
     print("🔐 Permission status: ${settings.authorizationStatus}");
 
     String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-    print("APNs Token: $apnsToken");
+    print("🔐 APNs Token: $apnsToken");
 
     String? token = await _messaging.getToken();
-    print("📲 Initial FCM Token: $token");
+    print("🔐 Initial FCM Token: $token");
     if (token != null) {
       registerDevice(token);
     }
@@ -203,9 +202,9 @@ class FirebaseService {
     );
 
     if (response.statusCode == 201) {
-      print("Device registered successfully");
+      print("✅ Device registered successfully");
     } else {
-      print("Failed to register device: ${response.body}");
+      print("❌ Failed to register device: ${response.body}");
     }
   }
 }

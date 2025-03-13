@@ -66,7 +66,7 @@ class MQTTService {
 
         try {
           final payloadString = utf8.decode(payloadBytes);
-          debugPrint('Received MQTT message: $payloadString');
+          print('✅ Received MQTT message: $payloadString');
 
           final payload = jsonDecode(payloadString) as Map<String, dynamic>;
           String msg_id = payload['msg_id'].toString();
@@ -82,7 +82,7 @@ class MQTTService {
 
           onMessageReceived(message);
         } catch (e) {
-          debugPrint('Error decoding payload: $e');
+          print('❌ Error decoding payload: $e');
         }
       });
     } else {
@@ -95,7 +95,7 @@ class MQTTService {
     String? accessToken = prefs.getString('accessToken');
 
     if (accessToken == null) {
-      print('No access token found');
+      print('❌ No access token found');
       return;
     }
 
@@ -112,12 +112,12 @@ class MQTTService {
       final Map<String, dynamic> tokens = jsonDecode(response.body);
       String mqttToken = tokens['mqtt_token'];
       String user_id = tokens['user_id'];
-      print('MQTT Token: $mqttToken, User ID: $user_id');
+      print('🔐 MQTT Token: $mqttToken, User ID: $user_id');
 
       await prefs.setString('mqttToken', mqttToken);
       await prefs.setString('user_id', user_id);
     } else {
-      print('Failed to retrieve MQTT token: ${response.body}');
+      print('❌ Failed to retrieve MQTT token: ${response.body}');
     }
   }
 
