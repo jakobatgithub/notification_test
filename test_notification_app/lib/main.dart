@@ -159,8 +159,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       .map(
                         (message) =>
                             Text(message, style: const TextStyle(fontSize: 14)),
-                      )
-                      .toList(),
+                      ),
                 ],
               ),
             ),

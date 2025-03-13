@@ -2,7 +2,6 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'package:http/http.dart' as http;
 
