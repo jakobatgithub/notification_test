@@ -23,6 +23,15 @@ import paho.mqtt.client as mqtt
 MQTT_BROKER = "emqx_broker"
 MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
 
+def generate_backend_mqtt_token():
+    token = AccessToken()
+    token["sub"] = "backend"  # Identifies this token as backend
+    token["permissions"] = {
+        "publish": ["#"],  # Backend can publish to ALL topics
+        "subscribe": []  # Backend does not need to subscribe
+    }
+    return str(token)
+
 def send_mqtt_message(msg_id, title, body):
     """Publish message via MQTT."""
     client = mqtt.Client()
