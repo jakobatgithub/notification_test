@@ -1,5 +1,8 @@
 import json
 import time
+import pytz
+
+from datetime import datetime, timedelta
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -28,18 +31,26 @@ RETRY_DELAY = 3   # Wait time in seconds before retrying
 
 def generate_backend_mqtt_token():
     token = AccessToken()
-    token["sub"] = "backend"  # Identifies this token as backend
-    token["permissions"] = {
-        "publish": ["#"],  # Backend can publish to ALL topics
-        "subscribe": []  # Backend does not need to subscribe
-    }
+    token["username"] = "backend"  # Identifies this token as backend
+    token["acl"] = [
+        {
+            "permission": "allow",
+            "action": "subscribe",
+            "topic": "#"
+        },
+        {
+            "permission": "allow",
+            "action": "publish",
+            "topic": "#"
+        }
+    ]
     return str(token)
 
 class MQTTClient:
     def __init__(self, broker, port=1883, keepalive=60):
         mqtt_token = generate_backend_mqtt_token()
         self.client = mqtt.Client()
-        self.client.username_pw_set(username="backend", password=mqtt_token)  # Use JWT as password
+        self.client.username_pw_set(username='', password=mqtt_token)  # Use JWT as password
         for attempt in range(MAX_RETRIES):
             try:
                 print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
@@ -185,11 +196,21 @@ def mqtt_token(request):
     if not user.is_authenticated:
         return Response({"error": "Unauthorized"}, status=401)
 
-    # Generate an MQTT-compatible JWT
+    # Create a new JWT token
     token = AccessToken.for_user(user)
-    token["permissions"] = {
-        "subscribe": [f"user/{user.id}/#"],  # Frontend can only subscribe to its own topic
-        "publish": []  # Frontend cannot publish
-    }
 
+    # Set MQTT-specific claims
+    token["username"] = str(user.id)  # EMQX uses this for client identification
+    token["acl"] = [
+        {
+            "permission": "allow",
+            "action": "subscribe",
+            "topic": f"user/{user.id}/#"
+        },
+        {
+            "permission": "deny",
+            "action": "publish",
+            "topic": "#"
+        }
+    ]
     return Response({"mqtt_token": str(token)})
