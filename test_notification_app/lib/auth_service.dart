@@ -61,14 +61,13 @@ class AuthService {
     String? storedPassword = prefs.getString('password');
 
     if (storedUsername != null && storedPassword != null) {
-      await login(storedUsername, storedPassword);
       await retrieveTokens(storedUsername, storedPassword);
     } else {
       String username = _generateRandomString(8);
       String password = _generateRandomString(12);
-      await signup(username, password);
       await prefs.setString('username', username);
       await prefs.setString('password', password);
+      await signup(username, password);
       await retrieveTokens(username, password);
     }
   }

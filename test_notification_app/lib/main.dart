@@ -201,7 +201,7 @@ class FirebaseService {
       }),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("✅ Device registered successfully");
     } else {
       print("❌ Failed to register device: ${response.body}");

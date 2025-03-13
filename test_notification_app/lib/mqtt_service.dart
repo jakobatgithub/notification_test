@@ -13,7 +13,7 @@ class MQTTService {
   MQTTService({required this.onMessageReceived});
 
   Future<void> initializeMQTT() async {
-    retrieveMQTTToken();
+    await retrieveMQTTToken();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? CLIENT_ID = prefs.getString('mqtt_client_id');
     if (CLIENT_ID == null) {
