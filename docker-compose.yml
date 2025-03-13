@@ -6,7 +6,6 @@ services:
       - .env
     volumes:
       - ./backend:/app
-      - ./emqx/etc/default_api_key.conf:/app/backend/default_api_key.conf
       - ./backend/staticfiles:/app/staticfiles
     ports:
       - "8000:8000"
@@ -27,4 +26,3 @@ services:
     volumes:
       - ./emqx/data:/opt/emqx/data
       - ./emqx/emqx.conf:/opt/emqx/etc/emqx.conf
-      - ./emqx/etc/default_api_key.conf:/opt/emqx/etc/default_api_key.conf
