@@ -177,41 +177,6 @@ class EMQXWebhookViewSet(ViewSet):
             active_devices[user_id].remove(device_id)
             print(f"User {user_id} disconnected from device {device_id}")
 
-
-class EMQXACLViewSet(ViewSet):
-    """
-    ViewSet to handle ACL (Access Control List) authorization requests from EMQX
-    """
-
-    @csrf_exempt
-    @action(detail=False, methods=["POST"], url_path="acl")
-    def acl(self, request):
-        try:
-            data = json.loads(request.body)
-
-            username = data.get("username")
-            client_id = data.get("clientid")
-            topic = data.get("topic")
-            action = data.get("action")
-            print(f"ACL request: {data}")
-
-            # if not username or not client_id or not topic or not action:
-            if not client_id or not topic or not action:
-                return Response({"result": "deny"}, status=400)
-
-            # Example ACL rules
-            if username == "admin":
-                return Response({"result": "allow"})
-
-            # if topic.startswith(f"user/{username}/"):
-            if topic == "test/PROSUMIO_NOTIFICATIONS" and action == "subscribe":
-                return Response({"result": "allow"})
-
-            return Response({"result": "deny"})
-
-        except json.JSONDecodeError:
-            return Response({"result": "deny"}, status=400)
-
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])

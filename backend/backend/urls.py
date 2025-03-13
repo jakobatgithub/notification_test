@@ -19,13 +19,12 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import SendNotificationsView, EMQXWebhookViewSet,EMQXACLViewSet, mqtt_token
+from notifications.views import SendNotificationsView, EMQXWebhookViewSet, mqtt_token
 
 
 router = DefaultRouter()
 router.register(r'devices', FCMDeviceViewSet)
 router.register(r'emqx', EMQXWebhookViewSet, basename="emqx")
-router.register(r'emqx', EMQXACLViewSet, basename="emqx_acl")
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
