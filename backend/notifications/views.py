@@ -2,9 +2,11 @@ import json
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.decorators import action, authentication_classes, permission_classes
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
+
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -171,3 +173,20 @@ class EMQXACLViewSet(ViewSet):
 
         except json.JSONDecodeError:
             return Response({"result": "deny"}, status=400)
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def mqtt_token(request):
+    user = request.user
+    if not user.is_authenticated:
+        return Response({"error": "Unauthorized"}, status=401)
+
+    # Generate an MQTT-compatible JWT
+    token = AccessToken.for_user(user)
+    token["permissions"] = {
+        "subscribe": [f"user/{user.id}/#"],  # Frontend can only subscribe to its own topic
+        "publish": []  # Frontend cannot publish
+    }
+
+    return Response({"mqtt_token": str(token)})

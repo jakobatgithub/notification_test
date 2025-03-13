@@ -14,6 +14,7 @@ import os
 import firebase_admin
 from pathlib import Path
 from firebase_admin import credentials
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -190,3 +191,9 @@ EMQX_credentials = get_emqx_api_credentials(API_KEY_CONF_PATH)
 
 EMQX_API_KEY = EMQX_credentials[0]
 EMQX_API_SECRET = EMQX_credentials[1]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": os.getenv("EMQX_SECRET", "fallback_secret"),
+}
