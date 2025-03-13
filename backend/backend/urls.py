@@ -19,7 +19,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import send_notifications_view, EMQXWebhookViewSet,EMQXACLViewSet
+from notifications.views import SendNotificationsView, EMQXWebhookViewSet,EMQXACLViewSet
 
 
 router = DefaultRouter()
@@ -35,5 +35,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('api/', include(router.urls)),  # Include the router
-    path('api/send-notifications/', send_notifications_view, name="send_notifications"),
+    path('api/send-notifications/', SendNotificationsView.as_view({'post': 'send_notifications'}), name="send_notifications"),
 ]
