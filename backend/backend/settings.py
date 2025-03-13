@@ -170,6 +170,10 @@ ACCOUNT_EMAIL_REQUIRED = False
 
 EMQX_BROKER_URL = "http://192.168.178.33:18083"
 
+MQTT_BROKER = "emqx_broker"
+MAX_RETRIES = 10  # Maximum retry attempts
+RETRY_DELAY = 3   # Wait time in seconds before retrying
+
 # Path to the default_api_key.conf file
 API_KEY_CONF_PATH = "backend/default_api_key.conf"
 

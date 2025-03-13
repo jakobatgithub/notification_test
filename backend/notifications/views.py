@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from firebase_admin import messaging
 from firebase_admin.messaging import Message, Notification
@@ -18,13 +19,6 @@ from fcm_django.models import FCMDevice
 
 import paho.mqtt.client as mqtt
 
-
-# MQTT Broker
-# MQTT_BROKER = "mqtt.eclipseprojects.io"
-MQTT_BROKER = "emqx_broker"
-MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
-MAX_RETRIES = 10  # Maximum retry attempts
-RETRY_DELAY = 3   # Wait time in seconds before retrying
 
 def generate_backend_mqtt_token():
     token = AccessToken()
@@ -48,7 +42,7 @@ class MQTTClient:
         mqtt_token = generate_backend_mqtt_token()
         self.client = mqtt.Client()
         self.client.username_pw_set(username='backend', password=mqtt_token)  # Use JWT as password
-        for attempt in range(MAX_RETRIES):
+        for attempt in range(settings.MAX_RETRIES):
             try:
                 print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
                 self.client.connect(broker, port, keepalive)
@@ -56,8 +50,8 @@ class MQTTClient:
                 print("✅ Successfully connected to MQTT broker!")
                 return
             except ConnectionRefusedError:
-                print(f"⏳ Connection refused, retrying in {RETRY_DELAY} seconds...")
-                time.sleep(RETRY_DELAY)
+                print(f"⏳ Connection refused, retrying in {settings.RETRY_DELAY} seconds...")
+                time.sleep(settings.RETRY_DELAY)
 
         print("❌ Failed to connect after multiple attempts. Check EMQX logs.")
 
@@ -68,7 +62,7 @@ class MQTTClient:
         self.client.loop_stop()
         self.client.disconnect()
 
-mqtt_client = MQTTClient(MQTT_BROKER)
+mqtt_client = MQTTClient(settings.MQTT_BROKER)
 
 def send_mqtt_message(msg_id, title, body):
     """Publish message via MQTT."""
