@@ -8,6 +8,7 @@ import 'mqtt_service.dart';
 import 'constants.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'auth_service.dart';
 
 Set<String> _receivedMQTTMessages = {}; // Define globally
 
@@ -41,8 +42,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _login('jakob1', 'learn&fun');
-    _retrieveTokens('jakob1', 'learn&fun').then((_) {
+    AuthService.login('jakob1', 'learn&fun');
+    AuthService.retrieveTokens('jakob1', 'learn&fun').then((_) {
       _initializeServices();
     });
   }
@@ -53,77 +54,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> _login(String username, String password) async {
-    String loginURL = "$BASE_URL/_allauth/browser/v1/auth/login";
-    final response = await http.post(
-      Uri.parse(loginURL),
-      headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password}),
-    );
-    if (response.statusCode == 200) {
-      print('Login successful');
-    } else {
-      print('Failed to login: ${response.body}');
-    }
-  }
-
-  Future<void> _retrieveTokens(String username, String password) async {
-    String tokenURL = "$BASE_URL/api/token/";
-    final response = await http.post(
-      Uri.parse(tokenURL),
-      headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password}),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> tokens = jsonDecode(response.body);
-      String accessToken = tokens['access'];
-      String refreshToken = tokens['refresh'];
-      print('Access Token: $accessToken');
-      print('Refresh Token: $refreshToken');
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('accessToken', accessToken);
-      await prefs.setString('refreshToken', refreshToken);
-    } else {
-      print('Failed to retrieve tokens: ${response.body}');
-    }
-  }
-
-  Future<void> _retrieveMQTTToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? accessToken = prefs.getString('accessToken');
-
-    if (accessToken == null) {
-      print('No access token found');
-      return;
-    }
-
-    String tokenURL = "$BASE_URL/api/mqtt-token/";
-    final response = await http.get(
-      Uri.parse(tokenURL),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> tokens = jsonDecode(response.body);
-      String mqttToken = tokens['mqtt_token'];
-      String user_id = tokens['user_id'];
-      print('MQTT Token: $mqttToken, User ID: $user_id');
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('mqttToken', mqttToken);
-      await prefs.setString('user_id', user_id);
-    } else {
-      print('Failed to retrieve MQTT token: ${response.body}');
-    }
-  }
-
   void _initializeServices() {
-    _retrieveMQTTToken();
     _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
     _mqttService.initializeMQTT();
     _loadReceivedMQTTMessages();

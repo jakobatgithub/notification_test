@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'constants.dart';
+import 'package:http/http.dart' as http;
 
 class MQTTService {
   late MqttServerClient client;
@@ -12,6 +13,7 @@ class MQTTService {
   MQTTService({required this.onMessageReceived});
 
   Future<void> initializeMQTT() async {
+    retrieveMQTTToken();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? CLIENT_ID = prefs.getString('mqtt_client_id');
     if (CLIENT_ID == null) {
@@ -85,6 +87,37 @@ class MQTTService {
       });
     } else {
       print('❌ Connection failed: ${client.connectionStatus}');
+    }
+  }
+
+  static Future<void> retrieveMQTTToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    String tokenURL = "$BASE_URL/api/mqtt-token/";
+    final response = await http.get(
+      Uri.parse(tokenURL),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> tokens = jsonDecode(response.body);
+      String mqttToken = tokens['mqtt_token'];
+      String user_id = tokens['user_id'];
+      print('MQTT Token: $mqttToken, User ID: $user_id');
+
+      await prefs.setString('mqttToken', mqttToken);
+      await prefs.setString('user_id', user_id);
+    } else {
+      print('Failed to retrieve MQTT token: ${response.body}');
     }
   }
 
