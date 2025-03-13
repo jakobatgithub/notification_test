@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
 from notifications.views import send_notifications_view, EMQXWebhookViewSet,EMQXACLViewSet
@@ -30,7 +30,9 @@ router.register(r'emqx', EMQXACLViewSet, basename="emqx_acl")
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
-    path('api/token/', obtain_auth_token, name='api_token_auth'),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('api/', include(router.urls)),  # Include the router
     path('api/send-notifications/', send_notifications_view, name="send_notifications"),

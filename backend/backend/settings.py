@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'fcm_django',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'allauth',
     'allauth.account',
     'allauth.headless',
@@ -60,7 +60,7 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
