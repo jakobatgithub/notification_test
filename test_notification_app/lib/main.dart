@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     _login('jakob1', 'learn&fun');
+    _retrieveTokens('jakob1', 'learn&fun');
     _initializeServices();
   }
 
@@ -51,7 +52,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  // Add the following code to the _MyAppState class
   Future<void> _login(String username, String password) async {
     String loginURL = "$BASE_URL/_allauth/browser/v1/auth/login";
     final response = await http.post(
@@ -60,10 +60,32 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       body: jsonEncode({'username': username, 'password': password}),
     );
     if (response.statusCode == 200) {
-      print('Login successful: ${response.body}');
-      print('Login successful: ${response.headers}');
+      print('Login successful');
     } else {
       print('Failed to login: ${response.body}');
+    }
+  }
+
+  Future<void> _retrieveTokens(String username, String password) async {
+    String tokenURL = "$BASE_URL/api/token/";
+    final response = await http.post(
+      Uri.parse(tokenURL),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> tokens = jsonDecode(response.body);
+      String accessToken = tokens['access'];
+      String refreshToken = tokens['refresh'];
+      print('Access Token: $accessToken');
+      print('Refresh Token: $refreshToken');
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+      await prefs.setString('refreshToken', refreshToken);
+    } else {
+      print('Failed to retrieve tokens: ${response.body}');
     }
   }
 
@@ -108,11 +130,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<void> _sendPostRequest() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
     String backendURL = "$BASE_URL/api/send-notifications/";
     final response = await http.post(
       Uri.parse(backendURL),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken',
       },
       body: '{"title": "My Ass!", "body": "My body."}',
     );
@@ -120,7 +151,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (response.statusCode == 200) {
       print('Post request successful');
     } else {
-      print('Failed to send post request');
+      print('Failed to send post request: ${response.body}');
     }
   }
 
