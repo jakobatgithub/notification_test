@@ -84,8 +84,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('accessToken', accessToken);
       await prefs.setString('refreshToken', refreshToken);
+      _retrieveMQTTToken();
     } else {
       print('Failed to retrieve tokens: ${response.body}');
+    }
+  }
+
+  Future<void> _retrieveMQTTToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    String tokenURL = "$BASE_URL/api/mqtt-token/";
+    final response = await http.get(
+      Uri.parse(tokenURL),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> tokens = jsonDecode(response.body);
+      String mqttToken = tokens['mqtt_token'];
+      print('MQTT Token: $mqttToken');
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('mqttToken', mqttToken);
+    } else {
+      print('Failed to retrieve MQTT token: ${response.body}');
     }
   }
 
