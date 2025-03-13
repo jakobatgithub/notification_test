@@ -2,7 +2,9 @@ import json
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -61,20 +63,21 @@ def send_firebase_data_message(token, msg_id, title, body):
     print(f"✅ Firebase data message sent: {response}")
     return response
 
-@csrf_exempt
-def send_notifications_view(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        title = data.get("title")
-        body = data.get("body")
+class SendNotificationsView(ViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    message_counter = 0
 
-        if title and body:
+    @action(detail=False, methods=["POST"], url_path="send_notifications")
+    def send_notifications(self, request):
+        if request.method == "POST":
+            data = json.loads(request.body)
+            title = data.get("title")
+            body = data.get("body")
+
             # Generate a unique msg_id by counting requests
-            if not hasattr(send_notifications_view, "message_counter"):
-                send_notifications_view.message_counter = 0
-            
-            send_notifications_view.message_counter += 1
-            msg_id = send_notifications_view.message_counter
+            SendNotificationsView.message_counter += 1
+            msg_id = SendNotificationsView.message_counter
 
             # Send a notification via MQTT
             send_mqtt_message(msg_id=msg_id, title=title, body=body)
@@ -84,8 +87,8 @@ def send_notifications_view(request):
             devices.send_message(Message(notification=Notification(title=title, body=body)))
 
             return JsonResponse({"message": "Notifications sent successfully"})
-    
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 # In-memory storage (use a database in production)
