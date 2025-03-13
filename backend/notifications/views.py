@@ -1,4 +1,5 @@
 import json
+import time
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -22,6 +23,8 @@ import paho.mqtt.client as mqtt
 # MQTT_BROKER = "mqtt.eclipseprojects.io"
 MQTT_BROKER = "emqx_broker"
 MQTT_TOPIC = "test/PROSUMIO_NOTIFICATIONS"
+MAX_RETRIES = 10  # Maximum retry attempts
+RETRY_DELAY = 3   # Wait time in seconds before retrying
 
 def generate_backend_mqtt_token():
     token = AccessToken()
@@ -32,15 +35,38 @@ def generate_backend_mqtt_token():
     }
     return str(token)
 
+class MQTTClient:
+    def __init__(self, broker, port=1883, keepalive=60):
+        mqtt_token = generate_backend_mqtt_token()
+        self.client = mqtt.Client()
+        self.client.username_pw_set(username="backend", password=mqtt_token)  # Use JWT as password
+        for attempt in range(MAX_RETRIES):
+            try:
+                print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
+                self.client.connect(broker, port, keepalive)
+                self.client.loop_start()
+                print("✅ Successfully connected to MQTT broker!")
+                return
+            except ConnectionRefusedError:
+                print(f"⏳ Connection refused, retrying in {RETRY_DELAY} seconds...")
+                time.sleep(RETRY_DELAY)
+
+        print("❌ Failed to connect after multiple attempts. Check EMQX logs.")
+
+    def publish(self, topic, payload, qos=1):
+        self.client.publish(topic, payload, qos)
+        print(f"✅ MQTT notification sent: {payload}")
+
+    def disconnect(self):
+        self.client.loop_stop()
+        self.client.disconnect()
+
+mqtt_client = MQTTClient(MQTT_BROKER)
+
 def send_mqtt_message(msg_id, title, body):
     """Publish message via MQTT."""
-    client = mqtt.Client()
-    client.connect(MQTT_BROKER, 1883, 60)
-    
     payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    client.publish(MQTT_TOPIC, payload, qos=1)
-    print(f"✅ MQTT notification sent: {payload}")
-    client.disconnect()
+    mqtt_client.publish(MQTT_TOPIC, payload)
 
 def send_firebase_notification(token, title, body):
     message = Message(
@@ -122,6 +148,9 @@ class EMQXWebhookViewSet(ViewSet):
 
             if not client_id or not username:
                 return Response({"error": "Invalid data"}, status=400)
+            
+            if username=="backend":
+                return Response({"status": "success"})
 
             if event == "client.connected":
                 self.handle_client_connected(username, client_id)
