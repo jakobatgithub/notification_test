@@ -43,7 +43,7 @@ class MQTTService {
     try {
       final connMessage = MqttConnectMessage()
           .withClientIdentifier(CLIENT_ID)
-          .authenticateAs('', mqttToken);
+          .authenticateAs(user_id, mqttToken);
 
       client.connectionMessage = connMessage;
 

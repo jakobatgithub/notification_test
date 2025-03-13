@@ -47,7 +47,7 @@ class MQTTClient:
     def __init__(self, broker, port=1883, keepalive=60):
         mqtt_token = generate_backend_mqtt_token()
         self.client = mqtt.Client()
-        self.client.username_pw_set(username='', password=mqtt_token)  # Use JWT as password
+        self.client.username_pw_set(username='backend', password=mqtt_token)  # Use JWT as password
         for attempt in range(MAX_RETRIES):
             try:
                 print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
@@ -157,6 +157,8 @@ class EMQXWebhookViewSet(ViewSet):
             event = data.get("event")
             client_id = data.get("clientid")
             username = data.get("username")
+    
+            print(f"Received WebHook data: {data}")
 
             if not client_id or not username:
                 return Response({"error": "Invalid data"}, status=400)
