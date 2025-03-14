@@ -13,8 +13,4 @@ class SharedPreferencesUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return (prefs.getStringList('receivedMQTTMessages') ?? []).toSet();
   }
-
-  static Set<String> getMQTTMessages() {
-    return {}; // Dummy function for state update
-  }
 }
