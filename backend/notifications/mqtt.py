@@ -4,7 +4,7 @@ from django.conf import settings
 
 import paho.mqtt.client as mqtt
 
-from notifications.utils import generate_backend_mqtt_token
+from .utils import generate_backend_mqtt_token
 
 
 class MQTTClient:
