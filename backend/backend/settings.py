@@ -165,11 +165,6 @@ ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_EMAIL_REQUIRED = False
 
 # EMQX settings
-
-# URL of EMQX broker
-
-EMQX_BROKER_URL = "http://192.168.178.33:18083"
-
 MQTT_BROKER = "emqx_broker"
 MAX_RETRIES = 10  # Maximum retry attempts
 RETRY_DELAY = 3   # Wait time in seconds before retrying
