@@ -5,4 +5,4 @@ from .models import Device
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
-        fields = "__all__"  # Or list specific fields: ["id", "client_id", "active", "last_status", "last_connected_at"]
+        fields = ["id", "client_id", "active", "last_status", "last_connected_at"]
