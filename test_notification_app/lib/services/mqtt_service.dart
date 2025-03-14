@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class MQTTService {
 
     String? mqttToken = prefs.getString('mqttToken');
     String? userId = prefs.getString('userID');
-    print("MQTT Token: $mqttToken, User ID: $userId");
+    debugPrint("MQTT Token: $mqttToken, User ID: $userId");
 
     final client = MqttServerClient.withPort(
       mqttBroker,
@@ -37,9 +38,11 @@ class MQTTService {
     client.keepAlivePeriod = 20;
 
     // Define connection callbacks
-    client.onConnected = () => print("✅ Connected to MQTT Broker!");
-    client.onDisconnected = () => print("❌ Disconnected from MQTT Broker!");
-    client.onSubscribed = (String topic) => print("✅ Subscribed to $topic");
+    client.onConnected = () => debugPrint("✅ Connected to MQTT Broker!");
+    client.onDisconnected =
+        () => debugPrint("❌ Disconnected from MQTT Broker!");
+    client.onSubscribed =
+        (String topic) => debugPrint("✅ Subscribed to $topic");
 
     // Set connection protocol
     client.setProtocolV311(); // Use MQTT v3.1.1 (compatible with most brokers)
@@ -54,7 +57,7 @@ class MQTTService {
 
       await client.connect();
     } catch (e) {
-      print("❌ Connection failed: $e");
+      debugPrint("❌ Connection failed: $e");
       client.disconnect();
     }
 
@@ -69,7 +72,7 @@ class MQTTService {
 
         try {
           final payloadString = utf8.decode(payloadBytes);
-          print('✅ Received MQTT message: $payloadString');
+          debugPrint('✅ Received MQTT message: $payloadString');
 
           final payload = jsonDecode(payloadString) as Map<String, dynamic>;
           String msgId = payload['msg_id'].toString();
@@ -85,11 +88,11 @@ class MQTTService {
 
           onMessageReceived(message);
         } catch (e) {
-          print('❌ Error decoding payload: $e');
+          debugPrint('❌ Error decoding payload: $e');
         }
       });
     } else {
-      print('❌ Connection failed: ${client.connectionStatus}');
+      debugPrint('❌ Connection failed: ${client.connectionStatus}');
     }
   }
 
@@ -98,7 +101,7 @@ class MQTTService {
     String? accessToken = prefs.getString('accessToken');
 
     if (accessToken == null) {
-      print('❌ No access token found');
+      debugPrint('❌ No access token found');
       return;
     }
 
@@ -115,12 +118,12 @@ class MQTTService {
       final Map<String, dynamic> tokens = jsonDecode(response.body);
       String mqttToken = tokens['mqtt_token'];
       String userId = tokens['user_id'];
-      print('🔐 MQTT Token: $mqttToken, User ID: $userId');
+      debugPrint('🔐 MQTT Token: $mqttToken, User ID: $userId');
 
       await prefs.setString('mqttToken', mqttToken);
       await prefs.setString('userID', userId);
     } else {
-      print('❌ Failed to retrieve MQTT token: ${response.body}');
+      debugPrint('❌ Failed to retrieve MQTT token: ${response.body}');
     }
   }
 

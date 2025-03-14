@@ -1,4 +1,5 @@
 // services/firebase_service.dart
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,7 +11,7 @@ class FirebaseService {
 
   Future<void> initializeFirebase() async {
     NotificationSettings settings = await _messaging.requestPermission();
-    print("🔐 Permission status: ${settings.authorizationStatus}");
+    debugPrint("🔐 Permission status: ${settings.authorizationStatus}");
 
     String? token = await _messaging.getToken();
     if (token != null) {
@@ -29,7 +30,7 @@ class FirebaseService {
       }),
     );
 
-    print(
+    debugPrint(
       response.statusCode == 201 || response.statusCode == 200
           ? "✅ Device registered successfully"
           : "❌ Failed to register device: ${response.body}",

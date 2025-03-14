@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -13,9 +14,9 @@ class AuthService {
       body: jsonEncode({'username': username, 'password': password}),
     );
     if (response.statusCode == 200) {
-      print('✅ Login successful');
+      debugPrint('✅ Login successful');
     } else {
-      print('❌ Failed to login: ${response.body}');
+      debugPrint('❌ Failed to login: ${response.body}');
     }
   }
 
@@ -28,9 +29,9 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      print('✅ Signup successful');
+      debugPrint('✅ Signup successful');
     } else {
-      print('❌ Failed to signup: ${response.body}');
+      debugPrint('❌ Failed to signup: ${response.body}');
     }
   }
 
@@ -51,7 +52,7 @@ class AuthService {
       await prefs.setString('accessToken', accessToken);
       await prefs.setString('refreshToken', refreshToken);
     } else {
-      print('❌ Failed to retrieve tokens: ${response.body}');
+      debugPrint('❌ Failed to retrieve tokens: ${response.body}');
     }
   }
 

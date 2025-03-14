@@ -12,7 +12,7 @@ class SendNotificationButton extends StatelessWidget {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString('accessToken');
     if (accessToken == null) {
-      print('❌ No access token found');
+      debugPrint('❌ No access token found');
       return;
     }
 
@@ -26,9 +26,9 @@ class SendNotificationButton extends StatelessWidget {
     );
 
     if (response.statusCode == 200) {
-      print('✅ Post request successful');
+      debugPrint('✅ Post request successful');
     } else {
-      print('❌ Failed to send post request: ${response.body}');
+      debugPrint('❌ Failed to send post request: ${response.body}');
     }
   }
 
