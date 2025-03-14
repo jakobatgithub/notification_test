@@ -36,7 +36,7 @@ class AuthService {
   }
 
   static Future<void> retrieveTokens(String username, String password) async {
-    String tokenURL = "$baseURL/api/token/";
+    String tokenURL = "$baseURL/api/token/access_token/";
     final response = await http.post(
       Uri.parse(tokenURL),
       headers: <String, String>{'Content-Type': 'application/json'},

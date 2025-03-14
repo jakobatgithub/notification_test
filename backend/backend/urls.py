@@ -19,21 +19,21 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import SendNotificationsView, EMQXWebhookViewSet, MQTTTokenViewSet
+from notifications.views import SendNotificationView, EMQXWebhookViewSet, EMQXTokenViewSet
 
 
 router = DefaultRouter()
-router.register(r'devices', FCMDeviceViewSet)
+router.register(r'fcm/devices', FCMDeviceViewSet)
 router.register(r'emqx', EMQXWebhookViewSet, basename="emqx")
+router.register(r'token', EMQXTokenViewSet, basename="token")
+router.register(r'messages', SendNotificationView, basename="notification")
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path("_allauth/", include("allauth.headless.urls")),
 
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
+    path('api/token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
-    path('api/', include(router.urls)),  # Include the router
-    path('api/mqtt-token/', MQTTTokenViewSet.as_view({'get': 'mqtt_token'}), name="mqtt_token"),
-    path('api/send-notifications/', SendNotificationsView.as_view({'post': 'send_notifications'}), name="send_notifications"),
+    path('api/', include(router.urls)),
 ]

@@ -105,7 +105,7 @@ class MQTTService {
       return;
     }
 
-    String tokenURL = "$baseURL/api/mqtt-token/";
+    String tokenURL = "$baseURL/api/token/emqx_token/";
     final response = await http.get(
       Uri.parse(tokenURL),
       headers: <String, String>{

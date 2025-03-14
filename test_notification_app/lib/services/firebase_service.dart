@@ -22,7 +22,7 @@ class FirebaseService {
 
   Future<void> registerDevice(String token) async {
     final response = await http.post(
-      Uri.parse("$baseURL/api/devices/"),
+      Uri.parse("$baseURL/api/fcm/devices/"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "registration_id": token,

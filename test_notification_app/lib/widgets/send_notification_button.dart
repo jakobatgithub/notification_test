@@ -17,7 +17,7 @@ class SendNotificationButton extends StatelessWidget {
     }
 
     final response = await http.post(
-      Uri.parse("$baseURL/api/send-notifications/"),
+      Uri.parse("$baseURL/api/messages/send_notification/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $accessToken',

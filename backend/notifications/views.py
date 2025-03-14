@@ -16,7 +16,7 @@ from fcm_django.models import FCMDevice
 from notifications.mqtt import MQTTClient
 from notifications.utils import generate_mqtt_token, send_mqtt_message
 
-class SendNotificationsView(ViewSet):
+class SendNotificationView(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     message_counter = 0
@@ -25,22 +25,22 @@ class SendNotificationsView(ViewSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if SendNotificationsView.mqtt_client is None:
-            SendNotificationsView.mqtt_client = MQTTClient(settings.MQTT_BROKER)
+        if SendNotificationView.mqtt_client is None:
+            SendNotificationView.mqtt_client = MQTTClient(settings.MQTT_BROKER)
 
-    @action(detail=False, methods=["POST"], url_path="send_notifications")
-    def send_notifications(self, request):
+    @action(detail=False, methods=["POST"], url_path="send_notification")
+    def send_notification(self, request):
         if request.method == "POST":
             data = json.loads(request.body)
             title = data.get("title")
             body = data.get("body")
 
             # Generate a unique msg_id by counting requests
-            SendNotificationsView.message_counter += 1
-            msg_id = SendNotificationsView.message_counter
+            SendNotificationView.message_counter += 1
+            msg_id = SendNotificationView.message_counter
 
             # Send a notification via MQTT
-            send_mqtt_message(SendNotificationsView.mqtt_client, msg_id=msg_id, title=title, body=body)
+            send_mqtt_message(SendNotificationView.mqtt_client, msg_id=msg_id, title=title, body=body)
 
             # Send a notification to all registered Firebase devices
             devices = FCMDevice.objects.all()
@@ -55,10 +55,6 @@ class SendNotificationsView(ViewSet):
 active_devices = {}
 
 class EMQXWebhookViewSet(ViewSet):
-    """
-    ViewSet to handle webhook events from EMQX
-    """
-
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
         try:
@@ -100,11 +96,11 @@ class EMQXWebhookViewSet(ViewSet):
             active_devices[user_id].remove(device_id)
             print(f"User {user_id} disconnected from device {device_id}")
 
-class MQTTTokenViewSet(ViewSet):
+class EMQXTokenViewSet(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=["GET"], url_path="mqtt_token")
+    @action(detail=False, methods=["GET"], url_path="emqx_token")
     def mqtt_token(self, request):
         user = request.user
         if not user.is_authenticated:
