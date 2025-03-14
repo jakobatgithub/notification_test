@@ -6,7 +6,7 @@ import 'constants.dart';
 
 class AuthService {
   static Future<void> login(String username, String password) async {
-    String loginURL = "$BASE_URL/_allauth/browser/v1/auth/login";
+    String loginURL = "$baseURL/_allauth/browser/v1/auth/login";
     final response = await http.post(
       Uri.parse(loginURL),
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -20,7 +20,7 @@ class AuthService {
   }
 
   static Future<void> signup(String username, String password) async {
-    String signupURL = "$BASE_URL/_allauth/browser/v1/auth/signup";
+    String signupURL = "$baseURL/_allauth/browser/v1/auth/signup";
     final response = await http.post(
       Uri.parse(signupURL),
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -35,7 +35,7 @@ class AuthService {
   }
 
   static Future<void> retrieveTokens(String username, String password) async {
-    String tokenURL = "$BASE_URL/api/token/";
+    String tokenURL = "$baseURL/api/token/";
     final response = await http.post(
       Uri.parse(tokenURL),
       headers: <String, String>{'Content-Type': 'application/json'},

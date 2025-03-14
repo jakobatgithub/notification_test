@@ -102,7 +102,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return;
     }
 
-    String backendURL = "$BASE_URL/api/send-notifications/";
+    String backendURL = "$baseURL/api/send-notifications/";
     final response = await http.post(
       Uri.parse(backendURL),
       headers: <String, String>{
@@ -192,7 +192,7 @@ class FirebaseService {
 
   Future<void> registerDevice(String token) async {
     final response = await http.post(
-      Uri.parse("$BASE_URL/api/devices/"),
+      Uri.parse("$baseURL/api/devices/"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "registration_id": token,
