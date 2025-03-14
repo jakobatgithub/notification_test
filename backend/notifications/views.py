@@ -55,7 +55,6 @@ class SendNotificationView(ViewSet):
         
         return JsonResponse({"error": "Invalid request"}, status=400)
 
-
 class EMQXWebhookViewSet(ViewSet):
 
     @action(detail=False, methods=["GET"], url_path="devices")
@@ -64,10 +63,13 @@ class EMQXWebhookViewSet(ViewSet):
         serializer = DeviceSerializer(devices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
         try:
+            auth_header = request.headers.get("emqxwebhooktoken")
+            if not auth_header or auth_header != settings.EMQX_WEBHOOK_SECRET_TOKEN:
+                return JsonResponse({"error": "Unauthorized"}, status=401)
+
             body = request.body
             decoded_str = body.decode("utf-8")
             data = json.loads(decoded_str)

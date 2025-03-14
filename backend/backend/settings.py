@@ -191,6 +191,8 @@ EMQX_credentials = get_emqx_api_credentials(API_KEY_CONF_PATH)
 EMQX_API_KEY = EMQX_credentials[0]
 EMQX_API_SECRET = EMQX_credentials[1]
 
+EMQX_WEBHOOK_SECRET_TOKEN = os.getenv("EMQX_WEBHOOK_SECRET_TOKEN", "fallback_secret")
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "ALGORITHM": "HS256",

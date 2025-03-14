@@ -18,7 +18,6 @@ services:
     restart: always
     env_file:
       - .env
-    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     ports:
       - "1883:1883"  # MQTT Port
       - "8083:8083"  # WebSocket Port
@@ -27,4 +26,4 @@ services:
     volumes:
       - ./emqx/data:/opt/emqx/data
       - ./emqx/emqx.conf:/opt/emqx/etc/emqx.conf
-      - ./emqx/entrypoint.sh:/entrypoint.sh  # Ensure script is available in the container
+      - ./emqx/certs:/etc/emqx/certs
