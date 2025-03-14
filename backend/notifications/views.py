@@ -1,5 +1,4 @@
 import json
-import time
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -7,104 +6,17 @@ from rest_framework.decorators import action, api_view, authentication_classes, 
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import AccessToken
 
 from django.http import JsonResponse
-from django.contrib.auth import get_user_model
 from django.conf import settings
 
-from firebase_admin import messaging
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
-import paho.mqtt.client as mqtt
-
-
-def generate_backend_mqtt_token():
-    token = AccessToken()
-    token["username"] = "backend"
-    token["acl"] = [
-        {
-            "permission": "allow",
-            "action": "subscribe",
-            "topic": "#"
-        },
-        {
-            "permission": "allow",
-            "action": "publish",
-            "topic": "#"
-        }
-    ]
-    return str(token)
-
-class MQTTClient:
-    def __init__(self, broker, port=1883, keepalive=60):
-        mqtt_token = generate_backend_mqtt_token()
-        self.client = mqtt.Client()
-        self.client.username_pw_set(username='backend', password=mqtt_token)  # Use JWT as password
-        for attempt in range(settings.MAX_RETRIES):
-            try:
-                print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
-                self.client.connect(broker, port, keepalive)
-                self.client.loop_start()
-                print("✅ Successfully connected to MQTT broker!")
-                return
-            except ConnectionRefusedError:
-                print(f"⏳ Connection refused, retrying in {settings.RETRY_DELAY} seconds...")
-                time.sleep(settings.RETRY_DELAY)
-
-        print("❌ Failed to connect after multiple attempts. Check EMQX logs.")
-
-    def publish(self, topic, payload, qos=1):
-        self.client.publish(topic, payload, qos)
-
-    def disconnect(self):
-        self.client.loop_stop()
-        self.client.disconnect()
+from notifications.mqtt import MQTTClient
+from notifications.utils import generate_mqtt_token, send_mqtt_message
 
 mqtt_client = MQTTClient(settings.MQTT_BROKER)
-
-def send_mqtt_message(msg_id, title, body):
-    """Publish message via MQTT."""
-    payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    users = get_user_model().objects.all()
-    for user in users:
-        user_topic = f"user/{user.id}/"
-        mqtt_client.publish(user_topic, payload)
-    
-    print(f"✅ MQTT notification sent: {payload}")
-
-def send_firebase_notification(token, title, body):
-    message = Message(
-        token=token,
-        notification=Notification(
-            title=title,
-            body=body,
-        )
-    )
-    response = messaging.send(message)
-    print(f"✅ Firebase notification sent: {response}")
-    return response
-
-def send_firebase_data_message(token, msg_id, title, body):
-    message = Message(
-        token=token,
-        data={
-            "msg_id": str(msg_id),
-            "title": title,
-            "body": body,
-        },
-        android=messaging.AndroidConfig(priority="high"),
-        apns=messaging.APNSConfig(
-            headers={"apns-priority": "10"},
-            payload=messaging.APNSPayload(
-                aps=messaging.Aps(content_available=True)
-            ),
-        ),        
-    )
-    response = messaging.send(message)
-    print(f"✅ Firebase data message sent: {response}")
-    return response
 
 class SendNotificationsView(ViewSet):
     authentication_classes = [JWTAuthentication]
@@ -123,7 +35,7 @@ class SendNotificationsView(ViewSet):
             msg_id = SendNotificationsView.message_counter
 
             # Send a notification via MQTT
-            send_mqtt_message(msg_id=msg_id, title=title, body=body)
+            send_mqtt_message(mqtt_client, msg_id=msg_id, title=title, body=body)
 
             # Send a notification to all registered Firebase devices
             devices = FCMDevice.objects.all()
@@ -190,22 +102,7 @@ def mqtt_token(request):
     user = request.user
     if not user.is_authenticated:
         return Response({"error": "Unauthorized"}, status=401)
+    
+    token = generate_mqtt_token(user)
 
-    # Create a new JWT token
-    token = AccessToken.for_user(user)
-
-    # Set MQTT-specific claims
-    token["username"] = str(user.id)  # EMQX uses this for client identification
-    token["acl"] = [
-        {
-            "permission": "allow",
-            "action": "subscribe",
-            "topic": f"user/{user.id}/#"
-        },
-        {
-            "permission": "deny",
-            "action": "publish",
-            "topic": "#"
-        }
-    ]
-    return Response({"mqtt_token": str(token), "user_id": str(user.id)})
+    return Response({"mqtt_token": token, "user_id": str(user.id)})
