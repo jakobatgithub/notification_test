@@ -31,7 +31,7 @@ class SendNotificationView(ViewSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if SendNotificationView.mqtt_client is None:
-            SendNotificationView.mqtt_client = MQTTClient(settings.MQTT_BROKER)
+            SendNotificationView.mqtt_client = MQTTClient(broker=settings.MQTT_BROKER, port=settings.MQTT_PORT)
 
     @action(detail=False, methods=["POST"], url_path="send_notification")
     def send_notification(self, request):
