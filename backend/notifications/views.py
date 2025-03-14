@@ -100,14 +100,16 @@ class EMQXWebhookViewSet(ViewSet):
             active_devices[user_id].remove(device_id)
             print(f"User {user_id} disconnected from device {device_id}")
 
-@api_view(["GET"])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def mqtt_token(request):
-    user = request.user
-    if not user.is_authenticated:
-        return Response({"error": "Unauthorized"}, status=401)
-    
-    token = generate_mqtt_token(user)
+class MQTTTokenViewSet(ViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
-    return Response({"mqtt_token": token, "user_id": str(user.id)})
+    @action(detail=False, methods=["GET"], url_path="mqtt_token")
+    def mqtt_token(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "Unauthorized"}, status=401)
+        
+        token = generate_mqtt_token(user)
+
+        return Response({"mqtt_token": token, "user_id": str(user.id)})
