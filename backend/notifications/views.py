@@ -16,12 +16,17 @@ from fcm_django.models import FCMDevice
 from notifications.mqtt import MQTTClient
 from notifications.utils import generate_mqtt_token, send_mqtt_message
 
-mqtt_client = MQTTClient(settings.MQTT_BROKER)
-
 class SendNotificationsView(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     message_counter = 0
+
+    mqtt_client = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if SendNotificationsView.mqtt_client is None:
+            SendNotificationsView.mqtt_client = MQTTClient(settings.MQTT_BROKER)
 
     @action(detail=False, methods=["POST"], url_path="send_notifications")
     def send_notifications(self, request):
@@ -35,7 +40,7 @@ class SendNotificationsView(ViewSet):
             msg_id = SendNotificationsView.message_counter
 
             # Send a notification via MQTT
-            send_mqtt_message(mqtt_client, msg_id=msg_id, title=title, body=body)
+            send_mqtt_message(SendNotificationsView.mqtt_client, msg_id=msg_id, title=title, body=body)
 
             # Send a notification to all registered Firebase devices
             devices = FCMDevice.objects.all()
