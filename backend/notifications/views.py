@@ -1,5 +1,6 @@
 import json
 
+from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,12 +10,16 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
-from notifications.mqtt import MQTTClient
-from notifications.utils import generate_mqtt_token, send_mqtt_message
+from .models import Device
+from .serializers import DeviceSerializer
+from .mqtt import MQTTClient
+from .utils import generate_mqtt_token, send_mqtt_message
 
 class SendNotificationView(ViewSet):
     authentication_classes = [JWTAuthentication]
@@ -51,49 +56,73 @@ class SendNotificationView(ViewSet):
         return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-# In-memory storage (use a database in production)
-active_devices = {}
-
 class EMQXWebhookViewSet(ViewSet):
+
+    @action(detail=False, methods=["GET"], url_path="devices")
+    def list_devices(self, request):
+        devices = Device.objects.all()
+        serializer = DeviceSerializer(devices, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
         try:
             body = request.body
             decoded_str = body.decode("utf-8")
             data = json.loads(decoded_str)
+
             event = data.get("event")
             client_id = data.get("clientid")
-            username = data.get("username")
-    
-            if not client_id or not username:
+            user_id = data.get("user_id")
+            ip_address = data.get("ip_address", None)
+
+            if not client_id or not user_id:
                 return Response({"error": "Invalid data"}, status=400)
-            
-            if username=="backend":
+
+            if user_id == "backend":
                 return Response({"status": "success"})
 
             if event == "client.connected":
-                self.handle_client_connected(username, client_id)
+                self.handle_client_connected(user_id, client_id, ip_address)
             elif event == "client.disconnected":
-                self.handle_client_disconnected(username, client_id)
+                self.handle_client_disconnected(user_id, client_id)
             else:
                 return Response({"error": "Unknown event"}, status=400)
 
             return Response({"status": "success"})
+
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON"}, status=400)
 
-    def handle_client_connected(self, user_id, device_id):
-        """Handles a device connection event"""
-        if user_id not in active_devices:
-            active_devices[user_id] = []
-        if device_id not in active_devices[user_id]:
-            active_devices[user_id].append(device_id)
-        print(f"User {user_id} connected on device {device_id}")
+    def handle_client_connected(self, user_id, device_id, ip_address):
+        user = get_user_model().objects.filter(id=int(user_id)).first()
+        if not user:
+            return
+
+        device, created = Device.objects.update_or_create(
+            client_id=device_id,
+            defaults={
+                "user": user,
+                "active": True,
+                "last_status": "online",
+                "last_connected_at": timezone.now(),
+                "ip_address": ip_address,  # Store IP
+            },
+        )
+        print(f"User {user} connected on device {device_id} (IP: {ip_address})")
 
     def handle_client_disconnected(self, user_id, device_id):
-        """Handles a device disconnection event"""
-        if user_id in active_devices and device_id in active_devices[user_id]:
-            active_devices[user_id].remove(device_id)
+        user = get_user_model().objects.filter(id=int(user_id)).first()
+        if not user:
+            return
+
+        device = Device.objects.filter(client_id=device_id, user=user).update(
+            active=False,
+            last_status="offline",
+        )
+
+        if device:
             print(f"User {user_id} disconnected from device {device_id}")
 
 class EMQXTokenViewSet(ViewSet):
