@@ -17,13 +17,12 @@ Including another URLconf
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from fcm_django.api.rest_framework import FCMDeviceViewSet
 
-from notifications.views import SendNotificationView, EMQXWebhookViewSet, EMQXTokenViewSet
+from notifications.views import SendNotificationView, EMQXWebhookViewSet, EMQXTokenViewSet, SecureFCMDeviceViewSet
 
 
 router = DefaultRouter()
-router.register(r'fcm/devices', FCMDeviceViewSet)
+router.register(r'fcm/devices', SecureFCMDeviceViewSet)
 router.register(r'emqx', EMQXWebhookViewSet, basename="emqx")
 router.register(r'token', EMQXTokenViewSet, basename="token")
 router.register(r'messages', SendNotificationView, basename="notification")

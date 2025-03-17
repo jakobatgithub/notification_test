@@ -1,5 +1,6 @@
 // services/firebase_service.dart
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,9 +22,18 @@ class FirebaseService {
   }
 
   Future<void> registerDevice(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
+    if (accessToken == null) {
+      debugPrint('❌ No access token found');
+      return;
+    }
     final response = await http.post(
       Uri.parse("$baseURL/api/fcm/devices/"),
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken',
+      },
       body: jsonEncode({
         "registration_id": token,
         "type": Platform.isIOS ? "ios" : "android",

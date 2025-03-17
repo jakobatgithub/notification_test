@@ -16,11 +16,13 @@ from django.db import connection
 
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
+from fcm_django.api.rest_framework import FCMDeviceViewSet
 
 from .models import Device
 from .serializers import DeviceSerializer
 from .mqtt import MQTTClient
 from .utils import generate_mqtt_token, send_mqtt_message
+
 
 class SendNotificationView(ViewSet):
     authentication_classes = [JWTAuthentication]
@@ -144,3 +146,23 @@ class EMQXTokenViewSet(ViewSet):
         token = generate_mqtt_token(user)
 
         return Response({"mqtt_token": token, "user_id": str(user.id)})
+
+class SecureFCMDeviceViewSet(FCMDeviceViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Ensure users can only access their own devices."""
+        return super().get_queryset().filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """Ensure the registered device is linked to the authenticated user."""
+        serializer.save(user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        """Prevent updating device details to enhance security."""
+        return Response({"detail": "Update not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        """Prevent partial updates."""
+        return Response({"detail": "Partial update not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
