@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from .models import Device
+from .models import MQTTDevice
 
-class DeviceSerializer(serializers.ModelSerializer):
+class MQTTDeviceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Device
+        model = MQTTDevice
         fields = ["id", "client_id", "active", "last_status", "last_connected_at"]

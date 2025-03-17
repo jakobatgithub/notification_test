@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-class Device(models.Model):
+class MQTTDevice(models.Model):
     id = models.AutoField(
         verbose_name="ID",
         primary_key=True,
