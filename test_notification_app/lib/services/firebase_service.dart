@@ -42,8 +42,8 @@ class FirebaseService {
 
     debugPrint(
       response.statusCode == 201 || response.statusCode == 200
-          ? "✅ Device registered successfully"
-          : "❌ Failed to register device: ${response.body}",
+          ? "✅ Firebase device registered successfully"
+          : "❌ Failed to register Firebase device: ${response.body}",
     );
   }
 }
