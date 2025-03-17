@@ -169,7 +169,7 @@ ACCOUNT_EMAIL_REQUIRED = False
 
 # EMQX settings
 MQTT_BROKER = "emqx_broker"
-MQTT_PORT = 1883
+MQTT_PORT = 8883
 MAX_RETRIES = 10  # Maximum retry attempts
 RETRY_DELAY = 3   # Wait time in seconds before retrying
 

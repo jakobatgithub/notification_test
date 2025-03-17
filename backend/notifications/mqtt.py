@@ -10,6 +10,8 @@ from .utils import generate_backend_mqtt_token
 class MQTTClient:
     def __init__(self, broker, port=1883, keepalive=60):
         self.client = mqtt.Client()
+        self.client.tls_set("certs/ca.crt")
+        self.client.tls_insecure_set(True)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
 

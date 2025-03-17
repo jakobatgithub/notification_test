@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../constants.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 
 class MQTTService {
   late MqttServerClient client;
@@ -30,6 +31,10 @@ class MQTTService {
       mqttClientId,
       mqttPort,
     );
+    client.secure = true;
+    client.securityContext = SecurityContext.defaultContext;
+    // Allow self-signed certificates
+    client.onBadCertificate = (dynamic cert) => true;
 
     // Enable logging to see connection issues
     client.logging(on: true);
