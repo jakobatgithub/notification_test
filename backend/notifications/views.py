@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.db import connection
 
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
@@ -96,6 +97,9 @@ class EMQXWebhookViewSet(ViewSet):
 
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON"}, status=400)
+
+        finally:
+            connection.close()  # Explicitly close the database connection        
 
     def handle_client_connected(self, user_id, device_id, ip_address):
         user = get_user_model().objects.filter(id=int(user_id)).first()
