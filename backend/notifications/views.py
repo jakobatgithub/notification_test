@@ -58,7 +58,7 @@ class SendNotificationView(ViewSet):
         
         return JsonResponse({"error": "Invalid request"}, status=400)
 
-class EMQXWebhookViewSet(ViewSet):
+class MQTTDeviceViewSet(ViewSet):
 
     @action(detail=False, methods=["GET"], url_path="devices")
     def list_devices(self, request):
