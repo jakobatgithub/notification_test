@@ -20,8 +20,6 @@ services:
     env_file:
       - .env
     ports:
-      - "1883:1883"  # MQTT Port
-      - "8083:8083"  # WebSocket Port
       - "8084:8084"  # Secure WebSocket Port
       - "18083:18083" # Dashboard Port
       - "8883:8883" # Secure MQTT Port
