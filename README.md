@@ -88,6 +88,14 @@ This project demonstrates the integration of Firebase Cloud Messaging (FCM) and 
 4. **Access the EMQX Dashboard**:
     - The EMQX Dashboard will be available at `http://localhost:18083`.
 
+## Secrets
+
+The following secrets are required for the project:
+
+- **Firebase Admin SDK JSON file**: Required for the Django backend to authenticate with Firebase.
+- **google-services.json**: Required for the Android part of the Flutter application to configure Firebase.
+- **GoogleService-Info.plist**: Required for the iOS part of the Flutter application to configure Firebase.
+
 ## Usage
 
 ### Sending Notifications
@@ -98,6 +106,24 @@ This project demonstrates the integration of Firebase Cloud Messaging (FCM) and 
 ### Receiving Notifications
 
 - The Flutter app will receive notifications and display the latest message along with recent messages.
+
+## Troubleshooting
+
+### Common Issues
+
+- **Firebase Authentication Errors**: Ensure that the Firebase Admin SDK JSON file is correctly placed and the path is correctly set in `settings.py`.
+- **Docker Build Failures**: Verify that Docker and Docker Compose are correctly installed and that the Dockerfile and docker-compose.yml are correctly configured.
+- **MQTT Connection Issues**: Ensure that the MQTT broker is running and accessible.
+
+### Logs and Debugging
+
+- **Flutter Application Logs**: Use `flutter logs` to view logs from the Flutter application.
+- **Django Backend Logs**: Check the console output where the Django server is running for any errors or logs.
+- **Docker Logs**: Use `docker-compose logs` to view logs from the Docker containers.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
 ## License
 
