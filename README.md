@@ -1,6 +1,29 @@
 # Notification Test Project
 
-This project demonstrates the integration of Firebase Cloud Messaging (FCM) and MQTT for sending and receiving notifications in a Flutter application. The backend is built using Django and Firebase Admin SDK.
+This project showcases the seamless integration of Firebase Cloud Messaging (FCM) and MQTT to enable robust, real-time notification and messaging capabilities. The backend is developed using Django, while the frontend is built with Flutter, providing a cross-platform mobile application.
+
+FCM is primarily used to deliver push notifications to the frontend when the application is inactive or running in the background. However, FCM has significant limitations when handling pure data messages or a combination of push notifications and data payloads, as its reliability varies across different device manufacturers and system configurations.
+
+To overcome these limitations, MQTT is employed to ensure a reliable, bidirectional communication channel between the backend and the frontend. Unlike FCM, MQTT facilitates persistent connections and guarantees message delivery, making it ideal for sending arbitrary data in real-time. The MQTT implementation is powered by a self-hosted EMQX broker, allowing full control over message distribution, quality of service (QoS) levels, and connection management.
+
+## Features
+
+This project incorporates several security and efficiency measures to ensure seamless and secure communication between the backend and frontend.
+
+- **JWT-based Authentication & Authorization:**
+    JSON Web Tokens (JWT) are used for authentication and to enforce access control lists (ACLs) in MQTT. This ensures that each client has restricted access based on predefined permissions, preventing unauthorized subscriptions or publications.
+
+- **Secure MQTT Communication with TLS:**
+    To protect data transmission, the connection between the frontend and the EMQX broker is secured using Transport Layer Security (TLS). This encryption prevents eavesdropping and tampering, ensuring a confidential and secure communication channel.
+
+- **Topic-based Access Control:**
+    Each frontend user is restricted to a single dedicated MQTT topic for subscriptions, ensuring isolation between users. The backend, however, has the necessary permissions to publish messages to all topics, enabling efficient and controlled message distribution.
+
+- **Automated Device Registration via Secure Webhooks:**
+    A webhook secured with JWT authentication is used to register MQTT devices with the backend.
+
+- **FCM Device Registration via `fcm-django`:**
+    Firebase devices are registered securely using a dedicated `FCMDeviceViewSet` provided by the `fcm-django` package.
 
 ## Project Structure
 
@@ -101,6 +124,33 @@ The following secrets are required for the project:
     print(generate_static_jwt())
     ```
     and use this string as `token` in the environment variable `EMQX_WEBHOOK_SECRET_TOKEN="Bearer token"`
+
+### Generating Keys
+
+You can generate the necessary keys using the utility functions provided in the `backend/notifications/utils.py` file.
+
+1. **Generate Django SECRET_KEY**:
+    ```sh
+    python manage.py shell
+    from notifications.utils import generate_django_secret_key
+    print(generate_django_secret_key())
+    ```
+
+2. **Generate JWT Signing Key**:
+    ```sh
+    python manage.py shell
+    from notifications.utils import generate_signing_key
+    print(generate_signing_key())
+    ```
+
+3. **Generate Static JWT for EMQX**:
+    ```sh
+    python manage.py shell
+    from notifications.utils import generate_static_jwt
+    print(generate_static_jwt())
+    ```
+
+Use the generated keys in your environment variables or configuration files as needed.
 
 ## Usage
 
