@@ -59,6 +59,8 @@ class SendNotificationView(ViewSet):
         return JsonResponse({"error": "Invalid request"}, status=400)
 
 class MQTTDeviceViewSet(ViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=["GET"], url_path="devices")
     def list_devices(self, request):
@@ -69,10 +71,6 @@ class MQTTDeviceViewSet(ViewSet):
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
         try:
-            auth_header = request.headers.get("emqxwebhooktoken")
-            if not auth_header or auth_header != settings.EMQX_WEBHOOK_SECRET_TOKEN:
-                return JsonResponse({"error": "Unauthorized"}, status=401)
-
             body = request.body
             decoded_str = body.decode("utf-8")
             data = json.loads(decoded_str)
