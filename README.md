@@ -95,6 +95,12 @@ The following secrets are required for the project:
 - **Firebase Admin SDK JSON file**: Required for the Django backend to authenticate with Firebase.
 - **google-services.json**: Required for the Android part of the Flutter application to configure Firebase.
 - **GoogleService-Info.plist**: Required for the iOS part of the Flutter application to configure Firebase.
+- **EMQX_WEBHOOK_SECRET_TOKEN**: Generate it within the Python shell `python manage.py shell`
+    ``` 
+    from notifications.utils import generate_static_jwt
+    print(generate_static_jwt())
+    ```
+    and use this string as `token` in the environment variable `EMQX_WEBHOOK_SECRET_TOKEN="Bearer token"`
 
 ## Usage
 
