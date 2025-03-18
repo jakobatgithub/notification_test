@@ -27,10 +27,24 @@ This project incorporates several security and efficiency measures to ensure sea
 
 ## Project Structure
 
-- **test_notification_app**: Flutter application for receiving notifications.
-- **backend**: Django backend for sending notifications.
+- **test_notification_app/**: Contains the Flutter application code.
+  - **lib/**: Main Dart code for the Flutter application.
+  - **android/**: Android-specific configuration and code.
+  - **ios/**: iOS-specific configuration and code.
+  - **pubspec.yaml**: Flutter project configuration file.
+- **backend/**: Contains the Django backend code.
+  - **notifications/**: Django app for handling notifications.
+    - **migrations/**: Database migrations for the notifications app.
+    - **templates/**: HTML templates for the notifications app.
+    - **utils.py**: Utility functions for generating keys and sending notifications.
+    - **views.py**: Django views for handling HTTP requests.
+  - **Dockerfile**: Dockerfile for building the Django backend image.
+  - **manage.py**: Django management script.
+  - **requirements.txt**: Python dependencies for the Django backend.
+  - **settings.py**: Django settings file.
+  - **urls.py**: URL routing for the Django backend.
 - **docker-compose.yml**: Docker Compose file for setting up the backend and MQTT broker.
-- **backend/Dockerfile**: Dockerfile for the Django backend.
+- **README.md**: Project documentation and setup instructions.
 
 ## Setup Instructions
 
@@ -39,7 +53,6 @@ This project incorporates several security and efficiency measures to ensure sea
 - Flutter SDK
 - Firebase account
 - Docker and Docker Compose
-- MQTT Broker (e.g., EMQX)
 
 ### Flutter Application
 
@@ -56,7 +69,7 @@ This project incorporates several security and efficiency measures to ensure sea
 
 3. **Configure Firebase**:
     - Follow the instructions to add Firebase to your Flutter app: [Firebase Setup](https://firebase.google.com/docs/flutter/setup)
-    - Place the `google-services.json` file in `android/app` and `GoogleService-Info.plist` in `ios/Runner`.
+    - Place the `google-services.json` file in `android/app` and `GoogleService-Info.plist` in `ios/Runner` the iOS Auth key in `ios`.
 
 4. **Run the application**:
     ```sh
@@ -73,7 +86,7 @@ This project incorporates several security and efficiency measures to ensure sea
 2. **Create a virtual environment and activate it**:
     ```sh
     python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    source venv/bin/activate
     ```
 
 3. **Install dependencies**:
@@ -88,7 +101,12 @@ This project incorporates several security and efficiency measures to ensure sea
       cred = credentials.Certificate("backend/<your-firebase-adminsdk-json>.json")
       ```
 
-5. **Run the Django server**:
+5. **Apply database migrations**:
+    ```sh
+    python manage.py migrate
+    ```
+
+6. **Run the Django server**:
     ```sh
     python manage.py runserver
     ```
@@ -111,7 +129,7 @@ This project incorporates several security and efficiency measures to ensure sea
 4. **Access the EMQX Dashboard**:
     - The EMQX Dashboard will be available at `http://localhost:18083`.
 
-## Secrets
+<!-- ## Secrets
 
 The following secrets are required for the project:
 
@@ -150,7 +168,7 @@ You can generate the necessary keys using the utility functions provided in the 
     print(generate_static_jwt())
     ```
 
-Use the generated keys in your environment variables or configuration files as needed.
+Use the generated keys in your environment variables or configuration files as needed. -->
 
 ## Usage
 
@@ -170,17 +188,3 @@ Use the generated keys in your environment variables or configuration files as n
 - **Firebase Authentication Errors**: Ensure that the Firebase Admin SDK JSON file is correctly placed and the path is correctly set in `settings.py`.
 - **Docker Build Failures**: Verify that Docker and Docker Compose are correctly installed and that the Dockerfile and docker-compose.yml are correctly configured.
 - **MQTT Connection Issues**: Ensure that the MQTT broker is running and accessible.
-
-### Logs and Debugging
-
-- **Flutter Application Logs**: Use `flutter logs` to view logs from the Flutter application.
-- **Django Backend Logs**: Check the console output where the Django server is running for any errors or logs.
-- **Docker Logs**: Use `docker-compose logs` to view logs from the Docker containers.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License.
