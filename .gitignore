@@ -3,6 +3,7 @@
 /test_notification_app/ios/AuthKey_BQ49478UUZ.p8
 /emqx/data
 /certs
+/emqx/certs/emqx.key
 
 # General system files
 .DS_Store
