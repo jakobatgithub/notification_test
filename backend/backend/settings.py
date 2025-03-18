@@ -173,8 +173,6 @@ MQTT_PORT = 8883
 MAX_RETRIES = 10  # Maximum retry attempts
 RETRY_DELAY = 3   # Wait time in seconds before retrying
 
-EMQX_WEBHOOK_SECRET_TOKEN = os.getenv("EMQX_WEBHOOK_SECRET_TOKEN", "fallback_secret")
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "ALGORITHM": "HS256",
