@@ -1,6 +1,10 @@
+import jwt
 import json
+import secrets
+import datetime
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -86,3 +90,22 @@ def send_firebase_data_message(token, msg_id, title, body):
     response = messaging.send(message)
     print(f"✅ Firebase data message sent: {response}")
     return response
+
+def generate_django_secret_key():
+    """Generate a secure Django SECRET_KEY (50-character random string)."""
+    return "".join(secrets.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for _ in range(50))
+
+def generate_signing_key():
+    """Generate a secure random key for JWT signing and random EMQX cookie (256-bit hex string)."""
+    return secrets.token_hex(32)  # 32-byte (256-bit) hex key
+
+def generate_static_jwt():
+    """Generate a long-lived static JWT for EMQX authentication."""
+    """Generate a valid JWT for EMQX authentication using Simple JWT."""
+    user, _ = get_user_model().objects.get_or_create(username="emqx_user")
+    token = AccessToken()
+    token["user_id"] = user.id
+    token["sub"] = user.username
+    token["role"] = "service"
+    token.set_exp(from_time=None, lifetime=datetime.timedelta(days=3650))  # 10 years
+    return str(token)
