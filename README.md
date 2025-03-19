@@ -43,6 +43,8 @@ This project incorporates several security and efficiency measures to ensure sea
   - **requirements.txt**: Python dependencies for the Django backend.
   - **settings.py**: Django settings file.
   - **urls.py**: URL routing for the Django backend.
+- **emqx/**: Contains configuration files and certificates for EMQX.
+  - **emqx/emxqx.conf**: Configuration file for the EMQX server.
 - **docker-compose.yml**: Docker Compose file for setting up the backend and MQTT broker.
 - **README.md**: Project documentation and setup instructions.
 
