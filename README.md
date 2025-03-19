@@ -11,7 +11,7 @@ To overcome these limitations, MQTT is employed to ensure a reliable, bidirectio
 This project incorporates several security and efficiency measures to ensure seamless and secure communication between the backend and frontend.
 
 - **JWT-based Authentication & Authorization:**
-    JSON Web Tokens (JWT) are used for authentication and to enforce access control lists (ACLs) in MQTT. This ensures that each client has restricted access based on predefined permissions, preventing unauthorized subscriptions or publications.
+    JSON Web Tokens (JWT) are used for authenticating MQTT clients at EMQX and to enforce access and control lists (ACLs). This ensures that each client has restricted access based on predefined permissions, preventing unauthorized subscriptions or publications. For JWT we use `rest_framework_simplejwt`.
 
 - **Secure MQTT Communication with TLS:**
     To protect data transmission, the connection between the frontend and the EMQX broker is secured using Transport Layer Security (TLS). This encryption prevents eavesdropping and tampering, ensuring a confidential and secure communication channel.
