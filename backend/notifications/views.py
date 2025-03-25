@@ -133,9 +133,6 @@ class EMQXTokenViewSet(ViewSet):
 
     def create(self, request):
         user = request.user
-        if not user.is_authenticated:
-            return Response({"error": "Unauthorized"}, status=401)
-        
         token = generate_mqtt_token(user)
 
         return Response({"mqtt_token": token, "user_id": str(user.id)})
