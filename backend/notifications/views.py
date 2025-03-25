@@ -53,6 +53,17 @@ class NotificationViewSet(ViewSet):
 
         return JsonResponse({"message": "Notifications sent successfully"})
 
+
+class EMQXTokenViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        user = request.user
+        token = generate_mqtt_token(user)
+
+        return Response({"mqtt_token": token, "user_id": str(user.id)})
+
+
 class MQTTDeviceViewSet(ViewSet):
     @action(detail=False, methods=["GET"], url_path="devices")
     def list_devices(self, request):
@@ -123,14 +134,6 @@ class MQTTDeviceViewSet(ViewSet):
         if device:
             print(f"User {user_id} disconnected from device {device_id}")
 
-class EMQXTokenViewSet(ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request):
-        user = request.user
-        token = generate_mqtt_token(user)
-
-        return Response({"mqtt_token": token, "user_id": str(user.id)})
 
 class SecureMQTTDeviceViewSet(MQTTDeviceViewSet):
     permission_classes = [IsAuthenticated]
