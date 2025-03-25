@@ -15,8 +15,8 @@ from django.db import connection
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
-from .models import MQTTDevice
-from .serializers import MQTTDeviceSerializer
+from .models import EMQXDevice
+from .serializers import EMQXDeviceSerializer
 from .mqtt import MQTTClient
 from .utils import generate_mqtt_token, send_mqtt_message
 
@@ -67,8 +67,8 @@ class EMQXTokenViewSet(ViewSet):
 class MQTTDeviceViewSet(ViewSet):
     @action(detail=False, methods=["GET"], url_path="devices")
     def list_devices(self, request):
-        devices = MQTTDevice.objects.all()
-        serializer = MQTTDeviceSerializer(devices, many=True)
+        devices = EMQXDevice.objects.all()
+        serializer = EMQXDeviceSerializer(devices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"], url_path="webhook")
@@ -109,7 +109,7 @@ class MQTTDeviceViewSet(ViewSet):
         if not user:
             return
 
-        device, created = MQTTDevice.objects.update_or_create(
+        device, created = EMQXDevice.objects.update_or_create(
             client_id=device_id,
             defaults={
                 "user": user,
@@ -126,7 +126,7 @@ class MQTTDeviceViewSet(ViewSet):
         if not user:
             return
 
-        device = MQTTDevice.objects.filter(client_id=device_id, user=user).update(
+        device = EMQXDevice.objects.filter(client_id=device_id, user=user).update(
             active=False,
             last_status="offline",
         )
