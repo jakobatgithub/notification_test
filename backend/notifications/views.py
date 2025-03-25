@@ -132,8 +132,7 @@ class EMQXTokenViewSet(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=["GET"], url_path="emqx_token")
-    def mqtt_token(self, request):
+    def create(self, request):
         user = request.user
         if not user.is_authenticated:
             return Response({"error": "Unauthorized"}, status=401)
