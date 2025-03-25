@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -25,7 +23,6 @@ from .utils import generate_mqtt_token, send_mqtt_message
 
 
 class NotificationViewSet(ViewSet):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     message_counter = 0
 
@@ -128,7 +125,6 @@ class MQTTDeviceViewSet(ViewSet):
             print(f"User {user_id} disconnected from device {device_id}")
 
 class EMQXTokenViewSet(ViewSet):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def create(self, request):
@@ -138,7 +134,6 @@ class EMQXTokenViewSet(ViewSet):
         return Response({"mqtt_token": token, "user_id": str(user.id)})
 
 class SecureFCMDeviceViewSet(FCMDeviceViewSet):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -159,7 +154,6 @@ class SecureFCMDeviceViewSet(FCMDeviceViewSet):
 
 
 class SecureMQTTDeviceViewSet(MQTTDeviceViewSet):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
