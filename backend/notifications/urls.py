@@ -2,14 +2,14 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from notifications.views import SendNotificationViewSet, SecureMQTTDeviceViewSet, EMQXTokenViewSet, SecureFCMDeviceViewSet
+from notifications.views import NotificationViewSet, SecureMQTTDeviceViewSet, EMQXTokenViewSet, SecureFCMDeviceViewSet
 
 
 router = DefaultRouter()
 router.register(r'fcm/devices', SecureFCMDeviceViewSet)
-router.register(r'emqx', SecureMQTTDeviceViewSet, basename="emqx")
-router.register(r'token', EMQXTokenViewSet, basename="token")
-router.register(r'messages', SendNotificationViewSet, basename="notification")
+router.register(r'emqx', SecureMQTTDeviceViewSet, basename='emqx')
+router.register(r'token', EMQXTokenViewSet, basename='token')
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
 

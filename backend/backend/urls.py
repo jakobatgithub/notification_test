@@ -19,10 +19,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
-    path("_allauth/", include("allauth.headless.urls")),
+    path('_allauth/', include('allauth.headless.urls')),
 
     path('api/token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
     path('api/token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
-    path('api/', include("notifications.urls")),
+    path('api/', include('notifications.urls')),
 ]

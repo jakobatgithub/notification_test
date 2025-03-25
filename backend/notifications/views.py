@@ -24,7 +24,7 @@ from .mqtt import MQTTClient
 from .utils import generate_mqtt_token, send_mqtt_message
 
 
-class SendNotificationViewSet(ViewSet):
+class NotificationViewSet(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     message_counter = 0
@@ -33,30 +33,29 @@ class SendNotificationViewSet(ViewSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if SendNotificationViewSet.mqtt_client is None:
-            SendNotificationViewSet.mqtt_client = MQTTClient(broker=settings.MQTT_BROKER, port=settings.MQTT_PORT)
+        if NotificationViewSet.mqtt_client is None:
+            NotificationViewSet.mqtt_client = MQTTClient(broker=settings.MQTT_BROKER, port=settings.MQTT_PORT)
 
-    @action(detail=False, methods=["POST"], url_path="send_notification")
-    def send_notification(self, request):
-        if request.method == "POST":
-            data = json.loads(request.body)
-            title = data.get("title")
-            body = data.get("body")
+    def create(self, request):
+        data = json.loads(request.body)
+        title = data.get("title")
+        body = data.get("body")
 
-            # Generate a unique msg_id by counting requests
-            SendNotificationViewSet.message_counter += 1
-            msg_id = SendNotificationViewSet.message_counter
+        if not title or not body:
+            return Response({"error": "Title and body are required"}, status=status.HTTP_400_BAD_REQUEST)        
 
-            # Send a notification via MQTT
-            send_mqtt_message(SendNotificationViewSet.mqtt_client, msg_id=msg_id, title=title, body=body)
+        # Generate a unique msg_id by counting requests
+        NotificationViewSet.message_counter += 1
+        msg_id = NotificationViewSet.message_counter
 
-            # Send a notification to all registered Firebase devices
-            devices = FCMDevice.objects.all()
-            devices.send_message(Message(notification=Notification(title=title, body=body)))
+        # Send a notification via MQTT
+        send_mqtt_message(NotificationViewSet.mqtt_client, msg_id=msg_id, title=title, body=body)
 
-            return JsonResponse({"message": "Notifications sent successfully"})
-        
-        return JsonResponse({"error": "Invalid request"}, status=400)
+        # Send a notification to all registered Firebase devices
+        devices = FCMDevice.objects.all()
+        devices.send_message(Message(notification=Notification(title=title, body=body)))
+
+        return JsonResponse({"message": "Notifications sent successfully"})
 
 class MQTTDeviceViewSet(ViewSet):
     @action(detail=False, methods=["GET"], url_path="devices")
