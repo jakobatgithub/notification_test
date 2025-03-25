@@ -29,7 +29,7 @@ class FirebaseService {
       return;
     }
     final response = await http.post(
-      Uri.parse("$baseURL/api/fcm/devices/"),
+      Uri.parse("$baseURL/fcm/devices/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $accessToken',

@@ -20,15 +20,19 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r'devices', FCMDeviceAuthorizedViewSet, basename='fcm_devices')
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('_allauth/', include('allauth.headless.urls')),
 
-    path('api/token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
-    path('api/token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
+    path('token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
+    path('token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
-    path('api/fcm/devices/', FCMDeviceAuthorizedViewSet.as_view(), name='fcm_devices'),
-
-    path('api/', include('notifications.urls')),
+    path('emqx/', include('notifications.urls')),
+    path('fcm/', include(router.urls)),
 ]
