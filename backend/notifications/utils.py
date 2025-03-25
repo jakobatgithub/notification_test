@@ -1,10 +1,8 @@
-import jwt
 import json
 import secrets
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.conf import settings
 
 from rest_framework_simplejwt.tokens import AccessToken
 
