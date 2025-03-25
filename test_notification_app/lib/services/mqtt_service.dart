@@ -111,7 +111,7 @@ class MQTTService {
     }
 
     String tokenURL = "$baseURL/emqx/token/";
-    final response = await http.get(
+    final response = await http.post(
       Uri.parse(tokenURL),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
