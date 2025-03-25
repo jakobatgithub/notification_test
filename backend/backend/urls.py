@@ -15,7 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
+
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
+
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
@@ -23,6 +27,8 @@ urlpatterns = [
 
     path('api/token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
     path('api/token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
+
+    path('api/fcm/devices/', FCMDeviceAuthorizedViewSet.as_view(), name='fcm_devices'),
 
     path('api/', include('notifications.urls')),
 ]
