@@ -41,8 +41,8 @@ class NotificationViewSet(ViewSet):
         title = data.get("title")
         body = data.get("body")
 
-        if not title or not body:
-            return Response({"error": "Title and body are required"}, status=status.HTTP_400_BAD_REQUEST)        
+        if not title and not body:
+            return Response({"error": "Title or body are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate a unique msg_id by counting requests
         NotificationViewSet.message_counter += 1
