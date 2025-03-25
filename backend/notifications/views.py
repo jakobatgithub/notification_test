@@ -30,7 +30,7 @@ class NotificationViewSet(ViewSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if NotificationViewSet.mqtt_client is None:
-            NotificationViewSet.mqtt_client = MQTTClient(broker=settings.MQTT_BROKER, port=settings.MQTT_PORT)
+            NotificationViewSet.mqtt_client = MQTTClient(broker=settings.EMQX_BROKER, port=settings.EMQX_PORT)
 
     def create(self, request):
         data = json.loads(request.body)
