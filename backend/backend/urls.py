@@ -15,17 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
-from notifications.views import SendNotificationView, SecureMQTTDeviceViewSet, EMQXTokenViewSet, SecureFCMDeviceViewSet
-
-
-router = DefaultRouter()
-router.register(r'fcm/devices', SecureFCMDeviceViewSet)
-router.register(r'emqx', SecureMQTTDeviceViewSet, basename="emqx")
-router.register(r'token', EMQXTokenViewSet, basename="token")
-router.register(r'messages', SendNotificationView, basename="notification")
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
@@ -34,5 +24,5 @@ urlpatterns = [
     path('api/token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
     path('api/token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
-    path('api/', include(router.urls)),
+    path('api/', include("notifications.urls")),
 ]
