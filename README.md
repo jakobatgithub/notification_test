@@ -33,7 +33,7 @@ This project incorporates several security and efficiency measures to ensure sea
   - **ios/**: iOS-specific configuration and code.
   - **pubspec.yaml**: Flutter project configuration file.
 - **backend/**: Contains the Django backend code.
-  - **notifications/**: Django app for handling notifications.
+  - **django_emqx/**: Django app for handling notifications.
     - **migrations/**: Database migrations for the notifications app.
     - **templates/**: HTML templates for the notifications app.
     - **utils.py**: Utility functions for generating keys and sending notifications.

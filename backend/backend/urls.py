@@ -33,6 +33,6 @@ urlpatterns = [
     path('token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
     path('token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
-    path('emqx/', include('notifications.urls')),
+    path('emqx/', include('django_emqx.urls')),
     path('fcm/', include(router.urls)),
 ]

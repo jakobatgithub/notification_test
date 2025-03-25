@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '192.168.178.33']
 
 INSTALLED_APPS = [
     'corsheaders',
-    'notifications',    
+    'django_emqx',    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

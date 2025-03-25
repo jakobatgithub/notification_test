@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from notifications.views import NotificationViewSet, SecureMQTTDeviceViewSet, EMQXTokenViewSet
+from django_emqx.views import NotificationViewSet, SecureMQTTDeviceViewSet, EMQXTokenViewSet
 
 
 router = DefaultRouter()
