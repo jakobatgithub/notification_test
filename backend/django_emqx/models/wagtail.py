@@ -18,7 +18,7 @@ class Message(BaseMessage):
         APIField("created_at"),
     ]
 
-class Notification(Orderable, BaseNotification):
+class UserNotification(Orderable, BaseNotification):
     panels = [
         FieldPanel("recipient"),
         FieldPanel("message"),

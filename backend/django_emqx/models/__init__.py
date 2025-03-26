@@ -1,8 +1,10 @@
 ## django_emqx/models/__init__.py
 
+from django.conf import settings
+
 from .other import EMQXDevice
 
-try:
-    from .wagtail import Message, Notification
-except ImportError:
-    from .base import BaseMessage as Message, BaseNotification as Notification
+if 'wagtail.admin' in settings.INSTALLED_APPS:
+    from .wagtail import Message, UserNotification
+else:
+    from .base import Message, UserNotification
