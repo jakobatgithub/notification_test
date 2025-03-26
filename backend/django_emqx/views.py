@@ -12,9 +12,13 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from firebase_admin.messaging import Notification
-from firebase_admin.messaging import Message as FCMMessage
-from fcm_django.models import FCMDevice
+# Check if Firebase is available
+try:
+    from fcm_django.models import FCMDevice
+    from firebase_admin.messaging import Notification, Message as FCMMessage
+    firebase_installed = True
+except ImportError:
+    firebase_installed = False
 
 from . import get_mqtt_client
 from .models import EMQXDevice, Message, UserNotification
@@ -54,9 +58,10 @@ class NotificationViewSet(ViewSet):
             # Send a notification via MQTT
             send_mqtt_message(self.mqtt_client, recipient, msg_id=message.id, title=title, body=body)
 
-            # Send a notification to all registered Firebase devices
-            devices = FCMDevice.objects.filter(user=recipient)
-            devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
+            # Send a notification to all registered Firebase devices if Firebase is installed
+            if firebase_installed:
+                devices = FCMDevice.objects.filter(user=recipient)
+                devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
 
         return JsonResponse({"message": "Notifications sent successfully"})
 
