@@ -1,6 +1,13 @@
+# Necessary for django-emqx
 Django>=4.2.16,<6.0
 djangorestframework>=3.15.1,<4.0
 djangorestframework_simplejwt>=5.5.0
-fcm_django>=2.2.1
-firebase_admin>=6.2,<7
 paho_mqtt>=2.1.0
+
+# Additionally necessary for backend
+django-cors-headers>=4.7.0
+django-allauth>=65.5.0
+
+# Optional: Firebase Cloud Messaging
+# fcm_django>=2.2.1
+# firebase_admin>=6.2,<7
