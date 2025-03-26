@@ -138,23 +138,3 @@ class MQTTDeviceViewSet(ViewSet):
 
         if device:
             print(f"User {user_id} disconnected from device {device_id}")
-
-
-class SecureMQTTDeviceViewSet(MQTTDeviceViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """Ensure users can only access their own devices."""
-        return super().get_queryset().filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        """Ensure the registered device is linked to the authenticated user."""
-        serializer.save(user=self.request.user)
-
-    def update(self, request, *args, **kwargs):
-        """Prevent updating device details to enhance security."""
-        return Response({"detail": "Update not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        """Prevent partial updates."""
-        return Response({"detail": "Partial update not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
