@@ -5,12 +5,11 @@ import json
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 from . import get_mqtt_client
 from .models import EMQXDevice, Message
@@ -60,6 +59,15 @@ class EMQXTokenViewSet(ViewSet):
 
 
 class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAuthenticated]
+        elif self.action == 'create':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = []  # Default or customize as needed
+        return [permission() for permission in permission_classes]
+
     def list(self, request):
         devices = EMQXDevice.objects.all()
         serializer = EMQXDeviceSerializer(devices, many=True)
