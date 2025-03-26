@@ -65,14 +65,14 @@ class EMQXTokenViewSet(ViewSet):
 
 
 class EMQXDeviceViewSet(ViewSet):
-    @action(detail=False, methods=["GET"], url_path="devices")
-    def list_devices(self, request):
+    # @action(detail=False, methods=["GET"], url_path="devices")
+    def list(self, request):
         devices = EMQXDevice.objects.all()
         serializer = EMQXDeviceSerializer(devices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["POST"], url_path="webhook")
-    def webhook(self, request):
+    # @action(detail=False, methods=["POST"], url_path="webhook")
+    def create(self, request):
         token = request.headers.get("X-Webhook-Token")
 
         if not token or token != settings.EMQX_WEBHOOK_SECRET:
