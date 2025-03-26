@@ -58,4 +58,4 @@ class ClientEventMixin:
         )
 
         if updated:
-            print(f"User {user_id} disconnected from device {device_id}")
+            print(f"User {user} disconnected from device {device_id}")
