@@ -12,9 +12,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from . import get_mqtt_client
-from .models import EMQXDevice, Message
+from .models import EMQXDevice, Message, UserNotification
 
-from .serializers import EMQXDeviceSerializer
+from .serializers import EMQXDeviceSerializer, UserNotificationSerializer
 from .mixins import NotificationSenderMixin, ClientEventMixin
 from .utils import generate_mqtt_token
 
@@ -27,6 +27,11 @@ class NotificationViewSet(ViewSet, NotificationSenderMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mqtt_client = get_mqtt_client()
+
+    def list(self, request):
+        notifications = UserNotification.objects.filter(recipient=request.user).select_related("message")
+        serializer = UserNotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         data = json.loads(request.body)
