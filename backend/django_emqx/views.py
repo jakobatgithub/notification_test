@@ -1,3 +1,5 @@
+## django_emqx/views.py
+
 import json
 
 from rest_framework import status

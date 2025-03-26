@@ -1,3 +1,5 @@
+## django_emqx/apps.py
+
 from django.apps import AppConfig
 
 

@@ -1,3 +1,5 @@
+## django_emqx/utils.py
+
 import json
 import secrets
 
