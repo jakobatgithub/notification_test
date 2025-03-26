@@ -5,8 +5,12 @@ import secrets
 
 from rest_framework_simplejwt.tokens import AccessToken
 
-from firebase_admin import messaging
-from firebase_admin.messaging import Message, Notification
+try:
+    from firebase_admin import messaging
+    from firebase_admin.messaging import Notification, Message as FCMMessage
+    firebase_installed = True
+except ImportError:
+    firebase_installed = False
 
 
 def generate_backend_mqtt_token():
@@ -55,7 +59,10 @@ def send_mqtt_message(mqtt_client, recipient, msg_id, title, body):
     print(f"✅ MQTT notification sent: {payload}")
 
 def send_firebase_notification(token, title, body):
-    message = Message(
+    if not firebase_installed:
+        raise ImportError("firebase_admin is not installed. Install it to use Firebase messaging.")
+
+    message = FCMMessage(
         token=token,
         notification=Notification(
             title=title,
@@ -67,7 +74,10 @@ def send_firebase_notification(token, title, body):
     return response
 
 def send_firebase_data_message(token, msg_id, title, body):
-    message = Message(
+    if not firebase_installed:
+        raise ImportError("firebase_admin is not installed. Install it to use Firebase messaging.")
+
+    message = FCMMessage(
         token=token,
         data={
             "msg_id": str(msg_id),

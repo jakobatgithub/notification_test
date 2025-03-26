@@ -18,13 +18,15 @@ from django.urls import path, include
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
+# Check if Firebase is available
+try:
+    from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
+    firebase_installed = True
+except ImportError:
+    firebase_installed = False
 
 from rest_framework.routers import DefaultRouter
 
-
-router = DefaultRouter()
-router.register(r'devices', FCMDeviceAuthorizedViewSet, basename='fcm_devices')
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
@@ -34,5 +36,11 @@ urlpatterns = [
     path('token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
 
     path('emqx/', include('django_emqx.urls')),
-    path('fcm/', include(router.urls)),
 ]
+
+if firebase_installed:
+    router = DefaultRouter()
+    router.register(r'devices', FCMDeviceAuthorizedViewSet, basename='fcm_devices')
+    urlpatterns += [
+        path('fcm/', include(router.urls)),
+    ]

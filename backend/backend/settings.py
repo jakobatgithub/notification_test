@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-import firebase_admin
 from pathlib import Path
-from firebase_admin import credentials
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,6 +28,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '192.168.178.33']
 
+# Firebase settings - Uncomment this block to enable Firebase Cloud Messaging
+
+# import firebase_admin
+# from firebase_admin import credentials
+# cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
+# firebase_admin.initialize_app(cred)
+
 
 # Application definition
 
@@ -41,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'fcm_django',
+    # 'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
     'rest_framework',
     'rest_framework_simplejwt',
     'allauth',
@@ -144,9 +149,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
-firebase_admin.initialize_app(cred)
 
 FCM_DJANGO_SETTINGS = {
     "DEFAULT_FIREBASE_APP": None,
