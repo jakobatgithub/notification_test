@@ -201,3 +201,52 @@ class EMQXDeviceViewSetTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), {"error": "Invalid JSON"})
+
+    def test_list_devices_unauthenticated(self):
+        self.client.force_authenticate(user=None)  # Remove authentication
+        url = reverse("emqx-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_webhook_missing_fields(self):
+        url = reverse("emqx-list")
+        data = {
+            "event": "client.connected",
+            "user_id": str(self.user.id),  # missing 'clientid'
+        }
+        headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
+        with self.settings(EMQX_WEBHOOK_SECRET="your_webhook_secret"):
+            response = self.client.post(url, data, format="json", **headers)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json(), {"error": "Invalid data"})
+
+    def test_webhook_unknown_event(self):
+        url = reverse("emqx-list")
+        data = {
+            "event": "client.unknown",
+            "clientid": "test_client_id",
+            "user_id": str(self.user.id),
+        }
+        headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
+        with self.settings(EMQX_WEBHOOK_SECRET="your_webhook_secret"):
+            response = self.client.post(url, data, format="json", **headers)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json(), {"error": "Unknown event"})
+
+    def test_webhook_backend_user(self):
+        url = reverse("emqx-list")
+        data = {
+            "event": "client.connected",
+            "clientid": "test_client_id",
+            "user_id": "backend",
+        }
+        headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
+        with self.settings(EMQX_WEBHOOK_SECRET="your_webhook_secret"):
+            response = self.client.post(url, data, format="json", **headers)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), {"status": "success"})
+
