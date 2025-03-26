@@ -49,6 +49,8 @@ class NotificationViewSet(ViewSet):
             recipients = User.objects.all()
 
         for recipient in recipients:
+            UserNotification.objects.create(message=message, recipient=recipient)
+
             # Send a notification via MQTT
             send_mqtt_message(self.mqtt_client, recipient, msg_id=message.id, title=title, body=body)
 
