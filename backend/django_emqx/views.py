@@ -30,7 +30,6 @@ User = get_user_model()
 
 class NotificationViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
-    message_counter = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
