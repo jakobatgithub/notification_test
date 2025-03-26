@@ -3,8 +3,6 @@
 import json
 import secrets
 
-from django.contrib.auth import get_user_model
-
 from rest_framework_simplejwt.tokens import AccessToken
 
 from firebase_admin import messaging
@@ -48,13 +46,11 @@ def generate_mqtt_token(user):
     ]
     return str(token)
 
-def send_mqtt_message(mqtt_client, msg_id, title, body):
+def send_mqtt_message(mqtt_client, recipient, msg_id, title, body):
     """Publish message via MQTT."""
     payload = json.dumps({"msg_id": msg_id, "title": title, "body": body})
-    users = get_user_model().objects.all()
-    for user in users:
-        user_topic = f"user/{user.id}/"
-        mqtt_client.publish(user_topic, payload)
+    user_topic = f"user/{recipient.id}/"
+    mqtt_client.publish(user_topic, payload)
     
     print(f"✅ MQTT notification sent: {payload}")
 

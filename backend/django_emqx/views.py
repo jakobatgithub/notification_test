@@ -22,6 +22,7 @@ from .models import EMQXDevice, Message, UserNotification
 from .serializers import EMQXDeviceSerializer
 from .utils import generate_mqtt_token, send_mqtt_message
 
+User = get_user_model()
 
 class NotificationViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
@@ -35,18 +36,25 @@ class NotificationViewSet(ViewSet):
         data = json.loads(request.body)
         title = data.get("title")
         body = data.get("body")
-
+        user_ids = data.get("user_ids", None)  # optional targeting
+        
         if not title and not body:
             return Response({"error": "Title or body are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         message = Message.objects.create(title=title, body=body)
 
-        # Send a notification via MQTT
-        send_mqtt_message(self.mqtt_client, msg_id=message.id, title=title, body=body)
+        if user_ids:
+            recipients = User.objects.filter(id__in=user_ids)
+        else:
+            recipients = User.objects.all()
 
-        # Send a notification to all registered Firebase devices
-        devices = FCMDevice.objects.all()
-        devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
+        for recipient in recipients:
+            # Send a notification via MQTT
+            send_mqtt_message(self.mqtt_client, recipient, msg_id=message.id, title=title, body=body)
+
+            # Send a notification to all registered Firebase devices
+            devices = FCMDevice.objects.filter(user=recipient)
+            devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
 
         return JsonResponse({"message": "Notifications sent successfully"})
 
