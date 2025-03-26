@@ -13,9 +13,9 @@ from django.utils import timezone
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 
+from . import get_mqtt_client
 from .models import EMQXDevice
 from .serializers import EMQXDeviceSerializer
-from .mqtt import MQTTClient
 from .utils import generate_mqtt_token, send_mqtt_message
 
 
@@ -23,12 +23,9 @@ class NotificationViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
     message_counter = 0
 
-    mqtt_client = None
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if NotificationViewSet.mqtt_client is None:
-            NotificationViewSet.mqtt_client = MQTTClient(broker=settings.EMQX_BROKER, port=settings.EMQX_PORT)
+        self.mqtt_client = get_mqtt_client()
 
     def create(self, request):
         data = json.loads(request.body)
@@ -43,7 +40,7 @@ class NotificationViewSet(ViewSet):
         msg_id = NotificationViewSet.message_counter
 
         # Send a notification via MQTT
-        send_mqtt_message(NotificationViewSet.mqtt_client, msg_id=msg_id, title=title, body=body)
+        send_mqtt_message(self.mqtt_client, msg_id=msg_id, title=title, body=body)
 
         # Send a notification to all registered Firebase devices
         devices = FCMDevice.objects.all()
