@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.db import connection
 
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
