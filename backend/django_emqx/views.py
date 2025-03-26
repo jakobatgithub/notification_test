@@ -64,7 +64,7 @@ class EMQXTokenViewSet(ViewSet):
         return Response({"mqtt_token": token, "user_id": str(user.id)})
 
 
-class MQTTDeviceViewSet(ViewSet):
+class EMQXDeviceViewSet(ViewSet):
     @action(detail=False, methods=["GET"], url_path="devices")
     def list_devices(self, request):
         devices = EMQXDevice.objects.all()
