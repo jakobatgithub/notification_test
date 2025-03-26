@@ -73,6 +73,11 @@ class MQTTDeviceViewSet(ViewSet):
 
     @action(detail=False, methods=["POST"], url_path="webhook")
     def webhook(self, request):
+        token = request.headers.get("X-Webhook-Token")
+
+        if not token or token != settings.EMQX_WEBHOOK_SECRET:
+            return Response({"error": "Forbidden"}, status=403)
+
         try:
             body = request.body
             decoded_str = body.decode("utf-8")
