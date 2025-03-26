@@ -58,7 +58,7 @@ class NotificationViewSet(ViewSet):
             # Send a notification via MQTT
             send_mqtt_message(self.mqtt_client, recipient, msg_id=message.id, title=title, body=body)
 
-            # Send a notification to all registered Firebase devices if Firebase is installed
+            # Send a notification to Firebase devices if Firebase is installed
             if firebase_installed:
                 devices = FCMDevice.objects.filter(user=recipient)
                 devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
