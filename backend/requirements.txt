@@ -9,8 +9,8 @@ django-cors-headers>=4.7.0
 django-allauth>=65.5.0
 
 # Optional: Firebase Cloud Messaging
-# fcm_django>=2.2.1
-# firebase_admin>=6.2,<7
+fcm_django>=2.2.1
+firebase_admin>=6.2,<7
 
 # Optional: Wagtail
 # wagtail>=6.4.1

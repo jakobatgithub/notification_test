@@ -30,10 +30,10 @@ ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '192.168.178.33']
 
 # Firebase settings - Uncomment this block to enable Firebase Cloud Messaging
 
-# import firebase_admin
-# from firebase_admin import credentials
-# cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
-# firebase_admin.initialize_app(cred)
+import firebase_admin
+from firebase_admin import credentials
+cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
+firebase_admin.initialize_app(cred)
 
 
 # Application definition
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    # 'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
+    'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
     'rest_framework',
     'rest_framework_simplejwt',
     'allauth',
