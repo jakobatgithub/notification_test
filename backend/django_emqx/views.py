@@ -12,11 +12,13 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from firebase_admin.messaging import Message, Notification
+from firebase_admin.messaging import Notification
+from firebase_admin.messaging import Message as FCMMessage
 from fcm_django.models import FCMDevice
 
 from . import get_mqtt_client
-from .models import EMQXDevice
+from .models import EMQXDevice, Message, UserNotification
+
 from .serializers import EMQXDeviceSerializer
 from .utils import generate_mqtt_token, send_mqtt_message
 
@@ -37,16 +39,14 @@ class NotificationViewSet(ViewSet):
         if not title and not body:
             return Response({"error": "Title or body are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Generate a unique msg_id by counting requests
-        NotificationViewSet.message_counter += 1
-        msg_id = NotificationViewSet.message_counter
+        message = Message.objects.create(title=title, body=body)
 
         # Send a notification via MQTT
-        send_mqtt_message(self.mqtt_client, msg_id=msg_id, title=title, body=body)
+        send_mqtt_message(self.mqtt_client, msg_id=message.id, title=title, body=body)
 
         # Send a notification to all registered Firebase devices
         devices = FCMDevice.objects.all()
-        devices.send_message(Message(notification=Notification(title=title, body=body)))
+        devices.send_message(FCMMessage(notification=Notification(title=title, body=body)))
 
         return JsonResponse({"message": "Notifications sent successfully"})
 
