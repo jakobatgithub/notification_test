@@ -103,9 +103,6 @@ class EMQXDeviceViewSet(ViewSet):
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON"}, status=400)
 
-        finally:
-            connection.close()  # Explicitly close the database connection        
-
     def handle_client_connected(self, user_id, device_id, ip_address):
         user = get_user_model().objects.filter(id=int(user_id)).first()
         if not user:
