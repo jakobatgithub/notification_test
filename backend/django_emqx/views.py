@@ -16,7 +16,7 @@ from . import get_mqtt_client
 from .models import EMQXDevice, Message
 
 from .serializers import EMQXDeviceSerializer
-from .mixins import NotificationSenderMixin
+from .mixins import NotificationSenderMixin, ClientEventMixin
 from .utils import generate_mqtt_token
 
 User = get_user_model()
@@ -59,7 +59,7 @@ class EMQXTokenViewSet(ViewSet):
         return Response({"mqtt_token": token, "user_id": str(user.id)})
 
 
-class EMQXDeviceViewSet(ViewSet):
+class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
     def list(self, request):
         devices = EMQXDevice.objects.all()
         serializer = EMQXDeviceSerializer(devices, many=True)
@@ -98,33 +98,3 @@ class EMQXDeviceViewSet(ViewSet):
 
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON"}, status=400)
-
-    def handle_client_connected(self, user_id, device_id, ip_address):
-        user = get_user_model().objects.filter(id=int(user_id)).first()
-        if not user:
-            return
-
-        device, created = EMQXDevice.objects.update_or_create(
-            client_id=device_id,
-            defaults={
-                "user": user,
-                "active": True,
-                "last_status": "online",
-                "last_connected_at": timezone.now(),
-                "ip_address": ip_address,  # Store IP
-            },
-        )
-        print(f"User {user} connected on device {device_id} (IP: {ip_address})")
-
-    def handle_client_disconnected(self, user_id, device_id):
-        user = get_user_model().objects.filter(id=int(user_id)).first()
-        if not user:
-            return
-
-        device = EMQXDevice.objects.filter(client_id=device_id, user=user).update(
-            active=False,
-            last_status="offline",
-        )
-
-        if device:
-            print(f"User {user_id} disconnected from device {device_id}")
