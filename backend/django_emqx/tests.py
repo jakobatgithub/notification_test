@@ -12,6 +12,7 @@ from unittest.mock import patch, MagicMock
 from .models import EMQXDevice
 from .mixins import NotificationSenderMixin, ClientEventMixin
 from .models import Message
+from . import utils
 
 User = get_user_model()
 
@@ -22,21 +23,30 @@ class NotificationSenderMixinTests(TestCase):
         self.message = Message.objects.create(title="Hello", body="World")
 
     @patch("django_emqx.mixins.send_mqtt_message")
-    @patch("django_emqx.mixins.FCMDevice.objects.filter")
-    def test_send_all_notifications(self, mock_fcm_filter, mock_send_mqtt):
-        mock_devices = MagicMock()
-        mock_fcm_filter.return_value = mock_devices
+    def test_send_all_notifications(self, mock_send_mqtt):
+        if utils.firebase_installed:
+            with patch("django_emqx.mixins.FCMDevice.objects.filter") as mock_fcm_filter:
+                mock_devices = MagicMock()
+                mock_fcm_filter.return_value = mock_devices
 
-        self.mixin.send_all_notifications(
-            message=self.message,
-            recipients=[self.user],
-            mqtt_client="mock_mqtt_client",
-            title="Hello",
-            body="World"
-        )
+                self.mixin.send_all_notifications(
+                    message=self.message,
+                    recipients=[self.user],
+                    mqtt_client="mock_mqtt_client",
+                    title="Hello",
+                    body="World"
+                )
+                mock_devices.send_message.assert_called_once()
+        else:
+            self.mixin.send_all_notifications(
+                message=self.message,
+                recipients=[self.user],
+                mqtt_client="mock_mqtt_client",
+                title="Hello",
+                body="World"
+            )
 
         mock_send_mqtt.assert_called_once_with("mock_mqtt_client", self.user, msg_id=self.message.id, title="Hello", body="World")
-        mock_devices.send_message.assert_called_once()
 
 
 class NotificationViewSetTests(TestCase):
@@ -46,20 +56,29 @@ class NotificationViewSetTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     @patch("django_emqx.mixins.send_mqtt_message")
-    @patch("django_emqx.mixins.FCMDevice.objects.filter")
-    def test_create_notification(self, mock_fcm_filter, mock_send_mqtt_message):
-        mock_devices = MagicMock()
-        mock_fcm_filter.return_value = mock_devices
+    def test_create_notification(self, mock_send_mqtt_message):
+        if utils.firebase_installed:
+            with patch("django_emqx.mixins.FCMDevice.objects.filter") as mock_fcm_filter:
+                mock_devices = MagicMock()
+                mock_fcm_filter.return_value = mock_devices
 
-        url = reverse("notification-list")
-        data = {"title": "Test Title", "body": "Test Body"}
-        response = self.client.post(url, data, format="json")
+                url = reverse("notification-list")
+                data = {"title": "Test Title", "body": "Test Body"}
+                response = self.client.post(url, data, format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), {"message": "Notifications sent successfully"})
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.json(), {"message": "Notifications sent successfully"})
+
+                mock_devices.send_message.assert_called_once()
+        else:
+            url = reverse("notification-list")
+            data = {"title": "Test Title", "body": "Test Body"}
+            response = self.client.post(url, data, format="json")
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.json(), {"message": "Notifications sent successfully"})
 
         mock_send_mqtt_message.assert_called_once()
-        mock_devices.send_message.assert_called_once()
 
     def test_create_notification_missing_fields(self):
         url = reverse("notification-list")
