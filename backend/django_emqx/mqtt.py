@@ -24,8 +24,8 @@ class MQTTClient:
             keepalive (int, optional): The keepalive interval in seconds. Defaults to 60.
         """
         self.client = mqtt.Client()
-        self.client.tls_set("certs/ca.crt")
-        self.client.tls_insecure_set(True)
+        self.client.tls_set("certs/emqx.crt")
+        self.client.tls_insecure_set(False)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
 

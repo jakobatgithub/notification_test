@@ -7,7 +7,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/staticfiles:/app/staticfiles
-      - ./emqx/certs/ca.crt:/app/certs/ca.crt
+      - ./emqx/certs/emqx.crt:/app/certs/emqx.crt
     ports:
       - "8000:8000"
     depends_on:
