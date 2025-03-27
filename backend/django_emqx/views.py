@@ -13,7 +13,6 @@ from django.contrib.auth import get_user_model
 
 from . import get_mqtt_client
 from .models import EMQXDevice, Message, UserNotification
-
 from .serializers import EMQXDeviceSerializer, UserNotificationSerializer
 from .mixins import NotificationSenderMixin, ClientEventMixin
 from .utils import generate_mqtt_token
