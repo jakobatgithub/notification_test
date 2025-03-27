@@ -194,3 +194,8 @@ Use the generated keys in your environment variables or configuration files as n
 - **Firebase Authentication Errors**: Ensure that the Firebase Admin SDK JSON file is correctly placed and the path is correctly set in `settings.py`.
 - **Docker Build Failures**: Verify that Docker and Docker Compose are correctly installed and that the Dockerfile and docker-compose.yml are correctly configured.
 - **MQTT Connection Issues**: Ensure that the MQTT broker is running and accessible.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).  
+Feel free to use, modify, and distribute — just keep the original license and credit.
