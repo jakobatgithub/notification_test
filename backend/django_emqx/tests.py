@@ -55,6 +55,8 @@ class NotificationViewSetTests(TestCase):
         self.client = APIClient()
         self.user = User.objects.create_user(username="testuser", password="testpassword")
         self.client.force_authenticate(user=self.user)
+        self.message = Message.objects.create(title="Test Title", body="Test Body", created_by=self.user)
+        self.notification = UserNotification.objects.create(message=self.message, recipient=self.user)
 
     @patch("django_emqx.mixins.send_mqtt_message")
     def test_create_notification(self, mock_send_mqtt_message):
@@ -88,6 +90,15 @@ class NotificationViewSetTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), {"error": "Title or body are required"})
+
+    def test_list_notifications(self):
+        url = reverse("notification-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["title"], "Test Title")
+        self.assertEqual(response.json()[0]["body"], "Test Body")
 
 
 class EMQXTokenViewSetTests(TestCase):
