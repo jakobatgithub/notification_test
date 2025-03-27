@@ -7,7 +7,7 @@ from .models import EMQXDevice, UserNotification
 class EMQXDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = EMQXDevice
-        fields = ['id', 'client_id', 'active', 'last_status', 'last_connected_at']
+        fields = ['id', 'user', 'client_id', 'active', 'last_status', 'last_connected_at']
 
 class UserNotificationSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='message.title')
