@@ -4,6 +4,20 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 class EMQXDevice(models.Model):
+    """
+    Represents an EMQX MQTT device associated with a user.
+
+    Fields:
+        id (AutoField): Primary key for the device.
+        client_id (CharField): Unique identifier for the MQTT client.
+        active (BooleanField): Indicates whether the device is active.
+        user (ForeignKey): Reference to the user owning the device.
+        last_connected_at (DateTimeField): Timestamp of the last successful connection.
+        last_status (CharField): Last known status of the device (e.g., online, offline, error).
+        subscribed_topics (TextField): Comma-separated list of topics the device subscribes to.
+        ip_address (GenericIPAddressField): Last known IP address of the device.
+        created_at (DateTimeField): Timestamp when the device was created.
+    """
     id = models.AutoField(
         verbose_name="ID",
         primary_key=True,

@@ -21,18 +21,43 @@ User = get_user_model()
 
 
 class NotificationViewSet(ViewSet, NotificationSenderMixin):
+    """
+    A ViewSet for managing user notifications. Allows authenticated users to list and create notifications.
+    """
+
     permission_classes = [IsAuthenticated]
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the NotificationViewSet with an MQTT client instance.
+        """
         super().__init__(*args, **kwargs)
         self.mqtt_client = get_mqtt_client()
 
     def list(self, request):
+        """
+        Retrieve a list of notifications for the authenticated user.
+
+        Args:
+            request: The HTTP request object.
+
+        Returns:
+            Response: A JSON response containing the list of notifications.
+        """
         notifications = UserNotification.objects.filter(recipient=request.user).select_related("message")
         serializer = UserNotificationSerializer(notifications, many=True)
         return Response(serializer.data)
 
     def create(self, request):
+        """
+        Create and send notifications to specified users or all users.
+
+        Args:
+            request: The HTTP request object containing notification data.
+
+        Returns:
+            JsonResponse: A JSON response indicating the success or failure of the operation.
+        """
         data = json.loads(request.body)
         title = data.get("title")
         body = data.get("body")
@@ -53,9 +78,22 @@ class NotificationViewSet(ViewSet, NotificationSenderMixin):
 
 
 class EMQXTokenViewSet(ViewSet):
+    """
+    A ViewSet for generating MQTT tokens for authenticated users.
+    """
+
     permission_classes = [IsAuthenticated]
 
     def create(self, request):
+        """
+        Generate an MQTT token for the authenticated user.
+
+        Args:
+            request: The HTTP request object.
+
+        Returns:
+            Response: A JSON response containing the MQTT token and user ID.
+        """
         user = request.user
         token = generate_mqtt_token(user)
 
@@ -63,7 +101,17 @@ class EMQXTokenViewSet(ViewSet):
 
 
 class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
+    """
+    A ViewSet for managing EMQX devices and handling client events.
+    """
+
     def get_permissions(self):
+        """
+        Determine the permissions required for the current action.
+
+        Returns:
+            list: A list of permission instances.
+        """
         if self.action == 'list':
             permission_classes = [IsAuthenticated]
         elif self.action == 'create':
@@ -73,11 +121,29 @@ class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
+        """
+        Retrieve a list of all EMQX devices.
+
+        Args:
+            request: The HTTP request object.
+
+        Returns:
+            Response: A JSON response containing the list of devices.
+        """
         devices = EMQXDevice.objects.all()
         serializer = EMQXDeviceSerializer(devices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
+        """
+        Handle webhook events for EMQX devices, such as client connections and disconnections.
+
+        Args:
+            request: The HTTP request object containing webhook data.
+
+        Returns:
+            Response: A JSON response indicating the success or failure of the operation.
+        """
         token = request.headers.get("X-Webhook-Token")
 
         if not token or token != settings.EMQX_WEBHOOK_SECRET:
