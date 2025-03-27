@@ -5,5 +5,5 @@ def get_mqtt_client():
     if _mqtt_client is None:
         from .mqtt import MQTTClient
         from django.conf import settings
-        _mqtt_client = MQTTClient(broker=settings.EMQX_BROKER, port=settings.EMQX_PORT)
+        _mqtt_client = MQTTClient(broker=settings.DJANGO_EMQX_SETTINGS['BROKER'], port=settings.DJANGO_EMQX_SETTINGS['PORT'])
     return _mqtt_client
