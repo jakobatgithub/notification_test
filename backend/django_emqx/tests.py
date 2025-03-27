@@ -205,7 +205,7 @@ class EMQXDeviceViewSetTests(TestCase):
             "ip_address": "127.0.0.1",
         }
         headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, data, format="json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -218,7 +218,7 @@ class EMQXDeviceViewSetTests(TestCase):
         url = reverse("emqx-list")  # Updated to match the new basename
         data = {"event": "client.connected"}
         headers = {"HTTP_X-Webhook-Token": "invalid_token"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, data, format="json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -227,7 +227,7 @@ class EMQXDeviceViewSetTests(TestCase):
     def test_webhook_invalid_json(self):
         url = reverse("emqx-list")  # Updated to match the new basename
         headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, "invalid_json", content_type="application/json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -247,7 +247,7 @@ class EMQXDeviceViewSetTests(TestCase):
             "user_id": str(self.user.id),  # missing 'clientid'
         }
         headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, data, format="json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -261,7 +261,7 @@ class EMQXDeviceViewSetTests(TestCase):
             "user_id": str(self.user.id),
         }
         headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, data, format="json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -275,7 +275,7 @@ class EMQXDeviceViewSetTests(TestCase):
             "user_id": "backend",
         }
         headers = {"HTTP_X-Webhook-Token": "your_webhook_secret"}
-        with self.settings(DJANGO_EMQX={"WEBHOOK_SECRET": "your_webhook_secret"}):
+        with self.settings(EMQX_WEBHOOK_SECRET = "your_webhook_secret"):
             response = self.client.post(url, data, format="json", **headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

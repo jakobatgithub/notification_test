@@ -170,13 +170,11 @@ ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 
 # DJANGO_EMQX settings
-# DJANGO_EMQX = {
-#     'BROKER': "emqx_broker",
-#     'PORT': 8883,
-#     'WEBHOOK_SECRET': os.environ.get("EMQX_WEBHOOK_SECRET"),
-#     'MAX_RETRIES': 10,  # Maximum retry attempts,
-#     'RETRY_DELAY': 3,   # Wait time in seconds before retrying
-# }
+EMQX_BROKER = "emqx_broker"
+EMQX_PORT = 8883
+EMQX_WEBHOOK_SECRET = os.environ.get("EMQX_WEBHOOK_SECRET")
+EMQX_MAX_RETRIES = 10  # Maximum retry attempts
+EMQX_RETRY_DELAY = 3   # Wait time in seconds before retrying
 
 # SIMPLE_JWT settings
 SIMPLE_JWT = {
