@@ -10,20 +10,20 @@ To overcome these limitations, MQTT is employed to ensure a reliable, bidirectio
 
 This project incorporates several security and efficiency measures to ensure seamless and secure communication between the backend and frontend.
 
+- **Topic-based Access Control:**
+    Each frontend user is restricted to a single dedicated MQTT topic for subscriptions, ensuring isolation between users. The backend, however, has the necessary permissions to publish messages to all topics, enabling efficient and controlled message distribution.
+
 - **JWT-based Authentication & Authorization:**
     JSON Web Tokens (JWT) are used for authenticating MQTT clients at EMQX and to enforce access and control lists (ACLs). This ensures that each client has restricted access based on predefined permissions, preventing unauthorized subscriptions or publications. For JWT we use `rest_framework_simplejwt`.
 
 - **Secure MQTT Communication with TLS:**
     To protect data transmission, the connection between the frontend and the EMQX broker is secured using Transport Layer Security (TLS). This encryption prevents eavesdropping and tampering, ensuring a confidential and secure communication channel.
 
-- **Topic-based Access Control:**
-    Each frontend user is restricted to a single dedicated MQTT topic for subscriptions, ensuring isolation between users. The backend, however, has the necessary permissions to publish messages to all topics, enabling efficient and controlled message distribution.
-
 - **Automated Device Registration via Secure Webhooks:**
     A webhook secured with JWT authentication is used to register MQTT devices with the backend.
 
-- **FCM Device Registration via `fcm-django`:**
-    Firebase devices are registered securely using a dedicated `FCMDeviceViewSet` provided by the `fcm-django` package.
+- **Integration with Firebase Cloud Messaging (FCM):**
+    Notifications are sent via Firebase if it is installed.
 
 ## Project Structure
 
@@ -35,16 +35,20 @@ This project incorporates several security and efficiency measures to ensure sea
 - **backend/**: Contains the Django backend code.
   - **django_emqx/**: Django app for handling notifications.
     - **migrations/**: Database migrations for the notifications app.
-    - **templates/**: HTML templates for the notifications app.
+    - **models/**: Contains the data models for `EMQXDevice`, `Message`, and `UserNotification`. If Wagtail is installed, the models use Wagtail-specific features for enhanced functionality.
+    - **serializer.py**: Serilizers for the `EMQXDevice` and `UserNotification` models.
     - **utils.py**: Utility functions for generating keys and sending notifications.
     - **views.py**: Django views for handling HTTP requests.
+    - **mqtt.py**: Provides `MQTTClient` which connects the backend to the EMQX server.
+    - **tests.py**: Contains unit tests for views and models.
   - **Dockerfile**: Dockerfile for building the Django backend image.
   - **manage.py**: Django management script.
   - **requirements.txt**: Python dependencies for the Django backend.
   - **settings.py**: Django settings file.
   - **urls.py**: URL routing for the Django backend.
 - **emqx/**: Contains configuration files and certificates for EMQX.
-  - **emqx/emxqx.conf**: Configuration file for the EMQX server.
+  - **emxqx.conf**: Configuration file for the EMQX server.
+  - **certs/**: Contains the certificates for TLS.
 - **docker-compose.yml**: Docker Compose file for setting up the backend and MQTT broker.
 - **README.md**: Project documentation and setup instructions.
 
