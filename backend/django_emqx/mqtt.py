@@ -33,7 +33,7 @@ class MQTTClient:
         mqtt_token = generate_backend_mqtt_token()
         self.client.username_pw_set(username='backend', password=mqtt_token)  # Use JWT as password
         
-        for attempt in range(settings.DJANGO_EMQX_SETTINGS['MAX_RETRIES']):
+        for attempt in range(settings.DJANGO_EMQX['MAX_RETRIES']):
             try:
                 print(f"🔄 Attempt {attempt + 1}: Connecting to MQTT broker...")
                 self.client.connect_async(broker, port, keepalive)
@@ -41,8 +41,8 @@ class MQTTClient:
                 print("✅ Successfully connected to MQTT broker!")
                 return
             except ConnectionRefusedError:
-                print(f"⏳ Connection refused, retrying in {settings.settings.DJANGO_EMQX_SETTINGS['RETRY_DELAY']} seconds...")
-                time.sleep(settings.settings.DJANGO_EMQX_SETTINGS['RETRY_DELAY'])
+                print(f"⏳ Connection refused, retrying in {settings.settings.DJANGO_EMQX['RETRY_DELAY']} seconds...")
+                time.sleep(settings.settings.DJANGO_EMQX['RETRY_DELAY'])
 
         print("❌ Failed to connect after multiple attempts. Check EMQX logs.")
 

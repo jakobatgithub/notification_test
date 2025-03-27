@@ -146,7 +146,7 @@ class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
         """
         token = request.headers.get("X-Webhook-Token")
 
-        if not token or token != settings.DJANGO_EMQX_SETTINGS['WEBHOOK_SECRET']:
+        if not token or token != settings.DJANGO_EMQX['WEBHOOK_SECRET']:
             return Response({"error": "Forbidden"}, status=403)
 
         try:
