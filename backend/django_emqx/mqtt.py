@@ -2,10 +2,9 @@
 
 import time
 
-from django.conf import settings
-
 import paho.mqtt.client as mqtt
 
+from .conf import emqx_settings as settings
 from .utils import generate_backend_mqtt_token
 
 

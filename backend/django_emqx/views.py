@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.http import JsonResponse
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from . import get_mqtt_client
+from .conf import emqx_settings as settings
 from .models import EMQXDevice, Message, UserNotification
 from .serializers import EMQXDeviceSerializer, UserNotificationSerializer
 from .mixins import NotificationSenderMixin, ClientEventMixin
@@ -145,7 +145,8 @@ class EMQXDeviceViewSet(ViewSet, ClientEventMixin):
             Response: A JSON response indicating the success or failure of the operation.
         """
         token = request.headers.get("X-Webhook-Token")
-
+        print('settings.DJANGO_EMQX["WEBHOOK_SECRET"] = ', settings.DJANGO_EMQX['WEBHOOK_SECRET'])
+        print('token = ', token)
         if not token or token != settings.DJANGO_EMQX['WEBHOOK_SECRET']:
             return Response({"error": "Forbidden"}, status=403)
 

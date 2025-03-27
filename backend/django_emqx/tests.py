@@ -10,9 +10,9 @@ from rest_framework import status
 
 from unittest.mock import patch, MagicMock
 
+from . import utils
 from .models import EMQXDevice, Message, UserNotification
 from .mixins import NotificationSenderMixin, ClientEventMixin
-from . import utils
 
 
 User = get_user_model()
