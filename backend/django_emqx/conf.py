@@ -21,4 +21,3 @@ class EMQXSettings:
         return getattr(settings, attr, DEFAULTS[attr])
 
 emqx_settings = EMQXSettings()
-print(f"EMQX settings: {emqx_settings.__dict__}")
