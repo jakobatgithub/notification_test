@@ -3,6 +3,8 @@ FROM python:3.13
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 
 
+# Copy the Django project files
+COPY . /app
 # Set the working directory
 WORKDIR /app
 
@@ -11,9 +13,6 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 # COPY requirements-dev.txt /app/
 # RUN pip install --no-cache-dir -r requirements-dev.txt
-
-# Copy the Django project files
-COPY . /app
 
 # Expose port 8000
 EXPOSE 8000
