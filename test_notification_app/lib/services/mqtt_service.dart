@@ -83,17 +83,36 @@ class MQTTService {
         debugPrint('✅ Received MQTT message: $payloadString');
 
         final mqttMessage = MQTTMessage.fromJSONString(payloadString);
-        _logDeviceEvent(mqttMessage);
 
-        final payload = jsonDecode(payloadString) as Map<String, dynamic>;
-        final message = _formatMessage(payload);
-
-        await _storeReceivedMessage(message);
-        onMessageReceived(message);
+        if (_isDataMessage(mqttMessage)) {
+          _handleDataMessage(mqttMessage);
+        } else {
+          _handleDisplayMessage(payloadString);
+        }
       } catch (e) {
         debugPrint('❌ Error decoding payload: $e');
       }
     });
+  }
+
+  bool _isDataMessage(MQTTMessage msg) {
+    if (msg.title == '' && msg.body == '') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void _handleDataMessage(MQTTMessage msg) {
+    _logDeviceEvent(msg);
+  }
+
+  void _handleDisplayMessage(String payloadString) async {
+    final payload = jsonDecode(payloadString) as Map<String, dynamic>;
+    final message = _formatMessage(payload);
+
+    await _storeReceivedMessage(message);
+    onMessageReceived(message);
   }
 
   void _logDeviceEvent(MQTTMessage msg) {
