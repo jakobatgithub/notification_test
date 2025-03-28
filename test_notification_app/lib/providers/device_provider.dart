@@ -38,15 +38,11 @@ class DeviceProvider with ChangeNotifier {
   }
 
   void createDevice({
-    required int userID,
+    required int user,
     required String clientId,
     bool active = true,
   }) {
-    final newDevice = Device(
-      userID: userID,
-      clientId: clientId,
-      active: active,
-    );
+    final newDevice = Device(user: user, clientId: clientId, active: active);
     _devices.add(newDevice);
     notifyListeners();
   }

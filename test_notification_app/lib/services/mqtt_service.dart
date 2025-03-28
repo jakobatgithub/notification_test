@@ -25,7 +25,7 @@ class MQTTService {
     final prefs = await SharedPreferences.getInstance();
     final mqttClientId = await _getOrCreateClientId(prefs);
     final mqttToken = prefs.getString('mqttToken');
-    final userId = prefs.getString('userID');
+    final userId = prefs.getString('user');
 
     debugPrint("MQTT Token: $mqttToken, User ID: $userId");
 
@@ -120,18 +120,14 @@ class MQTTService {
 
     if (event == 'new_device_connected') {
       final clientId = data['client_id'];
-      final userID = data['userID'];
-      if (clientId is! String || userID is! int) return;
+      final user = data['user'];
+      if (clientId is! String || user is! int) return;
 
       // Prevent duplicate devices based on clientId
       final existing = deviceProvider.getDeviceByClientId(clientId);
       if (existing != null) return;
 
-      deviceProvider.createDevice(
-        userID: userID,
-        clientId: clientId,
-        active: true,
-      );
+      deviceProvider.createDevice(user: user, clientId: clientId, active: true);
       return;
     }
 
@@ -187,7 +183,7 @@ class MQTTService {
 
   Future<void> _retrieveMQTTTokenIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('mqttToken') || !prefs.containsKey('userID')) {
+    if (!prefs.containsKey('mqttToken') || !prefs.containsKey('user')) {
       await retrieveMQTTToken();
     }
   }
@@ -222,7 +218,7 @@ class MQTTService {
     if (response.statusCode == 200) {
       final Map<String, dynamic> tokens = jsonDecode(response.body);
       await prefs.setString('mqttToken', tokens['mqtt_token']);
-      await prefs.setString('userID', tokens['user_id']);
+      await prefs.setString('user', tokens['user_id']);
       debugPrint(
         '🔐 MQTT Token: ${tokens['mqtt_token']}, User ID: ${tokens['user_id']}',
       );
