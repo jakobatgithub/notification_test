@@ -6,6 +6,7 @@ services:
       - .env
     volumes:
       - ./backend:/app
+      - ./backend/django-emqx:/app/django-emqx  # mount your local editable app
       - ./backend/staticfiles:/app/staticfiles
       - ./emqx/certs/emqx.crt:/app/certs/emqx.crt
     ports:
