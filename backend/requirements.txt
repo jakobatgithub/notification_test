@@ -1,4 +1,4 @@
--e ./django-emqx[fcm,dev,test]
+-e ./django-emqx[fcm]
 
 django-cors-headers>=4.7.0
 django-allauth>=65.5.0
