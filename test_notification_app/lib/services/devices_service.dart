@@ -9,6 +9,8 @@ class DevicesService {
   static Future<List<Device>> getDevicesList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString('accessToken');
+    String? ownClientId = prefs.getString('mqttClientID');
+
     if (accessToken == null) {
       debugPrint('❌ No access token found');
       return [];
@@ -24,7 +26,16 @@ class DevicesService {
 
     if (response.statusCode == 200) {
       final List<dynamic> rawList = jsonDecode(response.body);
-      return rawList.map((json) => Device.fromJson(json)).toList();
+      final List<Device> allDevices =
+          rawList.map((json) => Device.fromJson(json)).toList();
+
+      final filteredDevices =
+          allDevices.where((device) => device.clientId != ownClientId).toList();
+
+      debugPrint("📱 Own client ID: $ownClientId");
+      debugPrint("🧹 Devices after filtering: ${filteredDevices.length}");
+
+      return filteredDevices;
     } else {
       debugPrint('❌ Get request failed with status ${response.statusCode}');
       return [];
