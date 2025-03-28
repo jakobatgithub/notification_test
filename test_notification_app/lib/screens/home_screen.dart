@@ -1,12 +1,13 @@
 // screens/home_screen.dart
 import 'package:flutter/material.dart';
+import 'home_screen_body.dart';
 import '../services/mqtt_service.dart';
 import '../services/firebase_service.dart';
 import '../services/auth_service.dart';
-import '../widgets/latest_message_widget.dart';
-import '../widgets/send_notification_button.dart';
-import '../widgets/recent_messages_widget.dart';
 import '../utils/shared_preferences_util.dart';
+import '../models/device.dart';
+import '../services/devices_service.dart';
+import '../widgets/device_list_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     AuthService.loginOrSignup().then((_) {
       _initializeServices();
+      _loadDevices();
     });
   }
 
@@ -33,6 +35,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _mqttService.disconnect();
     super.dispose();
+  }
+
+  List<Device> _devices = [];
+
+  void _loadDevices() async {
+    final devices = await DevicesService.getDevicesList();
+    setState(() {
+      _devices = devices;
+    });
   }
 
   void _initializeServices() {
@@ -68,19 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            LatestMessageWidget(message: _mqttMessage),
-            const SizedBox(height: 20),
-            SendNotificationButton(),
-            const SizedBox(height: 20),
-            const Text("Recent Messages:"),
-            RecentMessagesWidget(messages: _receivedMQTTMessages),
-          ],
-        ),
+      body: Column(
+        children: [Expanded(child: DeviceListWidget(devices: _devices))],
       ),
+      // body: HomeScreenBody(
+      //   mqttMessage: _mqttMessage,
+      //   receivedMQTTMessages: _receivedMQTTMessages,
+      // ),
     );
   }
 }
