@@ -1,3 +1,0 @@
-[submodule "backend/django_emqx"]
-	path = backend/django_emqx
-	url = git@github.com:jakobatgithub/django-emqx.git
