@@ -28,6 +28,15 @@ def handle_emqx_device_connected(sender, user_id, device_id, ip_address, **kwarg
 def handle_new_emqx_device_connected(sender, user_id, device_id, ip_address, **kwargs):
     user = get_user_model().objects.filter(id=int(user_id)).first()
     print(f"User {user} connected on new device {device_id} (IP: {ip_address})")
+    recipients = get_user_model().objects.all()
+    data = json.dumps({
+        "device_id": device_id,
+        "user": user.id,
+        "event": "new_device_disconnected",
+    })
+    message = Message.objects.create(data=data)
+    for recipient in recipients:
+        send_mqtt_message(recipient, message)
 
 
 @receiver(emqx_device_disconnected)
