@@ -39,14 +39,16 @@ firebase_admin.initialize_app(cred)
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
-    'django_emqx',
-    'notifications',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'corsheaders',
+    'django_emqx',
+    'notifications',
     'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
     'rest_framework',
     'rest_framework_simplejwt',
@@ -59,6 +61,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',    
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
