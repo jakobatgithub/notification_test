@@ -120,18 +120,15 @@ class MQTTService {
 
     if (event == 'new_device_connected') {
       final clientId = data['client_id'];
-      final user = data['user'];
-      debugPrint(
-        "Creating a new device for user $user and device ID $clientId",
-      );
-      if (clientId is! String || user is! int) return;
+      final userID = data['userID'];
+      if (clientId is! String || userID is! int) return;
 
       // Prevent duplicate devices based on clientId
       final existing = deviceProvider.getDeviceByClientId(clientId);
       if (existing != null) return;
 
       deviceProvider.createDevice(
-        userID: user,
+        userID: userID,
         clientId: clientId,
         active: true,
       );

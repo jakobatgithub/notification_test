@@ -12,7 +12,7 @@ class Device {
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
-      userID: json['user'],
+      userID: json['userID'],
       clientId: json['client_id'],
       active: json['active'],
     );
