@@ -1,10 +1,13 @@
+// models/device.dart
+
 class Device {
   final int id;
   final int user;
   final String clientId;
-  final bool active;
-  final String lastStatus;
-  final String lastConnectedAt;
+
+  bool active;
+  String lastStatus;
+  String lastConnectedAt;
 
   Device({
     required this.id,
