@@ -6,6 +6,7 @@ import '../services/firebase_service.dart';
 import '../services/auth_service.dart';
 import '../utils/shared_preferences_util.dart';
 import '../models/device.dart';
+import '../models/mqtt_message.dart';
 import '../services/devices_service.dart';
 import '../widgets/device_list_widget.dart';
 
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onMqttMessageReceived(String message) async {
+    debugPrint("message = {$message}");
     await SharedPreferencesUtil.addMQTTMessage(message);
     Set<String> receivedMQTTMessagesTemp =
         await SharedPreferencesUtil.loadMQTTMessages();
@@ -79,13 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
-      body: Column(
-        children: [Expanded(child: DeviceListWidget(devices: _devices))],
-      ),
-      // body: HomeScreenBody(
-      //   mqttMessage: _mqttMessage,
-      //   receivedMQTTMessages: _receivedMQTTMessages,
+      // body: Column(
+      //   children: [Expanded(child: DeviceListWidget(devices: _devices))],
       // ),
+      body: HomeScreenBody(
+        mqttMessage: _mqttMessage,
+        receivedMQTTMessages: _receivedMQTTMessages,
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import '../models/mqtt_message.dart';
 
 class MQTTService {
   late MqttServerClient client;
@@ -78,6 +79,16 @@ class MQTTService {
         try {
           final payloadString = utf8.decode(payloadBytes);
           debugPrint('✅ Received MQTT message: $payloadString');
+
+          MQTTMessage mqttMessage = MQTTMessage.fromJSONString(payloadString);
+          if (mqttMessage.data is Map<String, dynamic> &&
+              mqttMessage.data['event'] == 'device_connected') {
+            debugPrint("Device ${mqttMessage.data['device_id']} connected");
+          }
+          if (mqttMessage.data is Map<String, dynamic> &&
+              mqttMessage.data['event'] == 'device_disconnected') {
+            debugPrint("Device ${mqttMessage.data['device_id']} disconnected");
+          }
 
           final payload = jsonDecode(payloadString) as Map<String, dynamic>;
           String msgId = payload['msg_id'].toString();
