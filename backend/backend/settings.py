@@ -40,7 +40,8 @@ firebase_admin.initialize_app(cred)
 
 INSTALLED_APPS = [
     'corsheaders',
-    'django_emqx',    
+    'django_emqx',
+    'notifications',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
