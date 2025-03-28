@@ -17,7 +17,7 @@ def handle_emqx_device_connected(sender, user_id, device_id, ip_address, **kwarg
     recipients = get_user_model().objects.all()
     data = json.dumps({
         "device_id": device_id,
-        "user": user,
+        "user": user.id,
         "event": "device_connected",
     })
     message = Message.objects.create(data=data)
@@ -37,7 +37,7 @@ def handle_emqx_device_disconnected(sender, user_id, device_id, ip_address, **kw
     recipients = get_user_model().objects.all()
     data = json.dumps({
         "device_id": device_id,
-        "user": user,
+        "user": user.id,
         "event": "device_disconnected",
     })
     message = Message.objects.create(data=data)
