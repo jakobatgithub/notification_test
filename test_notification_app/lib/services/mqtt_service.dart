@@ -1,12 +1,18 @@
+//services/mqtt_service.dart
+
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import '../constants.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
+
+import '../constants.dart';
 import '../models/mqtt_message.dart';
+import '../services/navigation_service.dart';
+import '../providers/device_provider.dart';
 
 class MQTTService {
   late MqttServerClient client;
@@ -81,6 +87,7 @@ class MQTTService {
           debugPrint('✅ Received MQTT message: $payloadString');
 
           MQTTMessage mqttMessage = MQTTMessage.fromJSONString(payloadString);
+
           if (mqttMessage.data is Map<String, dynamic> &&
               mqttMessage.data['event'] == 'device_connected') {
             debugPrint("Device ${mqttMessage.data['device_id']} connected");
