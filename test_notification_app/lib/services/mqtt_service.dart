@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
+import '../services/navigation_service.dart';
+import '../providers/device_provider.dart';
 import '../constants.dart';
 import '../models/mqtt_message.dart';
 
@@ -103,8 +106,31 @@ class MQTTService {
     }
   }
 
-  void _handleDataMessage(MQTTMessage msg) {
-    _logDeviceEvent(msg);
+  void _handleDataMessage(MQTTMessage mqttMessage) {
+    _logDeviceEvent(mqttMessage);
+
+    final data = mqttMessage.data;
+    if (data is! Map<String, dynamic>) return;
+
+    final event = data['event'];
+    if (event != 'device_connected' && event != 'device_disconnected') return;
+
+    final rawDeviceId = data['device_id'];
+    if (rawDeviceId is! int) return;
+
+    final deviceId = rawDeviceId;
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+
+    final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
+    final isDisconnect = event == 'device_disconnected';
+
+    deviceProvider.updateDeviceFields(
+      deviceId: deviceId,
+      active: !isDisconnect,
+      lastStatus: isDisconnect ? 'offline' : 'online',
+      lastConnectedAt: DateTime.now().toIso8601String(),
+    );
   }
 
   void _handleDisplayMessage(String payloadString) async {
@@ -115,14 +141,15 @@ class MQTTService {
     onMessageReceived(message);
   }
 
-  void _logDeviceEvent(MQTTMessage msg) {
-    if (msg.data is Map<String, dynamic>) {
-      final event = msg.data['event'];
-      final deviceId = msg.data['device_id'];
-      if (event == 'device_connected') {
+  void _logDeviceEvent(MQTTMessage mqttMessage) {
+    if (mqttMessage.data is Map<String, dynamic>) {
+      final data = mqttMessage.data as Map<String, dynamic>;
+      if (data['event'] == 'device_connected') {
+        final deviceId = data['device_id'] ?? 'unknown';
         debugPrint("Device $deviceId connected");
-      } else if (event == 'device_disconnected') {
-        debugPrint("Device $deviceId disconnected");
+      } else if (data['event'] == 'device_disconnected') {
+        final deviceId = data['device_id'] ?? 'unknown';
+        debugPrint("Device $deviceId connected");
       }
     }
   }
