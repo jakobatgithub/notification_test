@@ -38,13 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  List<Device> _devices = [];
-
   void _loadDevices() async {
-    final devices = await DevicesService.getDevicesList();
-    setState(() {
-      _devices = devices;
-    });
+    await DevicesService.loadDevicesIntoProvider(context);
   }
 
   void _initializeServices() {
@@ -81,13 +76,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
-      // body: Column(
-      //   children: [Expanded(child: DeviceListWidget(devices: _devices))],
+      body: Column(children: [Expanded(child: DeviceListWidget())]),
+      // body: HomeScreenBody(
+      //   mqttMessage: _mqttMessage,
+      //   receivedMQTTMessages: _receivedMQTTMessages,
       // ),
-      body: HomeScreenBody(
-        mqttMessage: _mqttMessage,
-        receivedMQTTMessages: _receivedMQTTMessages,
-      ),
     );
   }
 }

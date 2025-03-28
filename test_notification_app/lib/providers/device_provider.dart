@@ -13,30 +13,10 @@ class DeviceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeDeviceById(int id) {
-    _devices.removeWhere((d) => d.id == id);
-    notifyListeners();
-  }
-
-  void updateDevice(Device updatedDevice) {
-    final index = _devices.indexWhere((d) => d.id == updatedDevice.id);
-    if (index != -1) {
-      _devices[index] = updatedDevice;
-      notifyListeners();
-    }
-  }
-
-  void updateDeviceFields({
-    required int deviceId,
-    bool? active,
-    String? lastStatus,
-    String? lastConnectedAt,
-  }) {
-    final device = _findDeviceById(deviceId);
+  void updateDeviceFields({required String deviceId, bool? active}) {
+    final device = getDeviceByClientId(deviceId);
     if (device != null) {
       if (active != null) device.active = active;
-      if (lastStatus != null) device.lastStatus = lastStatus;
-      if (lastConnectedAt != null) device.lastConnectedAt = lastConnectedAt;
       notifyListeners();
     }
   }
@@ -57,12 +37,17 @@ class DeviceProvider with ChangeNotifier {
     return null;
   }
 
-  Device? _findDeviceById(int id) {
-    for (final device in _devices) {
-      if (device.id == id) {
-        return device;
-      }
-    }
-    return null;
+  void createDevice({
+    required int userID,
+    required String clientId,
+    bool active = true,
+  }) {
+    final newDevice = Device(
+      userID: userID,
+      clientId: clientId,
+      active: active,
+    );
+    _devices.add(newDevice);
+    notifyListeners();
   }
 }

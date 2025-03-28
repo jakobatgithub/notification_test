@@ -1,31 +1,20 @@
 // models/device.dart
 
 class Device {
-  final int id;
-  final int user;
+  final int userID;
   final String clientId;
 
-  bool active;
-  String lastStatus;
-  String lastConnectedAt;
+  String get deviceId => clientId;
 
-  Device({
-    required this.id,
-    required this.user,
-    required this.clientId,
-    required this.active,
-    required this.lastStatus,
-    required this.lastConnectedAt,
-  });
+  bool active;
+
+  Device({required this.userID, required this.clientId, required this.active});
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
-      id: json['id'],
-      user: json['user'],
+      userID: json['user'],
       clientId: json['client_id'],
       active: json['active'],
-      lastStatus: json['last_status'],
-      lastConnectedAt: json['last_connected_at'],
     );
   }
 }

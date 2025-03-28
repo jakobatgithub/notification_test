@@ -113,23 +113,43 @@ class MQTTService {
     if (data is! Map<String, dynamic>) return;
 
     final event = data['event'];
-    if (event != 'device_connected' && event != 'device_disconnected') return;
-
-    final rawDeviceId = data['device_id'];
-    if (rawDeviceId is! int) return;
-
-    final deviceId = rawDeviceId;
     final context = navigatorKey.currentContext;
     if (context == null) return;
 
     final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
+
+    if (event == 'new_device_connected') {
+      final clientId = data['client_id'];
+      final user = data['user'];
+      debugPrint(
+        "Creating a new device for user $user and device ID $clientId",
+      );
+      if (clientId is! String || user is! int) return;
+
+      // Prevent duplicate devices based on clientId
+      final existing = deviceProvider.getDeviceByClientId(clientId);
+      if (existing != null) return;
+
+      deviceProvider.createDevice(
+        userID: user,
+        clientId: clientId,
+        active: true,
+      );
+      return;
+    }
+
+    if (event != 'device_connected' && event != 'device_disconnected') return;
+
+    final rawDeviceId = data['device_id'];
+    if (rawDeviceId is! String) return;
+
+    final deviceId = rawDeviceId;
     final isDisconnect = event == 'device_disconnected';
 
+    debugPrint("Update Device $deviceId to active = ${!isDisconnect}");
     deviceProvider.updateDeviceFields(
       deviceId: deviceId,
       active: !isDisconnect,
-      lastStatus: isDisconnect ? 'offline' : 'online',
-      lastConnectedAt: DateTime.now().toIso8601String(),
     );
   }
 
@@ -149,7 +169,7 @@ class MQTTService {
         debugPrint("Device $deviceId connected");
       } else if (data['event'] == 'device_disconnected') {
         final deviceId = data['device_id'] ?? 'unknown';
-        debugPrint("Device $deviceId connected");
+        debugPrint("Device $deviceId disconnected");
       }
     }
   }
