@@ -21,7 +21,7 @@ class LatestMessageWidget extends StatelessWidget {
             const Text("Latest MQTT Message:"),
             Text(
               latest != null
-                  ? '${latest.title}: ${latest.body}'
+                  ? '${latest.msgId} - ${latest.title}: ${latest.body}'
                   : 'No messages yet',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),

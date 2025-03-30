@@ -29,7 +29,7 @@ class RecentMessagesWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.0),
                   child: Text(
-                    '${message.title}: ${message.body}',
+                    '${message.msgId} - ${message.title}: ${message.body}',
                     style: const TextStyle(fontSize: 14),
                   ),
                 );
