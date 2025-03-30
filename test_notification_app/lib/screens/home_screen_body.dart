@@ -1,17 +1,15 @@
+// screens/home_screen_body.dart
+
 import 'package:flutter/material.dart';
-import '../widgets/latest_message_widget.dart';
-import '../widgets/send_notification_button.dart';
-import '../widgets/recent_messages_widget.dart';
+
+import '/widgets/latest_message_widget.dart';
+import '/widgets/send_notification_button.dart';
+import '/widgets/recent_messages_widget.dart';
 
 class HomeScreenBody extends StatelessWidget {
   final String mqttMessage;
-  final Set<String> receivedMQTTMessages;
 
-  const HomeScreenBody({
-    super.key,
-    required this.mqttMessage,
-    required this.receivedMQTTMessages,
-  });
+  const HomeScreenBody({super.key, required this.mqttMessage});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +22,7 @@ class HomeScreenBody extends StatelessWidget {
           SendNotificationButton(),
           const SizedBox(height: 20),
           const Text("Recent Messages:"),
-          RecentMessagesWidget(messages: receivedMQTTMessages),
+          RecentMessagesWidget(),
         ],
       ),
     );

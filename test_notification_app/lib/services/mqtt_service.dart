@@ -12,8 +12,9 @@ import 'package:provider/provider.dart';
 
 import '/services/navigation_service.dart';
 import '/providers/device_provider.dart';
-import '/constants.dart';
+import '/providers/message_provider.dart';
 import '/models/message.dart';
+import '/constants.dart';
 
 class MQTTService {
   late MqttServerClient client;
@@ -92,7 +93,7 @@ class MQTTService {
         if (_isDataMessage(mqttMessage)) {
           _handleDataMessage(mqttMessage);
         } else {
-          _handleDisplayMessage(payloadString);
+          _handleDisplayMessage(mqttMessage);
         }
       } catch (e) {
         debugPrint('❌ Error decoding payload: $e');
@@ -155,26 +156,14 @@ class MQTTService {
     );
   }
 
-  void _handleDisplayMessage(String payloadString) async {
-    final payload = jsonDecode(payloadString) as Map<String, dynamic>;
-    final message = _formatMessage(payload);
-
-    await _storeReceivedMessage(message);
-    onMessageReceived(message);
-  }
-
-  String _formatMessage(Map<String, dynamic> payload) {
-    final msgId = payload['msg_id'].toString();
-    final title = payload['title'] ?? "No message body";
-    final body = payload['body'] ?? "No message body";
-    return "msgID: $msgId, title: $title, body: $body";
-  }
-
-  Future<void> _storeReceivedMessage(String message) async {
-    final prefs = await SharedPreferences.getInstance();
-    final messages = prefs.getStringList('receivedMQTTMessages') ?? [];
-    messages.add(message);
-    await prefs.setStringList('receivedMQTTMessages', messages);
+  void _handleDisplayMessage(Message message) async {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+    final messageProvider = Provider.of<MessageProvider>(
+      context,
+      listen: false,
+    );
+    messageProvider.addMessage(message);
   }
 
   Future<void> _retrieveMQTTTokenIfNeeded() async {
