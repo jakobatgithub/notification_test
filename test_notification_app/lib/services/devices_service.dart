@@ -1,14 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import '../constants.dart';
-import '../models/device.dart';
-import '../providers/device_provider.dart';
-import 'dart:convert';
+import '/constants.dart';
+import '/models/device.dart';
+import '/providers/device_provider.dart';
 
 class DevicesService {
   static Future<void> loadDevicesIntoProvider(BuildContext context) async {
+    final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString('accessToken');
     String? ownClientId = prefs.getString('mqttClientID');
@@ -36,11 +37,6 @@ class DevicesService {
 
       debugPrint("📱 Own client ID: $ownClientId");
       debugPrint("🧹 Devices after filtering: ${filteredDevices.length}");
-
-      final deviceProvider = Provider.of<DeviceProvider>(
-        context,
-        listen: false,
-      );
 
       deviceProvider.setDevices(filteredDevices);
     } else {

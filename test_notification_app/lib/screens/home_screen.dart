@@ -6,7 +6,7 @@ import '../services/firebase_service.dart';
 import '../services/auth_service.dart';
 import '../utils/shared_preferences_util.dart';
 import '../models/device.dart';
-import '../models/mqtt_message.dart';
+import '../models/message.dart';
 import '../services/devices_service.dart';
 import '../widgets/device_list_widget.dart';
 
