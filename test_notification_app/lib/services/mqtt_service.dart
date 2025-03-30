@@ -117,7 +117,7 @@ class MQTTService {
     }
   }
 
-  void _handleDeviceEvent(dynamic data) {
+  void _handleDeviceEvent(Map<String, dynamic> data) {
     final event = data['event'];
     final context = navigatorKey.currentContext;
     if (context == null) return;
