@@ -32,7 +32,7 @@ class DevicesService {
           rawList.map((json) => Device.fromJson(json)).toList();
 
       final filteredDevices =
-          allDevices.where((device) => device.clientId != ownClientId).toList();
+          allDevices.where((device) => device.clientID != ownClientId).toList();
 
       debugPrint("📱 Own client ID: $ownClientId");
       debugPrint("🧹 Devices after filtering: ${filteredDevices.length}");

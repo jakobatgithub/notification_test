@@ -2,18 +2,16 @@
 
 class Device {
   final int user;
-  final String clientId;
-
-  String get deviceId => clientId;
+  final String clientID;
 
   bool active;
 
-  Device({required this.user, required this.clientId, required this.active});
+  Device({required this.user, required this.clientID, required this.active});
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
       user: json['user'],
-      clientId: json['client_id'],
+      clientID: json['client_id'],
       active: json['active'],
     );
   }

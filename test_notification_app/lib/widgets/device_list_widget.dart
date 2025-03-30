@@ -19,7 +19,7 @@ class DeviceListWidget extends StatelessWidget {
         return ListTile(
           leading: Icon(Icons.device_hub, color: color),
           title: Text('User: ${device.user}', style: TextStyle(color: color)),
-          subtitle: Text('Client ID: ${device.clientId}'),
+          subtitle: Text('Client ID: ${device.clientID}'),
         );
       },
     );

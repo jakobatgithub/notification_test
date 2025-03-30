@@ -47,8 +47,8 @@ class MQTTService {
     }
   }
 
-  MqttServerClient _createConfiguredClient(String clientId) {
-    final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
+  MqttServerClient _createConfiguredClient(String clientID) {
+    final client = MqttServerClient.withPort(mqttBroker, clientID, mqttPort);
     client.secure = true;
     client.securityContext = SecurityContext.defaultContext;
     client.onBadCertificate = (dynamic cert) => true;
@@ -119,29 +119,29 @@ class MQTTService {
     final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
 
     if (event == 'new_device_connected') {
-      final clientId = data['client_id'];
-      final user = data['user'];
-      if (clientId is! String || user is! int) return;
+      final clientID = data['client_id'];
+      final user = data['user'] as int;
+      if (clientID is! String) return;
 
-      // Prevent duplicate devices based on clientId
-      final existing = deviceProvider.getDeviceByClientId(clientId);
+      // Prevent duplicate devices based on clientID
+      final existing = deviceProvider.getDeviceByClientId(clientID);
       if (existing != null) return;
 
-      deviceProvider.createDevice(user: user, clientId: clientId, active: true);
+      deviceProvider.createDevice(user: user, clientID: clientID, active: true);
       return;
     }
 
     if (event != 'device_connected' && event != 'device_disconnected') return;
 
-    final rawDeviceId = data['device_id'];
+    final rawDeviceId = data['client_id'];
     if (rawDeviceId is! String) return;
 
-    final deviceId = rawDeviceId;
+    final clientID = rawDeviceId;
     final isDisconnect = event == 'device_disconnected';
 
-    debugPrint("Update Device $deviceId to active = ${!isDisconnect}");
+    debugPrint("Update Device $clientID to active = ${!isDisconnect}");
     deviceProvider.updateDeviceFields(
-      deviceId: deviceId,
+      clientID: clientID,
       active: !isDisconnect,
     );
   }
@@ -158,11 +158,11 @@ class MQTTService {
     if (mqttMessage.data is Map<String, dynamic>) {
       final data = mqttMessage.data as Map<String, dynamic>;
       if (data['event'] == 'device_connected') {
-        final deviceId = data['device_id'] ?? 'unknown';
-        debugPrint("Device $deviceId connected");
+        final clientID = data['client_id'] ?? 'unknown';
+        debugPrint("Device $clientID connected");
       } else if (data['event'] == 'device_disconnected') {
-        final deviceId = data['device_id'] ?? 'unknown';
-        debugPrint("Device $deviceId disconnected");
+        final clientID = data['client_id'] ?? 'unknown';
+        debugPrint("Device $clientID disconnected");
       }
     }
   }

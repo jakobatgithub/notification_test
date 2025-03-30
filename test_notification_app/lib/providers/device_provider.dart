@@ -13,8 +13,8 @@ class DeviceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateDeviceFields({required String deviceId, bool? active}) {
-    final device = getDeviceByClientId(deviceId);
+  void updateDeviceFields({required String clientID, bool? active}) {
+    final device = getDeviceByClientId(clientID);
     if (device != null) {
       if (active != null) device.active = active;
       notifyListeners();
@@ -28,9 +28,9 @@ class DeviceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Device? getDeviceByClientId(String clientId) {
+  Device? getDeviceByClientId(String clientID) {
     for (final device in _devices) {
-      if (device.clientId == clientId) {
+      if (device.clientID == clientID) {
         return device;
       }
     }
@@ -39,11 +39,12 @@ class DeviceProvider with ChangeNotifier {
 
   void createDevice({
     required int user,
-    required String clientId,
+    required String clientID,
     bool active = true,
   }) {
-    final newDevice = Device(user: user, clientId: clientId, active: active);
+    final newDevice = Device(user: user, clientID: clientID, active: active);
     _devices.add(newDevice);
+    debugPrint("New Device created");
     notifyListeners();
   }
 }
