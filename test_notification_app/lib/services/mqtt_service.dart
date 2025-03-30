@@ -109,11 +109,15 @@ class MQTTService {
   }
 
   void _handleDataMessage(Message mqttMessage) {
-    _logDeviceEvent(mqttMessage);
-
     final data = mqttMessage.data;
     if (data is! Map<String, dynamic>) return;
 
+    if (data.containsKey('event')) {
+      _handleDeviceEvent(data);
+    }
+  }
+
+  void _handleDeviceEvent(dynamic data) {
     final event = data['event'];
     final context = navigatorKey.currentContext;
     if (context == null) return;
@@ -157,19 +161,6 @@ class MQTTService {
 
     await _storeReceivedMessage(message);
     onMessageReceived(message);
-  }
-
-  void _logDeviceEvent(Message mqttMessage) {
-    if (mqttMessage.data is Map<String, dynamic>) {
-      final data = mqttMessage.data as Map<String, dynamic>;
-      if (data['event'] == 'device_connected') {
-        final clientID = data['client_id'] ?? 'unknown';
-        debugPrint("Device $clientID connected");
-      } else if (data['event'] == 'device_disconnected') {
-        final clientID = data['client_id'] ?? 'unknown';
-        debugPrint("Device $clientID disconnected");
-      }
-    }
   }
 
   String _formatMessage(Map<String, dynamic> payload) {
