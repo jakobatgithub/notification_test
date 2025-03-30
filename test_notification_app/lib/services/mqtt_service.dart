@@ -8,10 +8,10 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
-import '../services/navigation_service.dart';
-import '../providers/device_provider.dart';
-import '../constants.dart';
-import '../models/message.dart';
+import '/services/navigation_service.dart';
+import '/providers/device_provider.dart';
+import '/constants.dart';
+import '/models/message.dart';
 
 class MQTTService {
   late MqttServerClient client;

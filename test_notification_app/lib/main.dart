@@ -3,10 +3,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
 import 'providers_setup.dart';
-import './services/navigation_service.dart';
+import 'services/navigation_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

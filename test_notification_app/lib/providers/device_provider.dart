@@ -1,7 +1,8 @@
 // providers/device_provider.dart
 
 import 'package:flutter/material.dart';
-import '../models/device.dart';
+
+import '/models/device.dart';
 
 class DeviceProvider with ChangeNotifier {
   final List<Device> _devices = [];

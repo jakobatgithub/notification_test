@@ -1,7 +1,8 @@
 // providers/device_provider.dart
 
 import 'package:flutter/material.dart';
-import '../models/message.dart';
+
+import '/models/message.dart';
 
 class MessageProvider with ChangeNotifier {
   final List<Message> _messages = [];
