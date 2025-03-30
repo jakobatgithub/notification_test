@@ -1,4 +1,4 @@
-// providers/device_provider.dart
+// providers/message_provider.dart
 
 import 'package:flutter/material.dart';
 
