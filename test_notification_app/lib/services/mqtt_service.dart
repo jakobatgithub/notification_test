@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import '../services/navigation_service.dart';
 import '../providers/device_provider.dart';
 import '../constants.dart';
-import '../models/mqtt_message.dart';
+import '../models/message.dart';
 
 class MQTTService {
   late MqttServerClient client;
@@ -85,7 +85,7 @@ class MQTTService {
         final payloadString = utf8.decode(payloadBytes);
         debugPrint('✅ Received MQTT message: $payloadString');
 
-        final mqttMessage = MQTTMessage.fromJSONString(payloadString);
+        final mqttMessage = Message.fromJSONString(payloadString);
 
         if (_isDataMessage(mqttMessage)) {
           _handleDataMessage(mqttMessage);
@@ -98,7 +98,7 @@ class MQTTService {
     });
   }
 
-  bool _isDataMessage(MQTTMessage msg) {
+  bool _isDataMessage(Message msg) {
     if (msg.title == '' && msg.body == '') {
       return true;
     } else {
@@ -106,7 +106,7 @@ class MQTTService {
     }
   }
 
-  void _handleDataMessage(MQTTMessage mqttMessage) {
+  void _handleDataMessage(Message mqttMessage) {
     _logDeviceEvent(mqttMessage);
 
     final data = mqttMessage.data;
@@ -119,24 +119,27 @@ class MQTTService {
     final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
 
     if (event == 'new_device_connected') {
-      final clientID = data['client_id'];
+      final newClientID = data['client_id'];
       final user = data['user'] as int;
-      if (clientID is! String) return;
+      if (newClientID is! String) return;
 
       // Prevent duplicate devices based on clientID
-      final existing = deviceProvider.getDeviceByClientId(clientID);
+      final existing = deviceProvider.getDeviceByClientId(newClientID);
       if (existing != null) return;
 
-      deviceProvider.createDevice(user: user, clientID: clientID, active: true);
+      deviceProvider.addNewDevice(
+        user: user,
+        clientID: newClientID,
+        active: true,
+      );
       return;
     }
 
     if (event != 'device_connected' && event != 'device_disconnected') return;
 
-    final rawDeviceId = data['client_id'];
-    if (rawDeviceId is! String) return;
+    final clientID = data['client_id'];
+    if (clientID is! String) return;
 
-    final clientID = rawDeviceId;
     final isDisconnect = event == 'device_disconnected';
 
     debugPrint("Update Device $clientID to active = ${!isDisconnect}");
@@ -154,7 +157,7 @@ class MQTTService {
     onMessageReceived(message);
   }
 
-  void _logDeviceEvent(MQTTMessage mqttMessage) {
+  void _logDeviceEvent(Message mqttMessage) {
     if (mqttMessage.data is Map<String, dynamic>) {
       final data = mqttMessage.data as Map<String, dynamic>;
       if (data['event'] == 'device_connected') {
