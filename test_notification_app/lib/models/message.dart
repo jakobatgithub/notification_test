@@ -2,20 +2,20 @@
 
 import 'dart:convert';
 
-class MQTTMessage {
+class Message {
   final String msgId;
   final String title;
   final String body;
   final dynamic data;
 
-  MQTTMessage({
+  Message({
     required this.msgId,
     required this.title,
     required this.body,
     this.data,
   });
 
-  factory MQTTMessage.fromJson(Map<String, dynamic> json) {
+  factory Message.fromJson(Map<String, dynamic> json) {
     final rawData = json['data'];
 
     dynamic parsedData;
@@ -29,7 +29,7 @@ class MQTTMessage {
       parsedData = rawData;
     }
 
-    return MQTTMessage(
+    return Message(
       msgId: json['msg_id']?.toString() ?? '',
       title: json['title'] ?? '',
       body: json['body'] ?? '',
@@ -42,9 +42,9 @@ class MQTTMessage {
   }
 
   /// Converts a JSON string into an MqttMessage object
-  static MQTTMessage fromJSONString(String jsonString) {
+  static Message fromJSONString(String jsonString) {
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    return MQTTMessage.fromJson(jsonMap);
+    return Message.fromJson(jsonMap);
   }
 
   /// Converts the MqttMessage object into a JSON string
@@ -55,7 +55,7 @@ class MQTTMessage {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MQTTMessage &&
+      other is Message &&
           runtimeType == other.runtimeType &&
           msgId == other.msgId &&
           title == other.title &&
