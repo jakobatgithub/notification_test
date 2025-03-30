@@ -18,9 +18,7 @@ import '/constants.dart';
 
 class MQTTService {
   late MqttServerClient client;
-  final Function(String) onMessageReceived;
-
-  MQTTService({required this.onMessageReceived});
+  MQTTService();
 
   Future<void> initializeMQTT() async {
     await _retrieveMQTTTokenIfNeeded();

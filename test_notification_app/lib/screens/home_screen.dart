@@ -18,10 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _mqttMessage = "No MQTT messages yet";
   late MQTTService _mqttService;
   late FirebaseService _firebaseService;
-  Set<String> _receivedMQTTMessages = {};
 
   @override
   void initState() {
@@ -43,44 +41,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _initializeServices() {
-    _mqttService = MQTTService(onMessageReceived: _onMqttMessageReceived);
+    _mqttService = MQTTService();
     _mqttService.initializeMQTT();
-    _loadReceivedMQTTMessages();
     _firebaseService = FirebaseService();
     _firebaseService.initializeFirebase();
-  }
-
-  void _onMqttMessageReceived(String message) async {
-    debugPrint("message = {$message}");
-    await SharedPreferencesUtil.addMQTTMessage(message);
-    Set<String> receivedMQTTMessagesTemp =
-        await SharedPreferencesUtil.loadMQTTMessages();
-    setState(() {
-      _mqttMessage = message;
-      _receivedMQTTMessages = receivedMQTTMessagesTemp;
-    });
-  }
-
-  Future<void> _loadReceivedMQTTMessages() async {
-    Set<String> receivedMQTTMessagesTemp =
-        await SharedPreferencesUtil.loadMQTTMessages();
-    if (receivedMQTTMessagesTemp.isNotEmpty) {
-      setState(() {
-        _mqttMessage = receivedMQTTMessagesTemp.last;
-        _receivedMQTTMessages = receivedMQTTMessagesTemp;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
-      body: Column(children: [Expanded(child: DeviceListWidget())]),
-      // body: HomeScreenBody(
-      //   mqttMessage: _mqttMessage,
-      //   receivedMQTTMessages: _receivedMQTTMessages,
-      // ),
+      // appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
+      // body: Column(children: [Expanded(child: DeviceListWidget())]),
+      body: HomeScreenBody(),
     );
   }
 }
