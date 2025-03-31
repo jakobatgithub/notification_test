@@ -10,3 +10,9 @@ openssl req -x509 -nodes -days 365 \
   -config openssl.cnf
 
 echo "✅ Certificate generated: emqx.crt"
+
+openssl x509 -in emqx.crt \
+  -out emqx.pem \
+  -outform PEM
+
+echo "✅ Certificate generated: emqx.pem"
