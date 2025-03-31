@@ -6,9 +6,7 @@ import 'home_screen_body.dart';
 import '/services/mqtt_service.dart';
 import '/services/firebase_service.dart';
 import '/services/auth_service.dart';
-import '/utils/shared_preferences_util.dart';
 import '/services/devices_service.dart';
-import '/widgets/device_list_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
