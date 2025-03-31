@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +20,7 @@ import '/constants.dart';
 class MqttService {
   late final MqttServerClient _client;
   late final SharedPreferences _prefs;
+  Timer? _refreshTimer;
   String? _ownClientId;
 
   MqttService();
@@ -163,8 +165,15 @@ class MqttService {
   }
 
   Future<void> _ensureTokenAvailable() async {
-    if (!_prefs.containsKey('mqttAccessToken') || !_prefs.containsKey('user')) {
+    if (!_prefs.containsKey('mqttAccessToken') ||
+        !_prefs.containsKey('mqttRefreshToken') ||
+        !_prefs.containsKey('user')) {
       await _retrieveMqttToken();
+    }
+
+    final token = _prefs.getString('mqttAccessToken');
+    if (token != null) {
+      _scheduleTokenRefresh(token);
     }
   }
 
@@ -214,6 +223,64 @@ class MqttService {
       }
     } else {
       debugPrint('❌ Failed to retrieve MQTT token: ${response.body}');
+    }
+  }
+
+  void _scheduleTokenRefresh(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return;
+
+      final payloadBase64 = base64Url.normalize(parts[1]);
+      final payloadString = utf8.decode(base64Url.decode(payloadBase64));
+      final payloadMap = jsonDecode(payloadString);
+
+      final exp = payloadMap['exp'];
+      if (exp == null) return;
+
+      final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      final refreshAt = expiry.subtract(const Duration(minutes: 1));
+      final durationUntilRefresh = refreshAt.difference(DateTime.now());
+
+      if (durationUntilRefresh.isNegative) {
+        _refreshMqttToken(); // Already close to expiration
+      } else {
+        _refreshTimer?.cancel();
+        _refreshTimer = Timer(durationUntilRefresh, _refreshMqttToken);
+        debugPrint(
+          '⏳ MQTT access token will refresh in: $durationUntilRefresh',
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Failed to schedule MQTT token refresh: $e');
+    }
+  }
+
+  Future<void> _refreshMqttToken() async {
+    final refreshToken = _prefs.getString('mqttRefreshToken');
+    if (refreshToken == null) {
+      debugPrint('❌ No refresh token available for MQTT token refresh');
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseURL/emqx/token/refresh/'),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      body: jsonEncode({'refresh': refreshToken}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final newAccessToken = data['mqtt_access_token'];
+      if (newAccessToken is String) {
+        await _prefs.setString('mqttAccessToken', newAccessToken);
+        debugPrint('🔁 MQTT token refreshed');
+        _scheduleTokenRefresh(newAccessToken);
+      } else {
+        debugPrint('❌ Invalid refresh response: $data');
+      }
+    } else {
+      debugPrint('❌ MQTT token refresh failed: ${response.body}');
     }
   }
 
