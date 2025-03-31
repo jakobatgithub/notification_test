@@ -13,3 +13,4 @@ subjectAltName = @alt_names
 DNS.1 = emqx_broker
 DNS.2 = localhost
 IP.1 = 127.0.0.1
+IP.2 = 192.168.178.33
