@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late MQTTService _mqttService;
+  late MqttService _mqttService;
   late FirebaseService _firebaseService;
 
   @override
@@ -41,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _initializeServices() {
-    _mqttService = MQTTService();
-    _mqttService.initializeMQTT();
+    _mqttService = MqttService();
+    _mqttService.initialize();
     _firebaseService = FirebaseService();
     _firebaseService.initializeFirebase();
   }

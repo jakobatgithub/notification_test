@@ -16,145 +16,143 @@ import '/providers/message_provider.dart';
 import '/models/message.dart';
 import '/constants.dart';
 
-class MQTTService {
-  late MqttServerClient client;
-  MQTTService();
+class MqttService {
+  late final MqttServerClient _client;
+  late final SharedPreferences _prefs;
+  String? _ownClientId;
 
-  Future<void> initializeMQTT() async {
-    await _retrieveMQTTTokenIfNeeded();
+  MqttService();
 
-    final prefs = await SharedPreferences.getInstance();
-    final mqttClientId = await _getOrCreateClientId(prefs);
-    final mqttToken = prefs.getString('mqttToken');
-    final userId = prefs.getString('user');
+  Future<void> initialize() async {
+    _prefs = await SharedPreferences.getInstance();
+    await _ensureTokenAvailable();
 
-    debugPrint("MQTT Token: $mqttToken, User ID: $userId");
+    final clientId = await _getOrCreateClientId();
+    final token = _prefs.getString('mqttAccessToken');
+    final userId = _prefs.getString('user');
+    _ownClientId = _prefs.getString('mqttClientID');
 
-    client = _createConfiguredClient(mqttClientId);
+    if (token == null || userId == null) {
+      debugPrint('❌ Missing MQTT credentials');
+      return;
+    }
 
-    final connMessage = MqttConnectMessage()
-        .withClientIdentifier(mqttClientId)
-        .authenticateAs(userId, mqttToken);
+    _client = _createClient(clientId, userId, token);
+    await _connectClient();
 
-    client.connectionMessage = connMessage;
-
-    await _tryConnect();
-
-    if (client.connectionStatus!.state == MqttConnectionState.connected) {
-      _subscribeToUserTopic(userId!);
-      _listenForMessages();
+    if (_client.connectionStatus?.state == MqttConnectionState.connected) {
+      _subscribeToTopic("user/$userId/");
+      _listenToMessages();
     } else {
-      debugPrint('❌ Connection failed: ${client.connectionStatus}');
+      debugPrint('❌ MQTT connection failed: ${_client.connectionStatus}');
     }
   }
 
-  MqttServerClient _createConfiguredClient(String clientID) {
-    final client = MqttServerClient.withPort(mqttBroker, clientID, mqttPort);
+  MqttServerClient _createClient(String clientId, String userId, String token) {
+    final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
+
     client.secure = true;
     client.securityContext = SecurityContext.defaultContext;
-    client.onBadCertificate = (dynamic cert) => true;
+    client.onBadCertificate = (_) => true;
+
     client.logging(on: true);
     client.keepAlivePeriod = 20;
     client.setProtocolV311();
-    client.onConnected = () => debugPrint("✅ Connected to MQTT Broker!");
-    client.onDisconnected =
-        () => debugPrint("❌ Disconnected from MQTT Broker!");
-    client.onSubscribed =
-        (String topic) => debugPrint("✅ Subscribed to $topic");
+
+    client.onConnected = () => debugPrint("✅ Connected to MQTT broker");
+    client.onDisconnected = () => debugPrint("❌ Disconnected from MQTT broker");
+    client.onSubscribed = (topic) => debugPrint("✅ Subscribed to $topic");
+
+    client.connectionMessage = MqttConnectMessage()
+        .withClientIdentifier(clientId)
+        .authenticateAs(userId, token);
+
     return client;
   }
 
-  Future<void> _tryConnect() async {
+  Future<void> _connectClient() async {
     try {
-      await client.connect();
+      await _client.connect();
     } catch (e) {
-      debugPrint("❌ Connection failed: $e");
-      client.disconnect();
+      debugPrint('❌ MQTT connect error: $e');
+      _client.disconnect();
     }
   }
 
-  void _subscribeToUserTopic(String userId) {
-    client.subscribe("user/$userId/", MqttQos.atLeastOnce);
+  void _subscribeToTopic(String topic) {
+    _client.subscribe(topic, MqttQos.atLeastOnce);
   }
 
-  void _listenForMessages() {
-    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) async {
-      final recMessage = c![0].payload as MqttPublishMessage;
-      final payloadBytes = recMessage.payload.message;
+  void _listenToMessages() {
+    _client.updates?.listen((
+      List<MqttReceivedMessage<MqttMessage?>>? messages,
+    ) async {
+      if (messages == null || messages.isEmpty) return;
+
+      final MqttPublishMessage mqttMessage =
+          messages[0].payload as MqttPublishMessage;
+      final payload = utf8.decode(mqttMessage.payload.message);
+
+      debugPrint('✅ MQTT message received: $payload');
 
       try {
-        final payloadString = utf8.decode(payloadBytes);
-        debugPrint('✅ Received MQTT message: $payloadString');
-
-        final mqttMessage = Message.fromJSONString(payloadString);
-
-        if (_isDataMessage(mqttMessage)) {
-          _handleDataMessage(mqttMessage);
+        final message = Message.fromJSONString(payload);
+        if (_isSystemMessage(message)) {
+          _handleSystemMessage(message);
         } else {
-          _handleDisplayMessage(mqttMessage);
+          _handleUserMessage(message);
         }
       } catch (e) {
-        debugPrint('❌ Error decoding payload: $e');
+        debugPrint('❌ Payload decoding error: $e');
       }
     });
   }
 
-  bool _isDataMessage(Message msg) {
-    if (msg.title == '' && msg.body == '') {
-      return true;
-    } else {
-      return false;
-    }
+  bool _isSystemMessage(Message msg) => msg.title.isEmpty && msg.body.isEmpty;
+
+  void _handleSystemMessage(Message message) {
+    final data = message.data;
+    if (data is! Map<String, dynamic> || !data.containsKey('event')) return;
+    _processDeviceEvent(data);
   }
 
-  void _handleDataMessage(Message mqttMessage) {
-    final data = mqttMessage.data;
-    if (data is! Map<String, dynamic>) return;
-
-    if (data.containsKey('event')) {
-      _handleDeviceEvent(data);
-    }
-  }
-
-  void _handleDeviceEvent(Map<String, dynamic> data) {
-    final event = data['event'];
+  void _processDeviceEvent(Map<String, dynamic> data) {
     final context = navigatorKey.currentContext;
     if (context == null) return;
 
     final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
+    final event = data['event'];
+    final clientId = data['client_id'];
 
-    if (event == 'new_device_connected') {
-      final newClientID = data['client_id'];
-      final user = data['user'] as int;
-      if (newClientID is! String) return;
+    if (clientId is! String || clientId == _ownClientId) return;
 
-      // Prevent duplicate devices based on clientID
-      final existing = deviceProvider.getDeviceByClientId(newClientID);
-      if (existing != null) return;
-
-      deviceProvider.addNewDevice(
-        user: user,
-        clientID: newClientID,
-        active: true,
-      );
-      return;
+    switch (event) {
+      case 'new_device_connected':
+        final userId = data['user'];
+        if (userId is int &&
+            deviceProvider.getDeviceByClientId(clientId) == null) {
+          deviceProvider.addNewDevice(
+            user: userId,
+            clientID: clientId,
+            active: true,
+          );
+        }
+        break;
+      case 'device_connected':
+      case 'device_disconnected':
+        final isDisconnect = event == 'device_disconnected';
+        deviceProvider.updateDeviceFields(
+          clientID: clientId,
+          active: !isDisconnect,
+        );
+        debugPrint("🔄 Device $clientId set to active = ${!isDisconnect}");
+        break;
+      default:
+        break;
     }
-
-    if (event != 'device_connected' && event != 'device_disconnected') return;
-
-    final clientID = data['client_id'];
-    if (clientID is! String) return;
-
-    final isDisconnect = event == 'device_disconnected';
-
-    debugPrint("Update Device $clientID to active = ${!isDisconnect}");
-    deviceProvider.updateDeviceFields(
-      clientID: clientID,
-      active: !isDisconnect,
-    );
   }
 
-  void _handleDisplayMessage(Message message) async {
+  void _handleUserMessage(Message message) {
     final context = navigatorKey.currentContext;
     if (context == null) return;
     final messageProvider = Provider.of<MessageProvider>(
@@ -164,53 +162,62 @@ class MQTTService {
     messageProvider.addMessage(message);
   }
 
-  Future<void> _retrieveMQTTTokenIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('mqttToken') || !prefs.containsKey('user')) {
-      await retrieveMQTTToken();
+  Future<void> _ensureTokenAvailable() async {
+    if (!_prefs.containsKey('mqttAccessToken') || !_prefs.containsKey('user')) {
+      await _retrieveMqttToken();
     }
   }
 
-  Future<String> _getOrCreateClientId(SharedPreferences prefs) async {
-    String? id = prefs.getString('mqttClientID');
-    if (id == null) {
-      id = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
-      await prefs.setString('mqttClientID', id);
-    }
-    return id;
+  Future<String> _getOrCreateClientId() async {
+    final existingId = _prefs.getString('mqttClientID');
+    if (existingId != null) return existingId;
+
+    final newId = 'flutter_client_${DateTime.now().millisecondsSinceEpoch}';
+    await _prefs.setString('mqttClientID', newId);
+    return newId;
   }
 
-  static Future<void> retrieveMQTTToken() async {
+  static Future<void> _retrieveMqttToken() async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('accessToken');
 
     if (accessToken == null) {
-      debugPrint('❌ No access token found');
+      debugPrint('❌ No access token found for MQTT token retrieval');
       return;
     }
 
-    final tokenURL = "$baseURL/emqx/token/";
     final response = await http.post(
-      Uri.parse(tokenURL),
+      Uri.parse("$baseURL/emqx/token/"),
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accessToken',
+        HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+        HttpHeaders.authorizationHeader: 'Bearer $accessToken',
       },
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> tokens = jsonDecode(response.body);
-      await prefs.setString('mqttToken', tokens['mqtt_token']);
-      await prefs.setString('user', tokens['user_id']);
-      debugPrint(
-        '🔐 MQTT Token: ${tokens['mqtt_token']}, User ID: ${tokens['user_id']}',
-      );
+      final data = jsonDecode(response.body);
+      final mqttAccessToken = data['mqtt_access_token'];
+      final mqttRefreshToken = data['mqtt_refresh_token'];
+      final userId = data['user_id'];
+
+      if (mqttAccessToken is String &&
+          mqttRefreshToken is String &&
+          userId is String) {
+        await prefs.setString('mqttAccessToken', mqttAccessToken);
+        await prefs.setString('mqttRefreshToken', mqttRefreshToken);
+        await prefs.setString('user', userId);
+        debugPrint(
+          '🔐 MQTT Token acquired: $mqttAccessToken for user: $userId',
+        );
+      } else {
+        debugPrint('❌ Missing keys in MQTT token response: $data');
+      }
     } else {
       debugPrint('❌ Failed to retrieve MQTT token: ${response.body}');
     }
   }
 
   void disconnect() {
-    client.disconnect();
+    _client.disconnect();
   }
 }
