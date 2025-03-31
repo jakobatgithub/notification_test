@@ -10,6 +10,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 import '/services/navigation_service.dart';
 import '/providers/device_provider.dart';
@@ -20,6 +21,7 @@ import '/constants.dart';
 class MqttService {
   late final MqttServerClient _client;
   late final SharedPreferences _prefs;
+  late final SecurityContext _securityContext;
   Timer? _refreshTimer;
   String? _ownClientId;
 
@@ -33,6 +35,7 @@ class MqttService {
     final token = _prefs.getString('mqttAccessToken');
     final userId = _prefs.getString('user');
     _ownClientId = _prefs.getString('mqttClientID');
+    _securityContext = await _loadSecurityContext();
 
     if (token == null || userId == null) {
       debugPrint('❌ Missing MQTT credentials');
@@ -50,12 +53,21 @@ class MqttService {
     }
   }
 
+  Future<SecurityContext> _loadSecurityContext() async {
+    final context = SecurityContext(withTrustedRoots: true);
+
+    final certBytes = await rootBundle.load('assets/certs/emqx.pem');
+    context.setTrustedCertificatesBytes(certBytes.buffer.asUint8List());
+
+    return context;
+  }
+
   MqttServerClient _createClient(String clientId, String userId, String token) {
     final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
 
     client.secure = true;
-    client.securityContext = SecurityContext.defaultContext;
-    client.onBadCertificate = (_) => true;
+    client.securityContext = _securityContext;
+    client.onBadCertificate = (Object? cert) => true;
 
     client.logging(on: true);
     client.keepAlivePeriod = 20;
