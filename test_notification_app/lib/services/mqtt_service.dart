@@ -196,9 +196,8 @@ class MqttService {
     return newId;
   }
 
-  static Future<void> _retrieveMqttToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('accessToken');
+  Future<void> _retrieveMqttToken() async {
+    final accessToken = _prefs.getString('accessToken');
 
     if (accessToken == null) {
       debugPrint('❌ No access token found for MQTT token retrieval');
@@ -222,9 +221,9 @@ class MqttService {
       if (mqttAccessToken is String &&
           mqttRefreshToken is String &&
           userId is String) {
-        await prefs.setString('mqttAccessToken', mqttAccessToken);
-        await prefs.setString('mqttRefreshToken', mqttRefreshToken);
-        await prefs.setString('user', userId);
+        await _prefs.setString('mqttAccessToken', mqttAccessToken);
+        await _prefs.setString('mqttRefreshToken', mqttRefreshToken);
+        await _prefs.setString('user', userId);
         debugPrint(
           '🔐 MQTT Token acquired: $mqttAccessToken for user: $userId',
         );
