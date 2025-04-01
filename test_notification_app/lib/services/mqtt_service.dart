@@ -268,6 +268,8 @@ class MqttService {
 
   Future<void> _refreshMqttToken() async {
     final refreshToken = _prefs.getString('mqttRefreshToken');
+    final accessToken = _prefs.getString('accessToken');
+
     if (refreshToken == null) {
       debugPrint('❌ No refresh token available for MQTT token refresh');
       return;
@@ -275,7 +277,10 @@ class MqttService {
 
     final response = await http.post(
       Uri.parse('$baseURL/emqx/token/refresh/'),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+        HttpHeaders.authorizationHeader: 'Bearer $accessToken',
+      },
       body: jsonEncode({'refresh': refreshToken}),
     );
 
