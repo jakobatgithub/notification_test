@@ -181,7 +181,7 @@ EMQX_PORT = 8883
 EMQX_WEBHOOK_SECRET = os.environ.get("EMQX_WEBHOOK_SECRET")
 EMQX_MAX_RETRIES = 10  # Maximum retry attempts
 EMQX_RETRY_DELAY = 3   # Wait time in seconds before retrying
-EMQX_TLS_CA_CERTS = '/app/certs/emqx.crt'
+EMQX_TLS_CA_CERTS = '/app/certs/emqx_broker+3.pem'
 
 # SIMPLE_JWT settings
 SIMPLE_JWT = {

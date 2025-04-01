@@ -21,7 +21,6 @@ import '/constants.dart';
 class MqttService {
   late final MqttServerClient _client;
   late final SharedPreferences _prefs;
-  late final SecurityContext _securityContext;
   Timer? _refreshTimer;
   String? _ownClientId;
 
@@ -35,7 +34,7 @@ class MqttService {
     final token = _prefs.getString('mqttAccessToken');
     final userId = _prefs.getString('user');
     _ownClientId = _prefs.getString('mqttClientID');
-    _securityContext = await _loadSecurityContext();
+    _loadSecurityContext();
 
     if (token == null || userId == null) {
       debugPrint('❌ Missing MQTT credentials');
@@ -53,21 +52,20 @@ class MqttService {
     }
   }
 
-  Future<SecurityContext> _loadSecurityContext() async {
-    final context = SecurityContext(withTrustedRoots: true);
-
-    final certBytes = await rootBundle.load('assets/certs/emqx.pem');
-    context.setTrustedCertificatesBytes(certBytes.buffer.asUint8List());
-
-    return context;
+  void _loadSecurityContext() async {
+    ByteData data = await PlatformAssetBundle().load(
+      'assets/certs/rootCA.pem',
+    ); // TODO: Use a certificate from Let's encrypt (or any other CA) for production!
+    SecurityContext.defaultContext.setTrustedCertificatesBytes(
+      data.buffer.asUint8List(),
+    );
   }
 
   MqttServerClient _createClient(String clientId, String userId, String token) {
     final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
 
     client.secure = true;
-    client.securityContext = _securityContext;
-    client.onBadCertificate = (Object? cert) => true;
+    client.securityContext = SecurityContext.defaultContext;
 
     client.logging(on: true);
     client.keepAlivePeriod = 20;
