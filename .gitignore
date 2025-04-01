@@ -2,9 +2,11 @@
 /test_notification_app/ios/Runner/GoogleService-Info.plist
 /test_notification_app/ios/AuthKey_BQ49478UUZ.p8
 /emqx/data
-/certs/*.crt
-/certs/*.key
-/emqx/certs/emqx.key
+
+/certs/
+/emqx/certs/
+/test_notification_app/assets/certs/
+/backend/certs/
 
 # General system files
 .DS_Store
