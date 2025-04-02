@@ -1,6 +1,6 @@
 # Notification Test Project
 
-This project showcases the seamless integration of Firebase Cloud Messaging (FCM) and MQTT to enable robust, real-time notification and messaging capabilities. The backend is developed using Django, while the frontend is built with Flutter, providing a cross-platform mobile application.
+This project demonstrates the integration of the [django-emqx](https://github.com/jakobatgithub/django-emqx) app for Firebase Cloud Messaging (FCM) and MQTT to enable robust, real-time notification and messaging capabilities. The backend is developed using Django, while the frontend is built with Flutter, providing a cross-platform mobile application.
 
 FCM is primarily used to deliver push notifications to the frontend when the application is inactive or running in the background. However, FCM has significant limitations when handling pure data messages or a combination of push notifications and data payloads, as its reliability varies across different device manufacturers and system configurations.
 
@@ -33,19 +33,14 @@ This project incorporates several security and efficiency measures to ensure sea
   - **ios/**: iOS-specific configuration and code.
   - **pubspec.yaml**: Flutter project configuration file.
 - **backend/**: Contains the Django backend code.
-  - **django_emqx/**: Django app for handling notifications.
-    - **migrations/**: Database migrations for the notifications app.
-    - **models/**: Contains the data models for `EMQXDevice`, `Message`, and `UserNotification`. If Wagtail is installed, the models use Wagtail-specific features for enhanced functionality.
-    - **serializer.py**: Serilizers for the `EMQXDevice` and `UserNotification` models.
-    - **utils.py**: Utility functions for generating keys and sending notifications.
-    - **views.py**: Django views for handling HTTP requests.
-    - **mqtt.py**: Provides `MQTTClient` which connects the backend to the EMQX server.
-    - **tests.py**: Contains unit tests for views and models.
+  - **backend/**: Base project package.
+    - **settings.py**: Django settings file.
+    - **urls.py**: URL routing for the Django backend.
+  - **django-emqx/**: Django app for authentication and authorization with the EMQX broker, see [django-emqx](https://github.com/jakobatgithub/django-emqx).
+  - **notifications/**: Django app for handling notifications.
   - **Dockerfile**: Dockerfile for building the Django backend image.
   - **manage.py**: Django management script.
   - **requirements.txt**: Python dependencies for the Django backend.
-  - **settings.py**: Django settings file.
-  - **urls.py**: URL routing for the Django backend.
 - **emqx/**: Contains configuration files and certificates for EMQX.
   - **emxqx.conf**: Configuration file for the EMQX server.
   - **certs/**: Contains the certificates for TLS.
@@ -53,6 +48,9 @@ This project incorporates several security and efficiency measures to ensure sea
 - **README.md**: Project documentation and setup instructions.
 
 ## Setup Instructions
+
+## TLS
+For transport layer security you need provide certificates. For development it's useful to create your own Certificate Authority (CA) with [mkcert](https://github.com/FiloSottile/mkcert). Create a new local CA with `mkcert -install` and copy the public root CA certificate `rootCA.pem` (which is created in `mkcert -CAROOT`) to `backend/certs/` and `test_notification_app/assets/certs/`. Create the public/private EMQX server certificates with `mkcert emqx_host_name` and `emqx_host_name` the URL of the EMQX broker and copy both the certificate and key `.pem` files to `emqx/certs/`. For production it might be necessary to use certificates from a public CA as e.g. Let's encrypt.
 
 ### Prerequisites
 
@@ -135,47 +133,6 @@ This project incorporates several security and efficiency measures to ensure sea
 4. **Access the EMQX Dashboard**:
     - The EMQX Dashboard will be available at `http://localhost:18083`.
 
-<!-- ## Secrets
-
-The following secrets are required for the project:
-
-- **Firebase Admin SDK JSON file**: Required for the Django backend to authenticate with Firebase.
-- **google-services.json**: Required for the Android part of the Flutter application to configure Firebase.
-- **GoogleService-Info.plist**: Required for the iOS part of the Flutter application to configure Firebase.
-- **EMQX_WEBHOOK_SECRET_TOKEN**: Generate it within the Python shell `python manage.py shell`
-    ``` 
-    from notifications.utils import generate_static_jwt
-    print(generate_static_jwt())
-    ```
-    and use this string as `token` in the environment variable `EMQX_WEBHOOK_SECRET_TOKEN="Bearer token"`
-
-### Generating Keys
-
-You can generate the necessary keys using the utility functions provided in the `backend/notifications/utils.py` file.
-
-1. **Generate Django SECRET_KEY**:
-    ```sh
-    python manage.py shell
-    from notifications.utils import generate_django_secret_key
-    print(generate_django_secret_key())
-    ```
-
-2. **Generate JWT Signing Key**:
-    ```sh
-    python manage.py shell
-    from notifications.utils import generate_signing_key
-    print(generate_signing_key())
-    ```
-
-3. **Generate Static JWT for EMQX**:
-    ```sh
-    python manage.py shell
-    from notifications.utils import generate_static_jwt
-    print(generate_static_jwt())
-    ```
-
-Use the generated keys in your environment variables or configuration files as needed. -->
-
 ## Usage
 
 ### Sending Notifications
@@ -186,14 +143,6 @@ Use the generated keys in your environment variables or configuration files as n
 ### Receiving Notifications
 
 - The Flutter app will receive notifications and display the latest message along with recent messages.
-
-## Troubleshooting
-
-### Common Issues
-
-- **Firebase Authentication Errors**: Ensure that the Firebase Admin SDK JSON file is correctly placed and the path is correctly set in `settings.py`.
-- **Docker Build Failures**: Verify that Docker and Docker Compose are correctly installed and that the Dockerfile and docker-compose.yml are correctly configured.
-- **MQTT Connection Issues**: Ensure that the MQTT broker is running and accessible.
 
 ## License
 
