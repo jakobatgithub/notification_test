@@ -172,9 +172,6 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 
-# Base URL
-BASE_URL = "http://192.168.178.33:8000"
-
 # DJANGO_EMQX settings
 EMQX_BROKER = "emqx_broker"
 EMQX_PORT = 8883
