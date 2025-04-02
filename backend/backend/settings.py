@@ -178,14 +178,21 @@ BASE_URL = "http://192.168.178.33:8000"
 # DJANGO_EMQX settings
 EMQX_BROKER = "emqx_broker"
 EMQX_PORT = 8883
+EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
+EMQX_TLS_ENABLED = True
 EMQX_WEBHOOK_SECRET = os.environ.get("EMQX_WEBHOOK_SECRET")
 EMQX_MAX_RETRIES = 10  # Maximum retry attempts
 EMQX_RETRY_DELAY = 3   # Wait time in seconds before retrying
-EMQX_TLS_CA_CERTS = '/app/certs/emqx_broker+3.pem'
+EMQX_NODE_COOKIE = SECRET_KEY
+
+# EMQX_PORT = 1883
+# EMQX_TLS_CA_CERTS = None
+# EMQX_TLS_ENABLED = False
 
 # SIMPLE_JWT settings
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ALGORITHM": "HS256",
     "SIGNING_KEY": os.getenv("EMQX_AUTHENTICATION__1__SECRET", "fallback_secret"),
 }
