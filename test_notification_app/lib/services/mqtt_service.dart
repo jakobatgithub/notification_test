@@ -64,8 +64,12 @@ class MqttService {
   MqttServerClient _createClient(String clientId, String userId, String token) {
     final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
 
-    client.secure = true;
-    client.securityContext = SecurityContext.defaultContext;
+    if (enableTLS) {
+      client.secure = true;
+      client.securityContext = SecurityContext.defaultContext;
+    } else {
+      client.secure = false;
+    }
 
     client.logging(on: true);
     client.keepAlivePeriod = 20;
