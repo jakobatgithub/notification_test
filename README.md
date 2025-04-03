@@ -90,7 +90,7 @@ This project includes robust security and efficiency measures:
 test_notification_app/
 ├── lib/                  # Flutter app code
     ├── models/           # Defines Device and Message model
-    ├── providers/        # Providers for a list of messages and devices
+    ├── providers/        # Providers for lists of messages and devices
     ├── screens/          # Some UI elements
     ├── widgets/          # Some more UI elements
     └── services/         # Authentication and initialization of Firebase and MQTT Clients
@@ -102,8 +102,8 @@ backend/
 ├── backend/              # Django project settings and URLs
 │   ├── settings.py
 │   └── urls.py
-├── django-emqx/          # EMQX Django integration app
-├── notifications/        # Notification management
+├── django-emqx/          # EMQX Django app
+├── notifications/        # Django app for notification management
 ├── Dockerfile
 ├── manage.py
 └── requirements.txt
