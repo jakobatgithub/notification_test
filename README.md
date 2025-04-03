@@ -50,7 +50,7 @@ This project incorporates several security and efficiency measures to ensure sea
 ## Setup Instructions
 
 ## TLS
-For transport layer security you need provide certificates. For development it's useful to create your own Certificate Authority (CA) with [mkcert](https://github.com/FiloSottile/mkcert). Create a new local CA with `mkcert -install` and copy the public root CA certificate `rootCA.pem` (which is created in `mkcert -CAROOT`) to `backend/certs/` and `test_notification_app/assets/certs/`. Create the public/private EMQX server certificates with `mkcert emqx_host_name` and `emqx_host_name` the URL of the EMQX broker and copy both the certificate and key `.pem` files to `emqx/certs/`. For production it might be necessary to use certificates from a public CA as e.g. Let's encrypt.
+For transport layer security you need provide certificates. For development it's useful to create your own Certificate Authority (CA) with [mkcert](https://github.com/FiloSottile/mkcert). Create a new local CA with `mkcert -install` and copy the public root CA certificate `rootCA.pem` (which is created in `mkcert -CAROOT`) to `./certs/`. Create the public/private EMQX server certificates with `mkcert emqx_host_name` and `emqx_host_name` the URL of the EMQX broker and copy both the certificate and key `.pem` files to `./certs/`. For production it might be necessary to use certificates from a public CA as e.g. Let's encrypt.
 
 ### Prerequisites
 
