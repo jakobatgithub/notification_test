@@ -17,6 +17,7 @@ class HomeScreenBody extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            const SizedBox(height: 50),
             LatestMessageWidget(),
             const SizedBox(height: 20),
             SendNotificationButton(),

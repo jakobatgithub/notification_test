@@ -17,11 +17,14 @@ class DeviceListWidget extends StatelessWidget {
       itemCount: devices.length,
       itemBuilder: (context, index) {
         final device = devices[index];
-        final color = device.active ? Colors.red : Colors.green;
+        final color = Colors.green;
 
         return ListTile(
           leading: Icon(Icons.device_hub, color: color),
-          title: Text('User: ${device.user}', style: TextStyle(color: color)),
+          title: Text(
+            'User: ${device.user}${device.active ? ' (connected)' : ''}',
+            style: TextStyle(color: color),
+          ),
           subtitle: Text('Client ID: ${device.clientID}'),
         );
       },
