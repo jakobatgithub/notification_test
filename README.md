@@ -8,7 +8,6 @@ We distinguish between **notifications** and **data messages**:
 - **Notifications** consist of a title and a body but no data payload. They are used to inform the user.
 - **Data messages** consist of a data payload in the form of a JSON dictionary, with no title and body. They are used to trigger changes in the frontend and are not shown to the user.
 
----
 
 ## 🚀 Usage
 
@@ -29,7 +28,6 @@ Below the received messages, a list of users is shown with a `connected` flag.
 - This triggers a signal that sends a data message to all connected devices.
 - Each device then updates the corresponding user's connection status.
 
----
 
 ## ⚙️ Setup Instructions
 
@@ -71,8 +69,8 @@ For secure communication:
   - Copy the generated `.pem` files to `./certs/`
   - Adjust the certificate file names `emqx-broker+4.pem` and `emqx-broker+4-key.pem` in `./emqx/emqx.conf` and `./nginx/nginx.conf` if necessary
 - For production, use certificates from a public CA like Let's Encrypt.
+- Switching off TLS requires changes in `emqx.conf`. You can generate an `emqx.conf` from your settings (with e.g. `EMQX_TLS_ENABLED = False`) with the management command `python manage.py generate_emqx_config`.
 
----
 
 ## ✨ Features
 
@@ -84,7 +82,6 @@ This project includes robust security and efficiency measures:
 - **📩 Secure Webhooks**: JWT-secured webhooks handle device registration.
 - **📲 Firebase Cloud Messaging Integration**: Fallback to FCM if installed.
 
----
 
 ## 🗂️ Project Structure
 
@@ -112,11 +109,10 @@ docker-compose.yml        # Docker setup
 README.md                 # Project documentation
 ```
 
-## Known issues
+## 🐞 Known issues
 
-The `SIMPLE_JWT`settings necessary for `django-emqx` might interfere with other settings for `rest_framework_simplejwt` if you use this library elsewhere.
+`SIMPLE_JWT` settings necessary for `django-emqx` interfere with other settings for `rest_framework_simplejwt` if you use this for something else than `django-emqx`.
 
----
 
 ## 📌 Notes on EMQX Configuration
 
@@ -124,7 +120,6 @@ EMQX is a powerful, feature-rich MQTT broker with extensive configuration option
 
 This project **only demonstrates a small subset** of what EMQX can do. Please consult the [EMQX documentation](https://www.emqx.io/docs) for further customization and advanced usage.
 
----
 
 ## 📄 License
 
