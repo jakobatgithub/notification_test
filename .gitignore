@@ -4,9 +4,7 @@
 /emqx/data
 
 /certs/
-/emqx/certs/
 /test_notification_app/assets/certs/
-/backend/certs/
 
 # General system files
 .DS_Store
