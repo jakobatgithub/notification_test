@@ -259,10 +259,10 @@ class MqttService {
   }
 
   Future<void> _refreshMqttToken() async {
-    final refreshToken = _prefs.getString('mqttRefreshToken');
+    final mqttRefreshToken = _prefs.getString('mqttRefreshToken');
     final accessToken = _prefs.getString('accessToken');
 
-    if (refreshToken == null) {
+    if (mqttRefreshToken == null) {
       debugPrint('❌ No refresh token available for MQTT token refresh');
       return;
     }
@@ -273,7 +273,7 @@ class MqttService {
         HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
         HttpHeaders.authorizationHeader: 'Bearer $accessToken',
       },
-      body: jsonEncode({'refresh': refreshToken}),
+      body: jsonEncode({'refresh': mqttRefreshToken}),
     );
 
     if (response.statusCode == 200) {
