@@ -33,12 +33,17 @@ Below the received messages, a list of users is shown with a `connected` flag.
 
 ## ⚙️ Setup Instructions
 
-### 🛠️ Configure EMQX
+### 🛠️ Configure EMQX and Django
 
 Set the following URLs:
 - `BASE_URL` in `./backend/backend/settings.py`
 - `baseURL` in `./test_notification_app/lib/constants.dart`
 - `mqttBroker` in `./test_notification_app/lib/constants.dart`
+- add the file `./.env` with 
+```text
+EMQX_AUTHENTICATION__1__SECRET=<secret_key_1>
+EMQX_WEBHOOK_SECRET=<secret_key_2>
+```
 
 ### 🔥 Configure Firebase
 
