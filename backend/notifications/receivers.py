@@ -14,6 +14,19 @@ User = get_user_model()
 
 @receiver(emqx_device_connected)
 def handle_emqx_device_connected(sender, user_id, client_id, ip_address, **kwargs):
+    """
+    Handles the `emqx_device_connected` signal.
+
+    Triggered when a device connects to EMQX. Notifies all active users via MQTT
+    that a device has connected.
+
+    Args:
+        sender: The sender of the signal.
+        user_id (int or str): The ID of the user whose device connected.
+        client_id (str): The EMQX client ID of the device.
+        ip_address (str): The IP address of the connected device.
+        **kwargs: Additional keyword arguments.
+    """
     user = User.objects.filter(id=int(user_id)).first()
     active_users = User.objects.filter(emqx_devices__active=True).distinct()
     print(f"User {user} connected on device {client_id} (IP: {ip_address})")
@@ -28,6 +41,19 @@ def handle_emqx_device_connected(sender, user_id, client_id, ip_address, **kwarg
 
 @receiver(new_emqx_device_connected)
 def handle_new_emqx_device_connected(sender, user_id, client_id, ip_address, **kwargs):
+    """
+    Handles the `new_emqx_device_connected` signal.
+
+    Triggered when a new device (not previously seen) connects to EMQX. Notifies all
+    active users via MQTT about the new device connection.
+
+    Args:
+        sender: The sender of the signal.
+        user_id (int or str): The ID of the user whose new device connected.
+        client_id (str): The EMQX client ID of the new device.
+        ip_address (str): The IP address of the connected device.
+        **kwargs: Additional keyword arguments.
+    """
     user = User.objects.filter(id=int(user_id)).first()
     print(f"User {user} connected on new device {client_id} (IP: {ip_address})")
     active_users = User.objects.filter(emqx_devices__active=True).distinct()
@@ -43,6 +69,19 @@ def handle_new_emqx_device_connected(sender, user_id, client_id, ip_address, **k
 
 @receiver(emqx_device_disconnected)
 def handle_emqx_device_disconnected(sender, user_id, client_id, ip_address, **kwargs):
+    """
+    Handles the `emqx_device_disconnected` signal.
+
+    Triggered when a device disconnects from EMQX. Notifies all active users via MQTT
+    that a device has disconnected.
+
+    Args:
+        sender: The sender of the signal.
+        user_id (int or str): The ID of the user whose device disconnected.
+        client_id (str): The EMQX client ID of the device.
+        ip_address (str): The IP address of the disconnected device.
+        **kwargs: Additional keyword arguments.
+    """
     user = User.objects.filter(id=int(user_id)).first()
     print(f"User {user} disconnected from device {client_id}")
     active_users = User.objects.filter(emqx_devices__active=True).distinct()
