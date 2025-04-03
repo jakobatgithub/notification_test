@@ -34,7 +34,6 @@ class MqttService {
     final token = _prefs.getString('mqttAccessToken');
     final userId = _prefs.getString('user');
     _ownClientId = _prefs.getString('mqttClientID');
-    _loadSecurityContext();
 
     if (token == null || userId == null) {
       debugPrint('❌ Missing MQTT credentials');
@@ -50,15 +49,6 @@ class MqttService {
     } else {
       debugPrint('❌ MQTT connection failed: ${_client.connectionStatus}');
     }
-  }
-
-  void _loadSecurityContext() async {
-    ByteData data = await PlatformAssetBundle().load(
-      'assets/certs/rootCA.pem',
-    ); // TODO: Use a certificate from Let's encrypt (or any other CA) for production!
-    SecurityContext.defaultContext.setTrustedCertificatesBytes(
-      data.buffer.asUint8List(),
-    );
   }
 
   MqttServerClient _createClient(String clientId, String userId, String token) {

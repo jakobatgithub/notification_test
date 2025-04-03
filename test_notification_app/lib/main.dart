@@ -1,7 +1,10 @@
 // main.dart
 
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
@@ -9,8 +12,16 @@ import 'screens/home_screen.dart';
 import 'providers_setup.dart';
 import 'services/navigation_service.dart';
 
+void loadLocalTrustedCert() async {
+  final ByteData data = await rootBundle.load('assets/certs/rootCA.pem');
+  SecurityContext.defaultContext.setTrustedCertificatesBytes(
+    data.buffer.asUint8List(),
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  loadLocalTrustedCert();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseMessaging.instance.requestPermission();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
