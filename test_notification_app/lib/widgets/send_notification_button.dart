@@ -20,7 +20,7 @@ class SendNotificationButton extends StatelessWidget {
       Uri.parse("$baseURL/emqx/notifications/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Token $accessToken',
       },
       body: jsonEncode({"title": "Notification", "body": "Test body."}),
     );

@@ -45,12 +45,10 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> tokens = jsonDecode(response.body);
-      String accessToken = tokens['access'];
-      String refreshToken = tokens['refresh'];
+      String accessToken = tokens['token'];
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('accessToken', accessToken);
-      await prefs.setString('refreshToken', refreshToken);
     } else {
       debugPrint('❌ Failed to retrieve tokens: ${response.body}');
     }

@@ -26,7 +26,7 @@ class DevicesService {
       Uri.parse("$baseURL/emqx/devices/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Token $accessToken',
       },
     );
 

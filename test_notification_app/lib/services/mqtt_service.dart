@@ -201,7 +201,7 @@ class MqttService {
       Uri.parse("$baseURL/emqx/token/"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
-        HttpHeaders.authorizationHeader: 'Bearer $accessToken',
+        HttpHeaders.authorizationHeader: 'Token $accessToken',
       },
     );
 
@@ -271,7 +271,7 @@ class MqttService {
       Uri.parse('$baseURL/emqx/token/refresh/'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
-        HttpHeaders.authorizationHeader: 'Bearer $accessToken',
+        HttpHeaders.authorizationHeader: 'Token $accessToken',
       },
       body: jsonEncode({'refresh': mqttRefreshToken}),
     );

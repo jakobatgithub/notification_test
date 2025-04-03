@@ -32,7 +32,7 @@ class FirebaseService {
       Uri.parse("$baseURL/fcm/devices/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Token $accessToken',
       },
       body: jsonEncode({
         "registration_id": token,

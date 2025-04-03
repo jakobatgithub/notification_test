@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.authtoken.views import obtain_auth_token
 
 # Check if Firebase is available
 try:
@@ -35,8 +35,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('_allauth/', include('allauth.headless.urls')),
 
-    path('token/access_token/', TokenObtainPairView.as_view(), name='access_token'),
-    path('token/access_token/refresh/', TokenRefreshView.as_view(), name='access_token_refresh'),
+    path('token/access_token/', obtain_auth_token),
 
     path('emqx/', include('django_emqx.urls')),
 ]
