@@ -173,7 +173,7 @@ ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 
 # DJANGO_EMQX settings
-EMQX_BROKER = "emqx_broker"
+EMQX_BROKER = "emqx-broker"
 EMQX_PORT = 8883
 EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
 EMQX_TLS_ENABLED = True
