@@ -189,5 +189,5 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": os.getenv("EMQX_AUTHENTICATION__1__SECRET", "fallback_secret"),
+    "SIGNING_KEY": os.getenv("EMQX_AUTHENTICATION__1__SECRET", SECRET_KEY),
 }
