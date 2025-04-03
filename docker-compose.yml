@@ -1,7 +1,7 @@
 services:
   web:
     build: ./backend
-    container_name: django_backend
+    container_name: django-backend
     env_file:
       - .env
     volumes:
@@ -9,6 +9,8 @@ services:
       - ./backend/django-emqx:/app/django-emqx  # mount your local editable app
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/certs:/app/certs
+    networks:
+      - backend
     ports:
       - "8000:8000"
     depends_on:
@@ -20,6 +22,8 @@ services:
     restart: always
     env_file:
       - .env
+    networks:
+      - backend
     ports:
       - "1883:1883" # MQTT Port
       - "8083:8083" # WebSocket Port
@@ -30,3 +34,7 @@ services:
       - ./emqx/data:/opt/emqx/data
       - ./emqx/emqx.conf:/opt/emqx/etc/emqx.conf
       - ./emqx/certs:/etc/emqx/certs
+
+networks:
+  backend:
+    driver: bridge
