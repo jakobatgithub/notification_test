@@ -178,8 +178,6 @@ EMQX_PORT = 8883
 EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
 EMQX_TLS_ENABLED = True
 EMQX_WEBHOOK_SECRET = os.environ.get("EMQX_WEBHOOK_SECRET")
-EMQX_MAX_RETRIES = 10  # Maximum retry attempts
-EMQX_RETRY_DELAY = 3   # Wait time in seconds before retrying
 EMQX_NODE_COOKIE = SECRET_KEY
 
 # EMQX_PORT = 1883
