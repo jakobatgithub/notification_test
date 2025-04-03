@@ -81,6 +81,7 @@ This project includes robust security and efficiency measures:
 - **🔐 TLS Encryption**: Both MQTT and backend communications are secured using TLS.
 - **📩 Secure Webhooks**: JWT-secured webhooks handle device registration.
 - **📲 Firebase Cloud Messaging Integration**: Fallback to FCM if installed.
+- **🧩 Flutter Providers**: Centralized `Device` and `Message` lists are managed using providers, enabling updates in one part of the app to be automatically propagated throughout the UI.
 
 
 ## 🗂️ Project Structure
@@ -88,6 +89,11 @@ This project includes robust security and efficiency measures:
 ```text
 test_notification_app/
 ├── lib/                  # Flutter app code
+    ├── models/           # Defines Device and Message model
+    ├── providers/        # Providers for a list of messages and devices
+    ├── screens/          # Some UI elements
+    ├── widgets/          # Some more UI elements
+    └── services/         # Authentication and initialization of Firebase and MQTT Clients
 ├── android/              # Android-specific setup
 ├── ios/                  # iOS-specific setup
 ├── pubspec.yaml          # Flutter project config
@@ -111,7 +117,7 @@ README.md                 # Project documentation
 
 ## 🐞 Known issues
 
-`SIMPLE_JWT` settings necessary for `django-emqx` interfere with other settings for `rest_framework_simplejwt` if you use this for something else than `django-emqx`.
+`SIMPLE_JWT` settings necessary for `django-emqx` interfere with other settings for `rest_framework_simplejwt` if you use this package for something else than `django-emqx`.
 
 
 ## 📌 Notes on EMQX Configuration
