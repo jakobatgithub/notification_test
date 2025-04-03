@@ -28,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.2.2', 'localhost', 'django-backend', '192.168.178.33']
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Firebase settings - Uncomment this block to enable Firebase Cloud Messaging
 
 import firebase_admin
