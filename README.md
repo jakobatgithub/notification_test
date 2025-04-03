@@ -112,6 +112,10 @@ docker-compose.yml        # Docker setup
 README.md                 # Project documentation
 ```
 
+## Known issues
+
+The `SIMPLE_JWT`settings necessary for `django-emqx` might interfere with other settings for `rest_framework_simplejwt` if you use this library elsewhere.
+
 ---
 
 ## 📌 Notes on EMQX Configuration
