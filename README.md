@@ -69,6 +69,7 @@ For secure communication:
   - Copy `rootCA.pem` to `./certs/`
   - Generate EMQX server certificates: `mkcert emqx-broker django-backend localhost 127.0.0.1 BASE_URL`
   - Copy the generated `.pem` files to `./certs/`
+  - Adjust the certificate file names `emqx-broker+4.pem` and `emqx-broker+4-key.pem` in `./emqx/emqx.conf` and `./nginx/nginx.conf` if necessary
 - For production, use certificates from a public CA like Let's Encrypt.
 
 ---
