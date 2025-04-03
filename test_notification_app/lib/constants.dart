@@ -1,4 +1,4 @@
-const String baseURL = "http://192.168.178.33:8000";
+const String baseURL = "https://192.168.178.33";
 const String mqttBroker = "192.168.178.33";
 const int mqttPort = 8883;
 const bool enableTLS = true;

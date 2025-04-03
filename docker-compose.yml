@@ -11,8 +11,8 @@ services:
       - ./certs:/app/certs
     networks:
       - backend
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
     depends_on:
       - emqx
 
@@ -45,6 +45,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./backend/staticfiles:/static
       - ./certs:/etc/nginx/certs
+      - ./nginx/empty-conf:/etc/nginx/conf.d
     depends_on:
       - web
     networks:
