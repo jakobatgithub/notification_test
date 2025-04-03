@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--f04+ttwv7l$at*e^h6id4--b9vz337rb)br$kr@+)f%lx_3jd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '192.168.178.33']
+ALLOWED_HOSTS = ['10.0.2.2', 'localhost', 'django-backend', '192.168.178.33']
 
 # Firebase settings - Uncomment this block to enable Firebase Cloud Messaging
 
