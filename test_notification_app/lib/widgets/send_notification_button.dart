@@ -17,7 +17,7 @@ class SendNotificationButton extends StatelessWidget {
     }
 
     final response = await http.post(
-      Uri.parse("$baseURL/emqx/notifications/"),
+      Uri.parse("$baseURL/emqx/send-notifications/"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token $accessToken',

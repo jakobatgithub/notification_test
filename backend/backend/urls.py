@@ -18,6 +18,7 @@ from django.urls import path, include
 from django.contrib import admin
 
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter
 
 # Check if Firebase is available
 try:
@@ -26,8 +27,10 @@ try:
 except ImportError:
     firebase_installed = False
 
-from rest_framework.routers import DefaultRouter
+from notifications.views import SendNotificationViewSet
 
+router = DefaultRouter()
+router.register(r'send-notifications', SendNotificationViewSet, basename='send_notifications')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,11 +41,12 @@ urlpatterns = [
     path('token/access_token/', obtain_auth_token),
 
     path('emqx/', include('django_emqx.urls')),
+    path('emqx/', include(router.urls)),
 ]
 
 if firebase_installed:
-    router = DefaultRouter()
-    router.register(r'devices', FCMDeviceAuthorizedViewSet, basename='fcm_devices')
+    firebase_router = DefaultRouter()
+    firebase_router.register(r'devices', FCMDeviceAuthorizedViewSet, basename='fcm_devices')
     urlpatterns += [
-        path('fcm/', include(router.urls)),
+        path('fcm/', include(firebase_router.urls)),
     ]
