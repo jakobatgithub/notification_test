@@ -31,6 +31,14 @@ Below the received messages, a list of users is shown with a `connected` flag.
 
 ## ⚙️ Setup Instructions
 
+### Install the project
+
+```bash
+git clone git@github.com:jakobatgithub/notification_test.git
+cd notification_test/backend
+pip install -r requirements.txt
+```
+
 ### 🛠️ Configure EMQX and Django
 
 Set the following URLs:
@@ -89,15 +97,14 @@ This project includes robust security and efficiency measures:
 ```text
 test_notification_app/
 ├── lib/                  # Flutter app code
-    ├── models/           # Defines Device and Message model
-    ├── providers/        # Providers for lists of messages and devices
-    ├── screens/          # Some UI elements
-    ├── widgets/          # Some more UI elements
-    └── services/         # Authentication and initialization of Firebase and MQTT Clients
+│   ├── models/           # Defines Device and Message model
+│   ├── providers/        # Providers for lists of messages and devices
+│   ├── screens/          # Some UI elements
+│   ├── widgets/          # Some more UI elements
+│   └── services/         # Authentication and initialization of Firebase and MQTT Clients
 ├── android/              # Android-specific setup
 ├── ios/                  # iOS-specific setup
-├── pubspec.yaml          # Flutter project config
-
+└── pubspec.yaml          # Flutter project config
 backend/
 ├── backend/              # Django project settings and URLs
 │   ├── settings.py
@@ -107,10 +114,11 @@ backend/
 ├── Dockerfile
 ├── manage.py
 └── requirements.txt
-
+certs/                    # folder for certificates
 emqx/
-└── emqx.conf             # EMQX config
-
+└── emqx.conf         # EMQX config
+nginx/
+└── nginx.conf            # nginx config
 docker-compose.yml        # Docker setup
 README.md                 # Project documentation
 ```
