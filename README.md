@@ -31,7 +31,7 @@ Below the received messages, a list of users is shown with a `connected` flag.
 
 ## ⚙️ Setup Instructions
 
-### Install the project
+### 🔧 Install the project
 
 ```bash
 git clone git@github.com:jakobatgithub/notification_test.git
