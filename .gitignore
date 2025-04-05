@@ -17,8 +17,6 @@
 **/.idea/
 **/pubspec.lock
 
-/test_notification_app/assets/certs/
-
 # General stuff
 test_notification_app/.metadata
 
