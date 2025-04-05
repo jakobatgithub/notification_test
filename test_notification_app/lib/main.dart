@@ -11,8 +11,12 @@ import 'firebase_options.dart';
 import 'screens/home_screen.dart';
 import 'providers_setup.dart';
 import 'services/navigation_service.dart';
+import 'constants.dart';
 
 void loadLocalTrustedCert() async {
+  if (!enableTLS) {
+    return;
+  }
   final ByteData data = await rootBundle.load('assets/certs/rootCA.pem');
   SecurityContext.defaultContext.setTrustedCertificatesBytes(
     data.buffer.asUint8List(),
