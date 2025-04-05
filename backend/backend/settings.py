@@ -32,12 +32,10 @@ ALLOWED_HOSTS = ['10.0.2.2', 'localhost', 'django-backend', BASE_URL]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Firebase settings - Uncomment this block to enable Firebase Cloud Messaging
-
-import firebase_admin
-from firebase_admin import credentials
-cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
-firebase_admin.initialize_app(cred)
-
+# import firebase_admin
+# from firebase_admin import credentials
+# cred = credentials.Certificate("backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json")
+# firebase_admin.initialize_app(cred)
 
 # Application definition
 
@@ -51,7 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_emqx',
     'notifications',
-    'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
+    # 'fcm_django',  # Uncomment this line to enable Firebase Cloud Messaging
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
