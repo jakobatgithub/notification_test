@@ -12,15 +12,15 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy and use the entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Expose port 8000
 EXPOSE 8000
 
-# Serve static files
-RUN mkdir -p /app/staticfiles
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
 
-# Collect static files.
-RUN python manage.py collectstatic --noinput --clear
-
-# Command to run the application
-# CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Final command (passed to entrypoint)
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
