@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include
 from django.contrib import admin
+from django.core.exceptions import ImproperlyConfigured
 
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
@@ -24,7 +25,7 @@ from rest_framework.routers import DefaultRouter
 try:
     from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
     firebase_installed = True
-except ImportError:
+except (ImportError, ImproperlyConfigured):
     firebase_installed = False
 
 from notifications.views import SendNotificationViewSet
