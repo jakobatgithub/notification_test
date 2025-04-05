@@ -17,49 +17,7 @@
 **/.idea/
 **/pubspec.lock
 
-/test_notification_app/ios/Runner/GoogleService-Info.plist
-/test_notification_app/ios/AuthKey_BQ49478UUZ.p8
 /test_notification_app/assets/certs/
-
-
-# Android specific
-test_notification_app/android/.gradle/
-test_notification_app/android/local.properties
-test_notification_app/android/app/google-services.json
-test_notification_app/android/key.jks
-test_notification_app/android/app/key.properties
-
-# iOS specific
-test_notification_app/ios/.symlinks/
-test_notification_app/ios/Pods/
-test_notification_app/ios/.generated/
-test_notification_app/ios/Flutter/Flutter.podspec
-test_notification_app/ios/Flutter/App.framework
-test_notification_app/ios/Flutter/Flutter.podspec
-test_notification_app/ios/Flutter/ephemeral/
-
-# Flutter web
-test_notification_app/web/.dart_tool/
-test_notification_app/web/build/
-
-# Linux & macOS
-test_notification_app/linux/.dart_tool/
-test_notification_app/linux/build/
-test_notification_app/macos/.dart_tool/
-test_notification_app/macos/build/
-
-# Windows
-test_notification_app/windows/.dart_tool/
-test_notification_app/windows/build/
-test_notification_app/windows/runner/Debug/
-test_notification_app/windows/runner/Release/
-test_notification_app/windows/runner/x64/
-test_notification_app/windows/runner/Win32/
-
-# Firebase cache & generated files
-test_notification_app/firebase.json
-test_notification_app/flutterfire.json
-test_notification_app/lib/firebase_options.dart
 
 # General stuff
 test_notification_app/.metadata
