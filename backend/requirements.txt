@@ -1,3 +1,3 @@
-git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx[fcm]
+git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx
 django-cors-headers>=4.7.0
 django-allauth>=65.5.0
