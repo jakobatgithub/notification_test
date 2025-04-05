@@ -1,3 +1,16 @@
+# Firebase related
+ios/Runner/GoogleService-Info.plist
+ios/AuthKey_BQ49478UUZ.p8
+android/app/google-services.json
+
+# Firebase cache & generated files
+firebase.json
+flutterfire.json
+lib/firebase_options.dart
+
+# Asset certificates
+assets/certs/
+
 # Miscellaneous
 *.class
 *.log
