@@ -1,40 +1,11 @@
-/backend/backend/prosumiotest-firebase-adminsdk-9nzkc-13375b0089.json
-/test_notification_app/ios/Runner/GoogleService-Info.plist
-/test_notification_app/ios/AuthKey_BQ49478UUZ.p8
+# Environment variables
+*.env
+
+# EMQX data directory
 /emqx/data
 
+# Folder for certificates
 /certs/
-/test_notification_app/assets/certs/
-
-# General system files
-.DS_Store
-Thumbs.db
-
-# Git
-.git/
-
-# Python (Django) ignore rules
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-.env
-.venv/
-env/
-venv/
-*.sqlite3
-db.sqlite3
-instance/
-media/
-staticfiles/
-*.log
-*.pot
-*.mo
-
-# Django secret key and environment variables
-*.env
-config/settings/local.py  # If using local settings
 
 # Flutter ignore rules
 **/build/
@@ -45,6 +16,11 @@ config/settings/local.py  # If using local settings
 **/.pub-cache/
 **/.idea/
 **/pubspec.lock
+
+/test_notification_app/ios/Runner/GoogleService-Info.plist
+/test_notification_app/ios/AuthKey_BQ49478UUZ.p8
+/test_notification_app/assets/certs/
+
 
 # Android specific
 test_notification_app/android/.gradle/
