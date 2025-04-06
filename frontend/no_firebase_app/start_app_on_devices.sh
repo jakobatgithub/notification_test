@@ -21,14 +21,8 @@ flutter build apk --debug || exit 1
 
 # ✅ Install and launch app on each running emulator
 for emulator_id in "${emulator_ids[@]}"; do
-  (
-    echo "📲 Installing on $emulator_id..."
-    adb -s "$emulator_id" install -r build/app/outputs/flutter-apk/app-debug.apk
-
-    echo "🚀 Launching app on $emulator_id..."
-    adb -s "$emulator_id" shell monkey -p "com.example.no_firebase_app" -c android.intent.category.LAUNCHER 1
-  ) &
+  echo "📲 Installing on $emulator_id..."
+  adb -s "$emulator_id" install -r build/app/outputs/flutter-apk/app-debug.apk
+  echo "🚀 Launching app on $emulator_id..."
+  adb -s "$emulator_id" shell monkey -p "com.example.no_firebase_app" -c android.intent.category.LAUNCHER 1
 done
-
-# echo "📡 Attaching to logs from ${emulator_ids[0]}..."
-# adb -s "${emulator_ids[0]}" logcat | grep "$PACKAGE_NAME"
