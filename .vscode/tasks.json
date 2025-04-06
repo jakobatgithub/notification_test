@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start firebase_app on multiple devices",
+        "type": "shell",
+        "command": "${workspaceFolder}/frontend/firebase_app/start_app_on_devices.sh",
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
+        "label": "Start no_firebase_app on multiple devices",
+        "type": "shell",
+        "command": "${workspaceFolder}/frontend/no_firebase_app/start_app_on_devices.sh",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend/no_firebase_app"
+        },
+        "problemMatcher": [],
+        "group": "build"
+      }
+    ]
+  }
+  
