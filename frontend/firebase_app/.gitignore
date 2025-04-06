@@ -8,6 +8,9 @@ firebase.json
 flutterfire.json
 lib/firebase_options.dart
 
+# Asset certificates
+assets/certs/
+
 # Miscellaneous
 *.class
 *.log
@@ -42,6 +45,16 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+
+# Flutter ignore rules
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.idea/
+**/pubspec.lock
 
 # Symbolication related
 app.*.symbols
