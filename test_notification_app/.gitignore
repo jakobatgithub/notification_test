@@ -46,6 +46,16 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Flutter ignore rules
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.idea/
+**/pubspec.lock
+
 # Symbolication related
 app.*.symbols
 

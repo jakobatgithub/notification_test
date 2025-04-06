@@ -7,19 +7,6 @@
 # Folder for certificates
 /certs/
 
-# Flutter ignore rules
-**/build/
-**/.dart_tool/
-**/.flutter-plugins
-**/.flutter-plugins-dependencies
-**/.packages
-**/.pub-cache/
-**/.idea/
-**/pubspec.lock
-
-# General stuff
-test_notification_app/.metadata
-
 # Logs and IDE settings
 *.log
 *.swp
