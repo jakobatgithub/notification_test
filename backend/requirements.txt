@@ -1,7 +1,7 @@
-# git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx # standard install without local development
+git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx # standard install without local development
 # git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx[fcm] # standard install without local development and Firebase support
 
--e django-emqx[dev,test] # For local development
+# -e django-emqx[dev,test] # For local development
 
 # For local development
 django-cors-headers>=4.7.0
