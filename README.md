@@ -168,31 +168,34 @@ backend/
 ├── Dockerfile
 ├── manage.py
 ├── requirements.txt
-certs/                    # folder for certificates
+certs/                      # folder for certificates
 emqx/
-├── emqx.conf             # EMQX config
+├── emqx.conf               # EMQX config
 nginx/
-├── nginx.conf            # nginx config
+├── nginx.conf              # nginx config
 frontend/
-├──no_firebase_app        # Flutter frontend without Firebase support
-│   ├── lib/              # Flutter app code
-│   │   ├── models/       # Defines Device and Message model
-│   │   ├── providers/    # Providers for lists of messages and devices
-│   │   ├── screens/      # Some UI elements
-│   │   ├── widgets/      # Some more UI elements
-│   │   └── services/     # Authentication and initialization of Firebase and MQTT Clients
-│   ├── android/          # Android-specific setup
-│   ├── ios/              # iOS-specific setup
-│   └── pubspec.yaml      # Flutter project config
-├──no_firebase_app        # Flutter frontend with Firebase support
-docker-compose.yml        # Docker setup
-README.md                 # Project documentation
+├── no_firebase_app         # Flutter frontend without Firebase support
+│   ├── lib/                # Flutter app code
+│   │   └── main.dart       # The Flutter app starts here
+│   ├── android/            # Android-specific setup
+│   ├── ios/                # iOS-specific setup
+│   └── pubspec.yaml        # Flutter project config
+├── firebase_app            # Flutter frontend with Firebase support
+├── shared
+│   ├── lib/                # Flutter app code
+│   │   ├── models/         # Defines Device and Message model
+│   │   ├── providers/      # Providers for lists of messages and devices
+│   │   ├── screens/        # Some UI elements
+│   │   ├── widgets/        # Some more UI elements
+│   │   ├── services/       # Authentication and initialization of Firebase and MQTT Clients
+│   │   └── constants.dart  # Defines EMQX broker URL, enableTLS, etc.
+docker-compose.yml          # Docker setup
+README.md                   # Project documentation
 ```
 
 ## 🐞 Known issues
 
 `SIMPLE_JWT` settings necessary for `django-emqx` interfere with other settings for `rest_framework_simplejwt` if you use this package for something else than `django-emqx`.
-
 
 ## 📌 Notes on EMQX Configuration
 
