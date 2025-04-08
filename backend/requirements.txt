@@ -1,3 +1,13 @@
+# Install django-emqx from GitHub without Firebase support
 git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx
+
+# Uncomment the following line to install django-emqx from GitHub with Firebase support (FCM)
+# git+https://github.com/jakobatgithub/django-emqx.git@main#egg=django-emqx[fcm]
+
+# Uncomment the following line to install django-emqx for local development (editable install from local path)
+# -e ../django-emqx  # Adjust the path as needed
+
+# Only use one of the above django-emqx install lines at a time — make sure the others are commented out.
+
 django-cors-headers>=4.7.0
 django-allauth>=65.5.0
