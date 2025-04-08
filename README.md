@@ -159,30 +159,32 @@ This project includes robust security and efficiency measures:
 ## 🗂️ Project Structure
 
 ```text
-test_notification_app/
-├── lib/                  # Flutter app code
-│   ├── models/           # Defines Device and Message model
-│   ├── providers/        # Providers for lists of messages and devices
-│   ├── screens/          # Some UI elements
-│   ├── widgets/          # Some more UI elements
-│   └── services/         # Authentication and initialization of Firebase and MQTT Clients
-├── android/              # Android-specific setup
-├── ios/                  # iOS-specific setup
-└── pubspec.yaml          # Flutter project config
 backend/
 ├── backend/              # Django project settings and URLs
-│   ├── settings.py
-│   └── urls.py
+│   ├── settings.py       # settings for Django backend
+│   └── urls.py           
 ├── django-emqx/          # EMQX Django app
 ├── notifications/        # Django app for notification management
 ├── Dockerfile
 ├── manage.py
-└── requirements.txt
+├── requirements.txt
 certs/                    # folder for certificates
 emqx/
-└── emqx.conf         # EMQX config
+├── emqx.conf             # EMQX config
 nginx/
-└── nginx.conf            # nginx config
+├── nginx.conf            # nginx config
+frontend/
+├──no_firebase_app        # Flutter frontend without Firebase support
+│   ├── lib/              # Flutter app code
+│   │   ├── models/       # Defines Device and Message model
+│   │   ├── providers/    # Providers for lists of messages and devices
+│   │   ├── screens/      # Some UI elements
+│   │   ├── widgets/      # Some more UI elements
+│   │   └── services/     # Authentication and initialization of Firebase and MQTT Clients
+│   ├── android/          # Android-specific setup
+│   ├── ios/              # iOS-specific setup
+│   └── pubspec.yaml      # Flutter project config
+├──no_firebase_app        # Flutter frontend with Firebase support
 docker-compose.yml        # Docker setup
 README.md                 # Project documentation
 ```
