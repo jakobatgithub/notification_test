@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# ✅ Number of emulators to use
-NUM_EMULATORS=3
+# ✅ Number of emulators to use (default: 3)
+NUM_EMULATORS=${1:-3}
+echo "🔢 Targeting $NUM_EMULATORS running emulator(s)..."
 
 # ✅ Get list of already running emulator device IDs
 emulator_ids=($(adb devices | grep emulator | grep "device$" | cut -f1 | head -n $NUM_EMULATORS))
