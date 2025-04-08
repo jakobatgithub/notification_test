@@ -31,13 +31,50 @@ Below the received messages, a list of users is shown with a `connected` flag.
 
 ## ⚙️ Setup Instructions
 
-### 🔧 Install the project
+### 📋 Prerequisites
 
-```bash
-git clone git@github.com:jakobatgithub/notification_test.git
-cd notification_test/backend
-pip install -r requirements.txt
-```
+Before getting started, ensure the following tools are installed and configured:
+
+- **Docker** – For running the backend services  
+- **Android Studio** – With the Android Virtual Device (AVD) Manager enabled  
+- **Emulators**:
+  - **Linux/Windows**: 3 running Android emulators
+  - **macOS**:
+    - **Xcode** – Required for iOS support
+    - 2 running Android emulators
+    - 1 running iOS simulator
+
+### 🔧 Running the Project (No Firebase, No TLS)
+
+You can try the project out of the box without Firebase or TLS enabled:
+
+1. **Clone the repository**:
+   ```bash
+   git clone git@github.com:jakobatgithub/notification_test.git
+   cd notification_test
+   ```
+
+2. **Start the backend in Docker**:
+   ```bash
+   docker compose up --build
+   ```
+
+3. **Install and launch the frontend apps without Firebase**:  
+   Use the helper script to install and start the app on your emulators:
+   ```bash
+   ./frontend/no_firebase_app/start_app_on_devices.sh <android_count> <ios_count>
+   ```
+   Replace `<android_count>` and `<ios_count>` with the number of Android and iOS emulators you have running.
+
+   Alternatively, you can use the provided **VS Code launch configurations**.
+
+4. **Uninstall the app from all emulators**:  
+   To clean up, run:
+   ```bash
+   ./frontend/uninstall_from_devices.sh
+   ```
+
+> 💡 Tip: Make sure all specified emulators are already running before executing the scripts.
 
 ### 🛠️ Configure EMQX and Django
 
@@ -62,9 +99,9 @@ EMQX_WEBHOOK_SECRET=<secret_key_2>
 #### Backend
 - Place the Firebase Admin SDK JSON in the `backend` directory.
 - Update the path in `settings.py`:
-```python
-cred = credentials.Certificate("backend/<your-firebase-adminsdk-json>.json")
-```
+  ```python
+  cred = credentials.Certificate("backend/<your-firebase-adminsdk-json>.json")
+  ```
 
 ### 🔐 TLS
 
