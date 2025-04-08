@@ -176,15 +176,17 @@ ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 
 # DJANGO_EMQX settings
 EMQX_BROKER = "emqx-broker"
-# EMQX_PORT = 8883
-# EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
-# EMQX_TLS_ENABLED = True
 EMQX_WEBHOOK_SECRET = os.getenv("EMQX_WEBHOOK_SECRET", SECRET_KEY)
 EMQX_NODE_COOKIE = os.getenv("EMQX_NODE_COOKIE", SECRET_KEY)
 
 EMQX_PORT = 1883
 EMQX_TLS_CA_CERTS = None
 EMQX_TLS_ENABLED = False
+
+# Uncomment the following lines (and comment out the block above) to enable TLS
+# EMQX_PORT = 8883
+# EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
+# EMQX_TLS_ENABLED = True
 
 # SIMPLE_JWT settings
 SIMPLE_JWT = {
