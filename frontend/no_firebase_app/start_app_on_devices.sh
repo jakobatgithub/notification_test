@@ -1,29 +1,75 @@
 #!/bin/bash
 
-# ✅ Number of emulators to use (default: 3)
-NUM_EMULATORS=${1:-3}
-echo "🔢 Targeting $NUM_EMULATORS running emulator(s)..."
+NUM_ANDROID=${1:-3}
+NUM_IOS=${2:-0}
 
-# ✅ Get list of already running emulator device IDs
-emulator_ids=($(adb devices | grep emulator | grep "device$" | cut -f1 | head -n $NUM_EMULATORS))
+echo "📱 Targeting $NUM_ANDROID Android emulator(s) and $NUM_IOS iOS simulator(s)"
 
-# ✅ Check we have enough emulators
-if [ "${#emulator_ids[@]}" -lt "$NUM_EMULATORS" ]; then
-  echo "❌ Only found ${#emulator_ids[@]} running emulator(s), but need $NUM_EMULATORS."
-  echo "💡 Please start more emulators using Android Studio or the command line."
-  exit 1
+### --- ANDROID SECTION ---
+if [ "$NUM_ANDROID" -gt 0 ]; then
+  echo "🔍 Checking Android emulators..."
+
+  android_ids=($(adb devices | grep emulator | grep "device$" | cut -f1 | head -n $NUM_ANDROID))
+
+  if [ "${#android_ids[@]}" -lt "$NUM_ANDROID" ]; then
+    echo "❌ Only found ${#android_ids[@]} running Android emulator(s), need $NUM_ANDROID."
+    exit 1
+  fi
+
+  echo "✅ Using Android emulator(s): ${android_ids[*]}"
+
+  # Build Flutter app for Android
+  echo "🏗️ Building Android APK..."
+  flutter build apk --debug || exit 1
+
+  APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+  if [ ! -f "$APK_PATH" ]; then
+    echo "❌ APK not found at: $APK_PATH"
+    exit 1
+  fi
+
+  # Install and launch on Android emulators
+  for id in "${android_ids[@]}"; do
+    echo "📲 Installing on $id..."
+    adb -s "$id" install -r "$APK_PATH"
+
+    echo "🚀 Launching app on $id..."
+    adb -s "$id" shell monkey -p "com.example.no_firebase_app" -c android.intent.category.LAUNCHER 1
+  done
 fi
 
-echo "✅ Using the following running emulator(s): ${emulator_ids[*]}"
+## --- iOS SECTION ---
+if [ "$NUM_IOS" -gt 0 ]; then
+  echo "🔍 Checking iOS simulators..."
 
-# ✅ Build Flutter app once
-echo "🏗️ Building Flutter app..."
-flutter build apk --debug || exit 1
+  ios_ids=($(xcrun simctl list devices | grep -E "Booted" | grep -oE '[A-F0-9\-]{36}' | head -n $NUM_IOS))
 
-# ✅ Install and launch app on each running emulator
-for emulator_id in "${emulator_ids[@]}"; do
-  echo "📲 Installing on $emulator_id..."
-  adb -s "$emulator_id" install -r build/app/outputs/flutter-apk/app-debug.apk
-  echo "🚀 Launching app on $emulator_id..."
-  adb -s "$emulator_id" shell monkey -p "com.example.no_firebase_app" -c android.intent.category.LAUNCHER 1
-done
+  if [ "${#ios_ids[@]}" -lt "$NUM_IOS" ]; then
+    echo "❌ Only found ${#ios_ids[@]} booted iOS simulator(s), need $NUM_IOS."
+    echo "💡 Start more in Simulator.app or Xcode."
+    exit 1
+  fi
+
+  echo "✅ Using iOS simulator(s): ${ios_ids[*]}"
+
+  # Build Flutter app for iOS simulator
+  echo "🏗️ Building iOS app for simulator..."
+  flutter build ios --simulator --debug || exit 1
+
+  APP_PATH="build/ios/iphonesimulator/Runner.app"
+  if [ ! -d "$APP_PATH" ]; then
+    echo "❌ App not found at: $APP_PATH"
+    exit 1
+  fi
+
+  # Install and launch on iOS simulators
+  for sim_id in "${ios_ids[@]}"; do
+    echo "📲 Installing on iOS simulator $sim_id..."
+    xcrun simctl install "$sim_id" "$APP_PATH"
+
+    echo "🚀 Launching app on iOS simulator $sim_id..."
+    xcrun simctl launch "$sim_id" "com.example.noFirebaseApp"
+  done
+fi
+
+echo "🎉 All done!"
