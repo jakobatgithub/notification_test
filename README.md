@@ -63,7 +63,7 @@ You can try the project out of the box without Firebase or TLS enabled:
    Use the helper script to install and start the app on your emulators:
    ```bash
    cd /frontend/no_firebase_app 
-   .start_app_on_devices.sh <android_count> <ios_count>
+   ./start_app_on_devices.sh <android_count> <ios_count>
    ```
    Replace `<android_count>` and `<ios_count>` with the number of Android and iOS emulators you have running.
 
@@ -118,31 +118,81 @@ To enable Firebase integration across the backend and frontend, ensure all requi
 > ✅ Tip: Double-check that all required Firebase services (e.g., Authentication, Firestore, FCM) are enabled in the Firebase console and that you've added all relevant Firebase SDKs to your project dependencies.
 
 
-### 🛠️ Configure EMQX and Django
+# ⚙️ Configure EMQX and Django
 
-Set the following URLs:
+To enable real device support (instead of emulators), update the following URLs:
+
 - `BASE_URL` in `./backend/backend/settings.py`
 - `baseURL` in `./test_notification_app/lib/constants.dart`
 - `mqttBroker` in `./test_notification_app/lib/constants.dart`
-- add the file `./.env` with 
-```text
+
+## 🔑 Using Custom Secrets
+
+To override default secrets, create a `.env` file in the project root with the following content:
+
+```env
 EMQX_AUTHENTICATION__1__SECRET=<secret_key_1>
 EMQX_WEBHOOK_SECRET=<secret_key_2>
+EMQX_NODE_COOKIE=<secret_key_3>
 ```
 
-### 🔐 TLS
+## 📊 EMQX Dashboard
 
-For secure communication:
+- URL: `http://localhost:18083/`
+- Default username: `admin`
+- Default password: `public`
 
-- Use [mkcert](https://github.com/FiloSottile/mkcert) to create your own local CA:
-  - `mkcert -install`
-  - Copy `rootCA.pem` to `./certs/`
-  - Generate EMQX server certificates: `mkcert emqx-broker django-backend localhost 127.0.0.1 BASE_URL`
-  - Copy the generated `.pem` files to `./certs/`
-  - Adjust the certificate file names `emqx-broker+4.pem` and `emqx-broker+4-key.pem` in `./emqx/emqx.conf` and `./nginx/nginx.conf` if necessary
-- For production, use certificates from a public CA like Let's Encrypt.
-- Switching off TLS requires changes in `emqx.conf`. You can generate an `emqx.conf` from your settings (with e.g. `EMQX_TLS_ENABLED = False`) with the management command `python manage.py generate_emqx_config`.
+---
 
+## 📝 Generate EMQX Config
+
+To generate an `emqx.conf` file based on your Django settings (e.g., `EMQX_TLS_ENABLED = True`), run:
+
+```bash
+python manage.py generate_emqx_config
+```
+
+---
+
+## 🔐 TLS Setup
+
+To secure communication between the EMQX broker and clients:
+
+### 1. Create a Local Certificate Authority (CA)
+
+Use [`mkcert`](https://github.com/FiloSottile/mkcert):
+
+```bash
+mkcert -install
+```
+
+- Copy the generated `rootCA.pem` from `mkcert -CAROOT` to `./certs/`
+
+### 2. Generate EMQX Server Certificates
+
+```bash
+mkcert emqx-broker django-backend localhost 127.0.0.1 10.0.2.2 BASE_URL
+```
+
+- Copy the generated `.pem` files to `./certs/`
+- Update filenames (e.g., `emqx-broker+4.pem` and `emqx-broker+4-key.pem`) in:
+  - `./emqx/emqx.conf`
+  - `./nginx/nginx.conf`
+
+### 3. Enable TLS in Configuration
+
+- Uncomment relevant TLS sections in:
+  - `./backend/backend/settings.py`
+  - `./frontend/shared/constants.dart`
+- In `./emqx/emqx.conf`, set:
+  ```conf
+  listeners.ssl.default.enable = true
+  ```
+- Uncomment the HTTPS-related blocks in `./nginx/nginx.conf`
+
+### 🔒 Production Tip
+
+For production deployments, use certificates from a trusted CA such as Let's Encrypt.
 
 ## ✨ Features
 
@@ -168,31 +218,34 @@ backend/
 ├── Dockerfile
 ├── manage.py
 ├── requirements.txt
-certs/                    # folder for certificates
+certs/                      # folder for certificates
 emqx/
-├── emqx.conf             # EMQX config
+├── emqx.conf               # EMQX config
 nginx/
-├── nginx.conf            # nginx config
+├── nginx.conf              # nginx config
 frontend/
-├──no_firebase_app        # Flutter frontend without Firebase support
-│   ├── lib/              # Flutter app code
-│   │   ├── models/       # Defines Device and Message model
-│   │   ├── providers/    # Providers for lists of messages and devices
-│   │   ├── screens/      # Some UI elements
-│   │   ├── widgets/      # Some more UI elements
-│   │   └── services/     # Authentication and initialization of Firebase and MQTT Clients
-│   ├── android/          # Android-specific setup
-│   ├── ios/              # iOS-specific setup
-│   └── pubspec.yaml      # Flutter project config
-├──no_firebase_app        # Flutter frontend with Firebase support
-docker-compose.yml        # Docker setup
-README.md                 # Project documentation
+├── no_firebase_app         # Flutter frontend without Firebase support
+│   ├── lib/                # Flutter app code
+│   │   └── main.dart       # The Flutter app starts here
+│   ├── android/            # Android-specific setup
+│   ├── ios/                # iOS-specific setup
+│   └── pubspec.yaml        # Flutter project config
+├── firebase_app            # Flutter frontend with Firebase support
+├── shared
+│   ├── lib/                # Flutter app code
+│   │   ├── models/         # Defines Device and Message model
+│   │   ├── providers/      # Providers for lists of messages and devices
+│   │   ├── screens/        # Some UI elements
+│   │   ├── widgets/        # Some more UI elements
+│   │   ├── services/       # Authentication and initialization of Firebase and MQTT Clients
+│   │   └── constants.dart  # Defines EMQX broker URL, enableTLS, etc.
+docker-compose.yml          # Docker setup
+README.md                   # Project documentation
 ```
 
 ## 🐞 Known issues
 
 `SIMPLE_JWT` settings necessary for `django-emqx` interfere with other settings for `rest_framework_simplejwt` if you use this package for something else than `django-emqx`.
-
 
 ## 📌 Notes on EMQX Configuration
 
