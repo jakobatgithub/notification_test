@@ -2,22 +2,43 @@
     "version": "2.0.0",
     "tasks": [
       {
+        "label": "Start no_firebase_app on 3 Android emulators",
+        "type": "shell",
+        "command": "${workspaceFolder}/frontend/no_firebase_app/start_app_on_devices.sh",
+        "args": ["3", "0"],
+        "options": {
+          "cwd": "${workspaceFolder}/frontend/no_firebase_app"
+        },
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
+        "label": "Start no_firebase_app on 2 Android + 1 iOS",
+        "type": "shell",
+        "command": "${workspaceFolder}/frontend/no_firebase_app/start_app_on_devices.sh",
+        "args": ["2", "1"],
+        "options": {
+          "cwd": "${workspaceFolder}/frontend/no_firebase_app"
+        },
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
+        "label": "Uninstall no_firebase_app from all devices",
+        "type": "shell",
+        "command": "${workspaceFolder}/frontend/no_firebase_app/uninstall_from_devices.sh",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend/no_firebase_app"
+        },
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
         "label": "Start firebase_app on multiple devices",
         "type": "shell",
         "command": "${workspaceFolder}/frontend/firebase_app/start_app_on_devices.sh",
         "problemMatcher": [],
         "group": "build"
       },
-      {
-        "label": "Start no_firebase_app on multiple devices",
-        "type": "shell",
-        "command": "${workspaceFolder}/frontend/no_firebase_app/start_app_on_devices.sh",
-        "options": {
-          "cwd": "${workspaceFolder}/frontend/no_firebase_app"
-        },
-        "problemMatcher": [],
-        "group": "build"
-      }
     ]
   }
-  
