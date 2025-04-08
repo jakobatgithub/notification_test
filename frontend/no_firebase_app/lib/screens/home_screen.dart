@@ -1,6 +1,7 @@
 // screens/home_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:shared/shared.dart';
 
@@ -12,11 +13,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late MqttService _mqttService;
+  late final MqttService _mqttService;
+  late final AppLifecycleListener _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
+
+    // ✅ Set up lifecycle listener
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        debugPrint('🔄 App resumed — reconnecting MQTT');
+        _mqttService.reconnect();
+      },
+      onInactive: () {
+        debugPrint('📴 App inactive — disconnecting MQTT');
+        _mqttService.disconnect();
+      },
+    );
+
     AuthService.loginOrSignup().then((_) {
       _initializeServices();
       _loadDevices();
@@ -25,12 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _lifecycleListener.dispose();
     _mqttService.disconnect();
     super.dispose();
-  }
-
-  void _loadDevices() async {
-    await DevicesService.loadDevicesIntoProvider(context);
   }
 
   void _initializeServices() {
@@ -38,12 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _mqttService.initialize();
   }
 
+  void _loadDevices() async {
+    await DevicesService.loadDevicesIntoProvider(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(title: const Text("Firebase & MQTT Demo")),
-      // body: Column(children: [Expanded(child: DeviceListWidget())]),
-      body: HomeScreenBody(),
-    );
+    return Scaffold(body: HomeScreenBody());
   }
 }
