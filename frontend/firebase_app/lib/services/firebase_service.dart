@@ -1,11 +1,13 @@
 // services/firebase_service.dart
+
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../constants.dart';
+
+import 'package:shared/shared.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;

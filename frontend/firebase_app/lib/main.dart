@@ -9,9 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
-import 'providers_setup.dart';
-import 'services/navigation_service.dart';
-import 'constants.dart';
+import 'package:shared/shared.dart';
 
 void loadLocalTrustedCert() async {
   if (!enableTLS) {
