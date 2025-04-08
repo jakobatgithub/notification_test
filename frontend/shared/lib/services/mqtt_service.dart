@@ -50,6 +50,25 @@ class MqttService {
     }
   }
 
+  Future<void> reconnect() async {
+    debugPrint('🔄 Attempting MQTT reconnect...');
+    final token = _prefs.getString('mqttAccessToken');
+    final userId = _prefs.getString('user');
+    final clientId = _prefs.getString('mqttClientID');
+
+    if (token == null || userId == null || clientId == null) {
+      debugPrint('❌ Missing credentials for MQTT reconnect');
+      return;
+    }
+
+    await _connectClient();
+
+    if (_client.connectionStatus?.state == MqttConnectionState.connected) {
+      _subscribeToTopic("user/$userId/");
+      _listenToMessages();
+    }
+  }
+
   MqttServerClient _createClient(String clientId, String userId, String token) {
     final client = MqttServerClient.withPort(mqttBroker, clientId, mqttPort);
 
