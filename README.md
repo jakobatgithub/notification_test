@@ -62,7 +62,8 @@ You can try the project out of the box without Firebase or TLS enabled:
 3. **Install and launch the frontend apps without Firebase**:  
    Use the helper script to install and start the app on your emulators:
    ```bash
-   ./frontend/no_firebase_app/start_app_on_devices.sh <android_count> <ios_count>
+   cd /frontend/no_firebase_app 
+   .start_app_on_devices.sh <android_count> <ios_count>
    ```
    Replace `<android_count>` and `<ios_count>` with the number of Android and iOS emulators you have running.
 
@@ -76,6 +77,47 @@ You can try the project out of the box without Firebase or TLS enabled:
 
 > 💡 Tip: Make sure all specified emulators are already running before executing the scripts.
 
+### 🔥 Configure Firebase
+
+To enable Firebase integration across the backend and frontend, ensure all required configuration files are correctly placed and referenced. Firebase provides services like Authentication, Cloud Messaging, Firestore, and more—so setting it up properly is crucial.
+
+#### Backend
+
+- Uncomment the relevant Firebase-related sections in:
+  - `./backend/backend/settings.py`
+  - `./backend/requirements.txt`
+- Download the Firebase Admin SDK JSON credentials from your Firebase Console (`Project Settings > Service Accounts > Generate new private key`) and place it in the `./backend/backend/` directory.
+- Update the credentials path in `settings.py`:
+  ```python
+  cred = credentials.Certificate("backend/<your-firebase-adminsdk-json>.json")
+  ```
+- This enables server-side communication with Firebase services like Authentication, Firestore, and Cloud Messaging (FCM).
+
+#### Frontend
+
+- Follow the [official Firebase Flutter setup guide](https://firebase.google.com/docs/flutter/setup) to connect your app to Firebase.
+- Add the Android config file `google-services.json` to:
+  - `./frontend/firebase_app/android/app`
+- Add the iOS config file `GoogleService-Info.plist` to:
+  - `./frontend/firebase_app/ios/Runner`
+- Add your iOS Auth Key (used for Apple Sign-In and push notifications) to:
+  - `./frontend/firebase_app/ios`
+- Use the FlutterFire CLI to configure your app:
+  ```bash
+  flutterfire configure
+  ```
+  This will generate a `firebase_options.dart` file. Place it in:
+  - `./frontend/firebase_app/lib`
+- To run the app, use the launch script:
+  ```bash
+  cd ./frontend/firebase_app
+  ./start_app_on_devices.sh <android_count> <ios_count>
+  ```
+  Alternatively, launch via VS Code using the predefined configurations.
+
+> ✅ Tip: Double-check that all required Firebase services (e.g., Authentication, Firestore, FCM) are enabled in the Firebase console and that you've added all relevant Firebase SDKs to your project dependencies.
+
+
 ### 🛠️ Configure EMQX and Django
 
 Set the following URLs:
@@ -87,21 +129,6 @@ Set the following URLs:
 EMQX_AUTHENTICATION__1__SECRET=<secret_key_1>
 EMQX_WEBHOOK_SECRET=<secret_key_2>
 ```
-
-### 🔥 Configure Firebase
-
-#### Frontend
-- Follow [Firebase Setup](https://firebase.google.com/docs/flutter/setup).
-- Add `google-services.json` to `android/app`.
-- Add `GoogleService-Info.plist` and iOS Auth key to `ios/Runner`.
-- Generate `firebase_options.dart` via FlutterFire CLI and place it in `lib`.
-
-#### Backend
-- Place the Firebase Admin SDK JSON in the `backend` directory.
-- Update the path in `settings.py`:
-  ```python
-  cred = credentials.Certificate("backend/<your-firebase-adminsdk-json>.json")
-  ```
 
 ### 🔐 TLS
 
