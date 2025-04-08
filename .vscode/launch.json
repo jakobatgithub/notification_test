@@ -10,13 +10,21 @@
         "preLaunchTask": "Start firebase_app on multiple devices"
       },
       {
-        "name": "Launch no_firebase_app on multiple devices",
+        "name": "Launch no_firebase_app on 3 Android devices",
         "type": "dart",
         "request": "launch",
         "program": "${workspaceFolder}/frontend/no_firebase_app/lib/main.dart",
         "cwd": "${workspaceFolder}/frontend/no_firebase_app",
-        "preLaunchTask": "Start no_firebase_app on multiple devices"
-      }
+        "preLaunchTask": "Start no_firebase_app on 3 Android emulators"
+      },
+      {
+        "name": "Launch no_firebase_app on 2 Android + 1 iOS",
+        "type": "dart",
+        "request": "launch",
+        "program": "${workspaceFolder}/frontend/no_firebase_app/lib/main.dart",
+        "cwd": "${workspaceFolder}/frontend/no_firebase_app",
+        "preLaunchTask": "Start no_firebase_app on 2 Android + 1 iOS"
+      },
     ]
   }
   
