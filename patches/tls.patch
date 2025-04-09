@@ -1,0 +1,142 @@
+diff --git a/README.md b/README.md
+index bb4897e..1b97f65 100644
+--- a/README.md
++++ b/README.md
+@@ -191,6 +191,7 @@ mkcert emqx-broker django-backend localhost 127.0.0.1 10.0.2.2 BASE_URL
+   listeners.ssl.default.enable = true
+   ```
+ - Uncomment the HTTPS-related blocks in `./nginx/nginx.conf`
++- Alternatively, you can apply the patch `git apply patches/tls.patch`
+ 
+ ### 🔒 Production Tip
+ 
+diff --git a/backend/backend/settings.py b/backend/backend/settings.py
+index 01bbe7d..7c7753d 100644
+--- a/backend/backend/settings.py
++++ b/backend/backend/settings.py
+@@ -179,14 +179,14 @@ EMQX_BROKER = "emqx-broker"
+ EMQX_WEBHOOK_SECRET = os.getenv("EMQX_WEBHOOK_SECRET", SECRET_KEY)
+ EMQX_NODE_COOKIE = os.getenv("EMQX_NODE_COOKIE", SECRET_KEY)
+ 
+-EMQX_PORT = 1883
+-EMQX_TLS_CA_CERTS = None
+-EMQX_TLS_ENABLED = False
++# EMQX_PORT = 1883
++# EMQX_TLS_CA_CERTS = None
++# EMQX_TLS_ENABLED = False
+ 
+ # Uncomment the following lines (and comment out the block above) to enable TLS
+-# EMQX_PORT = 8883
+-# EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
+-# EMQX_TLS_ENABLED = True
++EMQX_PORT = 8883
++EMQX_TLS_CA_CERTS = '/app/certs/rootCA.pem'
++EMQX_TLS_ENABLED = True
+ 
+ # SIMPLE_JWT settings
+ SIMPLE_JWT = {
+diff --git a/emqx/emqx.conf b/emqx/emqx.conf
+index bc050a7..21e82cd 100644
+--- a/emqx/emqx.conf
++++ b/emqx/emqx.conf
+@@ -74,7 +74,7 @@
+           "allow all"
+         ],
+         "bind": "0.0.0.0:8883",
+-        "enable": false,
++        "enable": true,
+         "enable_authn": true,
+         "max_conn_rate": "infinity",
+         "max_connections": "infinity",
+diff --git a/frontend/shared/lib/constants.dart b/frontend/shared/lib/constants.dart
+index 14c2752..145c45d 100644
+--- a/frontend/shared/lib/constants.dart
++++ b/frontend/shared/lib/constants.dart
+@@ -2,11 +2,12 @@ import 'dart:io';
+ 
+ final String mqttBroker = Platform.isIOS ? "localhost" : "10.0.2.2";
+ 
+-final String baseURL = Platform.isIOS ? "http://localhost" : "http://10.0.2.2";
+-const int mqttPort = 1883;
+-const bool enableTLS = false;
++// final String baseURL = Platform.isIOS ? "http://localhost" : "http://10.0.2.2";
++// const int mqttPort = 1883;
++// const bool enableTLS = false;
+ 
+ // Uncomment the following lines if you want to use secure MQTT connection
+-// final String baseURL = Platform.isIOS ? "https://localhost" : "https://10.0.2.2";
+-// const int mqttPort = 8883;
+-// const bool enableTLS = true;
++final String baseURL =
++    Platform.isIOS ? "https://localhost" : "https://10.0.2.2";
++const int mqttPort = 8883;
++const bool enableTLS = true;
+diff --git a/nginx/nginx.conf b/nginx/nginx.conf
+index ec3f0f5..58052ca 100644
+--- a/nginx/nginx.conf
++++ b/nginx/nginx.conf
+@@ -28,38 +28,38 @@ http {
+     }
+ 
+     # Redirect all HTTP to HTTPS
+-    # Uncomment this block if you want to redirect all HTTP traffic to HTTPS
+-    # server {
+-    #     listen 80;
+-    #     server_name localhost;
++    Uncomment this block if you want to redirect all HTTP traffic to HTTPS
++    server {
++        listen 80;
++        server_name localhost;
+ 
+-    #     location / {
+-    #         return 301 https://$host$request_uri;
+-    #     }
+-    # }
++        location / {
++            return 301 https://$host$request_uri;
++        }
++    }
+ 
+     # HTTPS server
+     # Unxomment this block if you want to serve HTTPS traffic
+-    # server {
+-    #     listen 443 ssl;
+-    #     server_name localhost;
++    server {
++        listen 443 ssl;
++        server_name localhost;
+ 
+-    #     ssl_certificate     /etc/nginx/certs/emqx-broker+4.pem;
+-    #     ssl_certificate_key /etc/nginx/certs/emqx-broker+4-key.pem;
++        ssl_certificate     /etc/nginx/certs/emqx-broker+4.pem;
++        ssl_certificate_key /etc/nginx/certs/emqx-broker+4-key.pem;
+ 
+-    #     ssl_protocols       TLSv1.2 TLSv1.3;
+-    #     ssl_ciphers         HIGH:!aNULL:!MD5;
++        ssl_protocols       TLSv1.2 TLSv1.3;
++        ssl_ciphers         HIGH:!aNULL:!MD5;
+ 
+-    #     location /static/ {
+-    #         alias /static/;
+-    #     }
++        location /static/ {
++            alias /static/;
++        }
+ 
+-    #     location / {
+-    #         proxy_pass http://django;
+-    #         proxy_set_header Host $host;
+-    #         proxy_set_header X-Real-IP $remote_addr;
+-    #         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+-    #         proxy_set_header X-Forwarded-Proto $scheme;
+-    #     }
+-    # }    
++        location / {
++            proxy_pass http://django;
++            proxy_set_header Host $host;
++            proxy_set_header X-Real-IP $remote_addr;
++            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
++            proxy_set_header X-Forwarded-Proto $scheme;
++        }
++    }    
+ }
