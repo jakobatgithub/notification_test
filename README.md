@@ -86,6 +86,7 @@ To enable Firebase integration across the backend and frontend, ensure all requi
 - Uncomment the relevant Firebase-related sections in:
   - `./backend/backend/settings.py`
   - `./backend/requirements.txt`
+- Alternatively, you can apply the patch `git apply patches/firebase.patch` to change these settings.
 - Download the Firebase Admin SDK JSON credentials from your Firebase Console (`Project Settings > Service Accounts > Generate new private key`) and place it in the `./backend/backend/` directory.
 - Update the credentials path in `settings.py`:
   ```python
