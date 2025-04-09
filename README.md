@@ -169,6 +169,7 @@ mkcert -install
 ```
 
 - Copy the generated `rootCA.pem` from `mkcert -CAROOT` to `./certs/`
+- Copy the generated `rootCA.pem` to `./frontend/no_firebase_app/assets/certs/` and to `./frontend/firebase_app/assets/certs/`
 
 ### 2. Generate EMQX Server Certificates
 
@@ -191,6 +192,7 @@ mkcert emqx-broker django-backend localhost 127.0.0.1 10.0.2.2 BASE_URL
   listeners.ssl.default.enable = true
   ```
 - Uncomment the HTTPS-related blocks in `./nginx/nginx.conf`
+- Alternatively, you can apply the patch `git apply patches/tls.patch`
 
 ### 🔒 Production Tip
 
