@@ -108,6 +108,7 @@ To enable Firebase integration across the backend and frontend, ensure all requi
   ```
   This will generate a `firebase_options.dart` file. Place it in:
   - `./frontend/firebase_app/lib`
+- You probably have to adjust the Android package name and the iOS bundle identifier.
 - To run the app, use the launch script:
   ```bash
   cd ./frontend/firebase_app
@@ -123,8 +124,8 @@ To enable Firebase integration across the backend and frontend, ensure all requi
 To enable real device support (instead of emulators), update the following URLs:
 
 - `BASE_URL` in `./backend/backend/settings.py`
-- `baseURL` in `./test_notification_app/lib/constants.dart`
-- `mqttBroker` in `./test_notification_app/lib/constants.dart`
+- `baseURL` in `./frontend/shared/lib/constants.dart`
+- `mqttBroker` in `./frontend/shared/lib/constants.dart`
 
 ## 🔑 Using Custom Secrets
 
